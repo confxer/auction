@@ -5,6 +5,18 @@
   text-align: center;
 }
 
+.main-content {
+    display: flex;
+    gap: 24px;
+    margin: 24px;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;

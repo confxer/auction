@@ -1,0 +1,25 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-links a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 400;
+}
+
+.header-links span {
+    color: var(--subtle-text-color);
+    margin: 0 8px;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
