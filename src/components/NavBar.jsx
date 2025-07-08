@@ -4,8 +4,8 @@ import './NavBar.css';
 function NavBar() {
     const [isOpen, setIsOpen] = useState(false);
     const menus = [
-        '데일리경매', '삶의흔적경매', '기획경매', '세컨핸드',
-        '판매자 입점', '체리시옥션이란', '커뮤니티', '이용가이드'
+        '데일리경매', '삶의흔적경매', '기획경매', 
+        '판매자 입점',  '커뮤니티', '이용가이드'
     ];
 
     const toggleMenu = () => {

@@ -10,9 +10,23 @@ function Header({ theme, toggleTheme }) {
                 <span>|</span>
                 <a href="#">쪽지</a>
             </div>
-            <button onClick={toggleTheme} className="theme-toggle">
-                {theme === 'light' ? '🌙' : '☀️'}
-            </button>
+            <div onClick={toggleTheme} style={{
+                width: '45px',
+                borderRadius: '20px',
+                backgroundColor: 'gray'
+            }}>
+                {theme === 'light' ? <div style={{
+                    display:'flex',
+                    float:'left',
+                    backgroundColor: 'white',
+                    borderRadius: '50%'
+                }}>🌙</div> : <div style={{
+                    display:'flex',
+                    float:'right',
+                    backgroundColor: 'white',
+                    borderRadius: '50%'
+                }}>☀️</div>}
+            </div>
         </header>
     );
 }
