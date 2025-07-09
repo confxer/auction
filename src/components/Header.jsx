@@ -1,12 +1,13 @@
+import { Link } from 'react-router-dom';
 import './Header.css';
 
 function Header({ theme, toggleTheme }) {
     return (
         <header className="header">
             <div className="header-links">
-                <a href="#">로그인</a>
+                <Link to="/signin">로그인</Link>
                 <span>|</span>
-                <a href="#">회원가입</a>
+                <Link to="/signup">회원가입</Link>
                 <span>|</span>
                 <a href="#">쪽지</a>
             </div>

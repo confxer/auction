@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import SearchBar from './components/SearchBar';
 import NavBar from './components/NavBar';
@@ -7,6 +8,8 @@ import EventBanner from './components/EventBanner';
 import QuickMenu from './components/QuickMenu';
 import Footer from './components/Footer';
 import HeaderTitle from './components/HeaderTitle';
+import SignUp from './pages/SignUp';
+import SignIn from './pages/SignIn';
 import './App.css';
 
 function App() {
@@ -25,22 +28,31 @@ function App() {
         setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
     };
 
+    const location = useLocation();
+    const hideComponents = location.pathname === '/signup' || location.pathname === '/signin';
+
     return (
         <div>
-            <Header theme={theme} toggleTheme={toggleTheme} />
-            <HeaderTitle />
-            <SearchBar />
-            <NavBar />
-            <main className="main-content">
-                <div style={{ flex: 2 }}>
-                    <Carousel />
-                </div>
-                <div style={{ flex: 1 }}>
-                    <EventBanner />
-                </div>
-            </main>
-            <QuickMenu />
-            <Footer />
+            {!hideComponents && <Header theme={theme} toggleTheme={toggleTheme} />}
+            {!hideComponents && <HeaderTitle theme={theme}/>}
+            {!hideComponents && <SearchBar />}
+            {!hideComponents && <NavBar />}
+            <Routes>
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/" element={
+                    <main className="main-content">
+                        <div style={{ flex: 2 }}>
+                            <Carousel />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <EventBanner />
+                        </div>
+                    </main>
+                } />
+            </Routes>
+            {!hideComponents && <QuickMenu />}
+            {!hideComponents && <Footer />}
         </div>
     );
 }

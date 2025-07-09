@@ -1,12 +1,27 @@
 import React from "react";
-import './HeaderTitle.css';
 
-function HeaderTitle() {
+function HeaderTitle({theme}) {
+    const textColor = theme === 'light' ? '#111' : '#EEE';
+
     return (
-        <div className="header-title">
-            <span>
-                cherish Auction
-            </span>
+        <div style={{
+            width: "100%",
+            textAlign: "center",
+            marginTop: 32,
+            marginBottom: 24
+        }}>
+      <span
+          style={{
+              fontFamily: "'Dancing Script', 'Pacifico', cursive",
+              fontSize: 48,
+              fontStyle: "italic",
+              fontWeight: 700,
+              color: textColor,
+              letterSpacing: 2
+          }}
+      >
+        cherish Auction
+      </span>
         </div>
     );
 }
