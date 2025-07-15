@@ -164,6 +164,13 @@ const Navigation = () => {
                       <button
                         className="dropdown-item"
                         style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '10px 16px', cursor: 'pointer' }}
+                        onClick={() => { setMyPageOpen(false); navigate('/mypage'); }}
+                      >
+                        <IoPersonCircle size={16} style={{ marginRight: 8, verticalAlign: 'middle' }} /> 마이페이지
+                      </button>
+                      <button
+                        className="dropdown-item"
+                        style={{ width: '100%', textAlign: 'left', background: 'none', border: 'none', padding: '10px 16px', cursor: 'pointer' }}
                         onClick={() => { setMyPageOpen(false); navigate('/messages'); }}
                       >
                         <FaEnvelope size={16} style={{ marginRight: 8, verticalAlign: 'middle' }} /> 쪽지함
