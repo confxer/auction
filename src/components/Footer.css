@@ -1,0 +1,145 @@
+.footer {
+  background: #2c3e50;
+  color: #ecf0f1;
+  margin-top: 60px;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footer-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 40px;
+  padding: 40px 0;
+}
+
+/* 회사 정보 섹션 */
+.footer-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #03c75a;
+  margin: 0 0 12px 0;
+}
+
+.footer-description {
+  font-size: 14px;
+  color: #bdc3c7;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.footer-contact p {
+  margin: 6px 0;
+  font-size: 13px;
+  color: #bdc3c7;
+}
+
+.footer-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ecf0f1;
+  margin: 0 0 16px 0;
+}
+
+/* 링크 리스트 */
+.footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-links li {
+  margin-bottom: 8px;
+}
+
+.footer-links a {
+  color: #bdc3c7;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #03c75a;
+}
+
+/* 회사 정보 */
+.company-info p {
+  margin: 6px 0;
+  font-size: 12px;
+  color: #bdc3c7;
+  line-height: 1.4;
+}
+
+/* 하단 영역 */
+.footer-bottom {
+  border-top: 1px solid #34495e;
+  padding: 20px 0;
+}
+
+.footer-bottom-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copyright {
+  font-size: 12px;
+  color: #95a5a6;
+  margin: 0;
+}
+
+.footer-badges {
+  display: flex;
+  gap: 12px;
+}
+
+.badge {
+  background: #03c75a;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 30px 0;
+  }
+  
+  .footer-bottom-content {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding: 25px 0;
+  }
+  
+  .footer-title {
+    font-size: 20px;
+  }
+  
+  .footer-badges {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+} 

@@ -1,0 +1,44 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.auction'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'           // ✅ 웹 기능
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'      // ✅ JPA
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'     // ✅ WebSocket
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.3'                 // ✅ MariaDB 드라이버
+    implementation 'org.springframework.boot:spring-boot-starter-validation'    // ✅ 유효성 검사
+    implementation 'com.h2database:h2'                                          // ✅ H2 데이터베이스 (개발용)
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'                           // ✅ JWT
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    
+    // 🔐 보안 관련
+    implementation 'org.springframework.boot:spring-boot-starter-security'     // ✅ Spring Security
+    implementation 'org.springframework.boot:spring-boot-starter-mail'         // ✅ 이메일 인증
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'     // ✅ 모니터링
+    
+    // 📊 로깅 및 모니터링
+    implementation 'org.springframework.boot:spring-boot-starter-aop'          // ✅ AOP (로그인 이력)
+    
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

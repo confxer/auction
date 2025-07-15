@@ -1,0 +1,209 @@
+.quick-menu {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 퀵메뉴 토글 버튼 */
+.quick-menu-toggle {
+  width: 50px;
+  height: 50px;
+  border: none;
+  background: #03c75a;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(3, 199, 90, 0.3);
+  transition: all 0.3s ease;
+}
+
+.quick-menu-toggle:hover {
+  background: #02a94a;
+  transform: scale(1.05);
+}
+
+/* 퀵메뉴 패널 */
+.quick-menu-panel {
+  position: absolute;
+  bottom: 60px;
+  right: 0;
+  width: 200px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.quick-menu-panel.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.quick-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.quick-menu-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.close-button {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: #999;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.quick-menu-content {
+  padding: 8px;
+}
+
+.quick-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  text-decoration: none;
+  color: #333;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.quick-menu-item:hover {
+  background: #f8f9fa;
+  color: #03c75a;
+}
+
+.quick-menu-item.highlight {
+  background: #03c75a;
+  color: white;
+}
+
+.quick-menu-item.highlight:hover {
+  background: #02a94a;
+  color: white;
+}
+
+/* 상단 이동 버튼 */
+.top-button {
+  width: 50px;
+  height: 50px;
+  border: none;
+  background: #666;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  animation: fadeIn 0.3s ease;
+}
+
+.top-button:hover {
+  background: #555;
+  transform: scale(1.05);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .quick-menu {
+    right: 15px;
+    bottom: 15px;
+  }
+  
+  .quick-menu-toggle,
+  .top-button {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .quick-menu-panel {
+    width: 180px;
+    bottom: 55px;
+  }
+  
+  .quick-menu-item {
+    padding: 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-menu {
+    right: 10px;
+    bottom: 10px;
+  }
+  
+  .quick-menu-toggle,
+  .top-button {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .quick-menu-panel {
+    width: 160px;
+    bottom: 50px;
+  }
+  
+  .quick-menu-header {
+    padding: 12px;
+  }
+  
+  .quick-menu-header h3 {
+    font-size: 13px;
+  }
+  
+  .quick-menu-content {
+    padding: 6px;
+  }
+  
+  .quick-menu-item {
+    padding: 8px;
+    font-size: 11px;
+  }
+} 

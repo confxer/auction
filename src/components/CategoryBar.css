@@ -1,0 +1,27 @@
+.category-bar {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding: 18px 0 18px 8px;
+  background: #fff;
+  border-radius: 16px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.category-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 70px;
+  cursor: pointer;
+  color: #333;
+  font-size: 1.1rem;
+  transition: color 0.2s;
+}
+.category-icon span:first-child {
+  font-size: 2.1rem;
+  margin-bottom: 6px;
+}
+.category-icon:hover {
+  color: #e6002d;
+} 

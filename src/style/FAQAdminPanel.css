@@ -1,0 +1,50 @@
+.faq-admin-panel {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.faq-admin-panel h3 {
+  margin: 32px 0 16px 0;
+  font-size: 1.2rem;
+  color: #1976d2;
+}
+.faq-admin-list {
+  list-style: none;
+  padding: 0;
+}
+.faq-admin-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+.faq-q {
+  font-weight: bold;
+  color: #1976d2;
+  min-width: 120px;
+}
+.faq-a {
+  color: #333;
+  flex: 1;
+}
+.faq-admin-list button {
+  padding: 5px 14px;
+  border: none;
+  border-radius: 5px;
+  background: #1976d2;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.faq-admin-list button:hover {
+  opacity: 0.85;
+}
+.faq-admin-panel.error {
+  color: #d32f2f;
+  text-align: center;
+} 

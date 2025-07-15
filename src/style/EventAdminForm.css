@@ -1,0 +1,52 @@
+.event-admin-form {
+  max-width: 480px;
+  margin: 32px auto;
+  padding: 20px 24px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.event-admin-form h3 {
+  text-align: center;
+  margin-bottom: 18px;
+  color: #1976d2;
+}
+.event-admin-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.event-admin-form input,
+.event-admin-form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+.event-admin-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+.event-admin-form-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.event-admin-form-btns button {
+  padding: 7px 18px;
+  border: none;
+  border-radius: 5px;
+  background: #1976d2;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.event-admin-form-btns button.delete {
+  background: #d32f2f;
+}
+.event-admin-form-btns button:hover {
+  opacity: 0.85;
+} 

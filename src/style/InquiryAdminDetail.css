@@ -1,0 +1,38 @@
+.inquiry-admin-detail {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 32px 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.inquiry-admin-detail h2 {
+  margin-bottom: 12px;
+  color: #1976d2;
+  font-size: 1.6rem;
+}
+.inquiry-date {
+  color: #888;
+  font-size: 1rem;
+  margin-bottom: 18px;
+}
+.inquiry-content {
+  color: #222;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+.inquiry-admin-detail button {
+  margin-top: 18px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.inquiry-admin-detail button:hover {
+  background: #1565c0;
+} 

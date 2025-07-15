@@ -1,0 +1,42 @@
+.event-detail {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 32px 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.event-detail h2 {
+  margin-bottom: 12px;
+  color: #1976d2;
+  font-size: 1.6rem;
+}
+.event-date {
+  color: #888;
+  font-size: 1rem;
+  margin-bottom: 18px;
+}
+.event-content {
+  color: #222;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+.back-btn {
+  margin-bottom: 18px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 6px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.back-btn:hover {
+  background: #1565c0;
+}
+.event-detail.error {
+  color: #d32f2f;
+  text-align: center;
+} 

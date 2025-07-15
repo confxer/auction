@@ -1,0 +1,435 @@
+/* 문의 작성 페이지 스타일 */
+.inquiry-new-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* 헤더 */
+.inquiry-new-header {
+  margin-bottom: 40px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.breadcrumb a {
+  color: #3498db;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb a:hover {
+  color: #2980b9;
+}
+
+.breadcrumb .separator {
+  color: #bdc3c7;
+}
+
+.breadcrumb .current {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.inquiry-new-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+}
+
+.inquiry-new-header p {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+  margin: 0;
+}
+
+/* 폼 */
+.inquiry-form {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 30px;
+}
+
+.form-section {
+  margin-bottom: 30px;
+}
+
+.form-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.required {
+  color: #e74c3c;
+}
+
+/* 카테고리 선택 */
+.category-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.category-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 15px 10px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+}
+
+.category-option:hover {
+  border-color: #3498db;
+  color: #3498db;
+  transform: translateY(-2px);
+}
+
+.category-option.selected {
+  background: #3498db;
+  border-color: #3498db;
+  color: white;
+}
+
+.category-icon {
+  font-size: 1.5rem;
+}
+
+.category-name {
+  text-align: center;
+}
+
+/* 입력 필드 */
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #2c3e50;
+  background: white;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-input.error,
+.form-textarea.error {
+  border-color: #e74c3c;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.input-info {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
+}
+
+.char-count {
+  font-size: 0.85rem;
+  color: #95a5a6;
+}
+
+/* 에러 메시지 */
+.error-message {
+  display: block;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}
+
+/* 파일 업로드 */
+.file-upload-area {
+  border: 2px dashed #bdc3c7;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.file-upload-area:hover {
+  border-color: #3498db;
+  background: #f8f9fa;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-upload-label {
+  cursor: pointer;
+  display: block;
+}
+
+.upload-icon {
+  margin-bottom: 15px;
+  color: #95a5a6;
+}
+
+.upload-text p {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+}
+
+.upload-text span {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+/* 파일 목록 */
+.file-list {
+  margin-top: 15px;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.file-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.file-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.file-size {
+  font-size: 0.8rem;
+  color: #95a5a6;
+}
+
+.remove-file-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.remove-file-btn:hover {
+  background: #fdf2f2;
+}
+
+/* 안내사항 */
+.notice-section {
+  background: #e3f2fd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.notice-section h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1976d2;
+  margin: 0 0 15px 0;
+}
+
+.notice-section ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.notice-section li {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.notice-section li:last-child {
+  margin-bottom: 0;
+}
+
+/* 버튼 */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.cancel-button,
+.submit-button {
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.cancel-button {
+  background: #ecf0f1;
+  color: #2c3e50;
+  border: 2px solid #bdc3c7;
+}
+
+.cancel-button:hover {
+  background: #d5dbdb;
+  border-color: #95a5a6;
+  transform: translateY(-2px);
+}
+
+.submit-button {
+  background: #3498db;
+  color: white;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.submit-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 로딩 스피너 */
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .inquiry-new-page {
+    padding: 15px;
+  }
+
+  .inquiry-new-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .inquiry-form {
+    padding: 20px;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+  }
+
+  .category-option {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+
+  .category-icon {
+    font-size: 1.2rem;
+  }
+
+  .file-upload-area {
+    padding: 20px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .cancel-button,
+  .submit-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .inquiry-new-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .inquiry-form {
+    padding: 15px;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .category-option {
+    padding: 10px 5px;
+    font-size: 0.8rem;
+  }
+
+  .category-icon {
+    font-size: 1rem;
+  }
+
+  .file-upload-area {
+    padding: 15px;
+  }
+
+  .upload-text p {
+    font-size: 0.9rem;
+  }
+
+  .upload-text span {
+    font-size: 0.8rem;
+  }
+} 

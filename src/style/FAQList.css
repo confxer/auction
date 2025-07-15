@@ -1,0 +1,102 @@
+.faq-list {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.faq-list h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+  color: #222;
+  text-align: center;
+}
+.faq-list ul {
+  list-style: none;
+  padding: 0;
+}
+.faq-item {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+.faq-question {
+  font-weight: bold;
+  color: #1976d2;
+  margin-bottom: 6px;
+}
+.faq-answer {
+  color: #333;
+  margin-left: 12px;
+}
+.faq-list.error {
+  color: #d32f2f;
+  text-align: center;
+} 
+.faq-list-container { max-width: 800px; margin: 0 auto; }
+.faq-form { display: flex; gap: 8px; margin-bottom: 16px; }
+.faq-table { width: 100%; border-collapse: collapse; }
+.faq-table th, .faq-table td { border: 1px solid #ddd; padding: 8px; }
+.faq-table th { background: #f5f5f5; }
+.faq-table tr:nth-child(even) { background: #fafafa; }
+button { margin-right: 4px; } 
+
+.faq-accordion-container {
+  max-width: 700px;
+  margin: 32px auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 32px 24px 24px 24px;
+}
+.faq-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 24px;
+  color: #222;
+}
+.faq-accordion-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.faq-accordion-item {
+  border-bottom: 1px solid #eee;
+}
+.faq-accordion-question {
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 16px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.faq-accordion-question:hover {
+  background: #fba80022;
+}
+.faq-accordion-question.open {
+  background: #fba80011;
+  color: #fba800;
+}
+.faq-q-icon {
+  font-size: 1.1rem;
+  margin-right: 4px;
+}
+.faq-accordion-answer {
+  padding: 16px 24px;
+  background: #f6f6f6;
+  border-radius: 0 0 6px 6px;
+  color: #333;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+.faq-empty {
+  color: #aaa;
+  text-align: center;
+  padding: 32px 0;
+} 

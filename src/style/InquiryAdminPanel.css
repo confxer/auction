@@ -1,0 +1,59 @@
+.inquiry-admin-panel {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.inquiry-admin-panel h3 {
+  margin: 32px 0 16px 0;
+  font-size: 1.2rem;
+  color: #1976d2;
+}
+.inquiry-admin-list {
+  list-style: none;
+  padding: 0;
+}
+.inquiry-admin-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+.inquiry-title {
+  font-weight: bold;
+  color: #1976d2;
+  min-width: 180px;
+}
+.inquiry-user {
+  color: #888;
+  font-size: 0.98rem;
+  min-width: 90px;
+}
+.inquiry-date {
+  color: #888;
+  font-size: 0.98rem;
+  min-width: 90px;
+}
+.inquiry-admin-list button {
+  padding: 5px 14px;
+  border: none;
+  border-radius: 5px;
+  background: #1976d2;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.inquiry-admin-list button.delete {
+  background: #d32f2f;
+}
+.inquiry-admin-list button:hover {
+  opacity: 0.85;
+}
+.inquiry-admin-panel.error {
+  color: #d32f2f;
+  text-align: center;
+} 

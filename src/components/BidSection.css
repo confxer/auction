@@ -1,0 +1,331 @@
+.bid-section {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+}
+
+/* 로딩 상태 */
+.bid-section-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  gap: 16px;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #03c75a;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 헤더 */
+.bid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bid-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.bid-count {
+  font-size: 14px;
+  color: #666;
+  background: #f8f9fa;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+/* 입찰 없음 상태 */
+.no-bids {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.no-bids-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.no-bids p {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.no-bids span {
+  font-size: 14px;
+  color: #999;
+}
+
+/* 입찰 리스트 */
+.bid-list {
+  margin-bottom: 24px;
+}
+
+.bid-item {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.bid-item:hover {
+  border-color: #03c75a;
+  background: rgba(3, 199, 90, 0.02);
+}
+
+.bid-item.current {
+  border-color: #03c75a;
+  background: rgba(3, 199, 90, 0.05);
+}
+
+.bid-item.outbid {
+  border-color: #f39c12;
+  background: rgba(243, 156, 18, 0.05);
+}
+
+/* 순위 표시 */
+.bid-rank {
+  flex-shrink: 0;
+  margin-right: 16px;
+  width: 60px;
+  text-align: center;
+}
+
+.rank-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.rank-badge.current {
+  background: #03c75a;
+  color: white;
+}
+
+.rank-badge.outbid {
+  background: #f39c12;
+  color: white;
+}
+
+.rank-number {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  background: #f8f9fa;
+  color: #666;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 24px;
+  text-align: center;
+}
+
+/* 입찰 정보 */
+.bid-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.bid-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.username {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.winner-badge {
+  font-size: 16px;
+}
+
+.bid-amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: #03c75a;
+}
+
+.bid-item.current .bid-amount {
+  color: #02a94a;
+  font-size: 18px;
+}
+
+.bid-time {
+  font-size: 12px;
+  color: #999;
+  flex-shrink: 0;
+  min-width: 80px;
+  text-align: right;
+}
+
+/* 요약 정보 */
+.bid-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.summary-value.current {
+  color: #03c75a;
+  font-size: 18px;
+}
+
+/* 입찰 안내 */
+.bid-notice {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.bid-notice h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #856404;
+}
+
+.bid-notice ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.bid-notice li {
+  font-size: 13px;
+  color: #856404;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+
+.bid-notice li:last-child {
+  margin-bottom: 0;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .bid-section {
+    padding: 16px;
+  }
+  
+  .bid-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .bid-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .bid-rank {
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+  
+  .bid-info {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+  
+  .bid-time {
+    align-self: flex-end;
+  }
+  
+  .bid-summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .summary-item {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+@media (max-width: 480px) {
+  .bid-section {
+    padding: 12px;
+  }
+  
+  .bid-header h2 {
+    font-size: 18px;
+  }
+  
+  .bid-item {
+    padding: 12px;
+  }
+  
+  .bid-amount {
+    font-size: 14px;
+  }
+  
+  .bid-item.current .bid-amount {
+    font-size: 16px;
+  }
+  
+  .bid-notice {
+    padding: 12px;
+  }
+} 
