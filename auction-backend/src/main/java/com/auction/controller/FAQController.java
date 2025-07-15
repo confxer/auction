@@ -69,6 +69,7 @@ public class FAQController {
     
     @GetMapping("/published")
     public List<FAQDto> getPublishedFAQs() {
+        System.out.println("publish");
         return faqService.getPublishedFAQs();
     }
 

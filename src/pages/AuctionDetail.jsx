@@ -217,7 +217,6 @@ const AuctionDetail = () => {
               endTime={auction.endAt} 
               onTimeUp={() => {
                 setAuctionStatus('종료');
-                console.log('경매 종료:', auction.id);
               }}
             />
           </div>

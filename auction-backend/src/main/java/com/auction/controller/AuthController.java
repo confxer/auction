@@ -60,11 +60,12 @@ public class AuthController {
             logger.warn("사용자를 찾을 수 없음: username={}", username);
             return ResponseEntity.status(401).body(Map.of("message", "아이디 또는 비밀번호가 올바르지 않습니다."));
         }
-
+    
         logger.info("사용자 찾음: username={}, role={}", username, user.getRole());
-
-        // 평문 비밀번호 비교
-        if (!password.equals(user.getPassword())) {
+        logger.info(password);
+        logger.info(user.getPassword());
+        // 비밀번호 일치 여부 확인 (PasswordEncoder 사용)
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             logger.warn("비밀번호 불일치: username={}", username);
             return ResponseEntity.status(401).body(Map.of("message", "아이디 또는 비밀번호가 올바르지 않습니다."));
         }
@@ -103,8 +104,8 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "이미 존재하는 이메일입니다."));
         }
 
-        // 평문 비밀번호로 저장
-        userDto.setPassword(userDto.getPassword());
+        // 비밀번호 해싱하여 저장
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         userDto.setEmailVerified(true); // 이메일 인증 없이 바로 활성화
         userDto.setRole("USER");
         

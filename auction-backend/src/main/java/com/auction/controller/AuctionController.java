@@ -237,7 +237,7 @@ public class AuctionController {
     @PostMapping("/{id}/view")
     public ResponseEntity<String> incrementViewCount(@PathVariable Long id) {
         try {
-            logger.info("경매 {} 조회수 증가", id);
+            System.out.println("증가?");
             auctionService.incrementViewCount(id);
             return ResponseEntity.ok("조회수가 증가되었습니다.");
         } catch (Exception e) {

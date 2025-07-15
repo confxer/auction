@@ -57,7 +57,7 @@ const FAQ = () => {
   const categories = [
     { id: 'all', name: '전체', icon: '📋' },
     { id: 'account', name: '회원정보', icon: '👤' },
-    { id: 'auction', question: '경매', icon: '🔨' },
+    { id: 'auction', name: '경매', icon: '🔨' },
     { id: 'payment', name: '결제', icon: '💳' },
     { id: 'delivery', name: '배송', icon: '🚚' },
     { id: 'refund', name: '환불/교환', icon: '🔄' },
