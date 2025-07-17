@@ -32,7 +32,6 @@ public class AuctionDto {
 
     // 프론트엔드 호환성을 위한 추가 필드들
     private String imageUrl; // imageUrl1을 대체
-    private String imageBase64; // Base64 이미지 데이터
     private Long currentPrice; // highestBid를 Long으로 변환
     private LocalDateTime startAt; // startTime을 대체
     private LocalDateTime endAt; // endTime을 대체
@@ -148,9 +147,6 @@ public class AuctionDto {
         this.endAt = endAt;
         this.endTime = endAt;
     }
-    
-    public String getImageBase64() { return imageBase64; }
-    public void setImageBase64(String imageBase64) { this.imageBase64 = imageBase64; }
     
     public Long getOwnerId() { return ownerId; }
     public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }

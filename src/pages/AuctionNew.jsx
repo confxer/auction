@@ -8,7 +8,8 @@ function AuctionNew() {
   const [brand, setBrand] = useState('기타');
   const [status, setStatus] = useState('신품');
   const [desc, setDesc] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
 
   const [startPrice, setStartPrice] = useState('');
   const [buyNow, setBuyNow] = useState('');
@@ -29,40 +30,33 @@ function AuctionNew() {
   const handleImageUpload = (file) => {
     if (!file) return;
     
-    // 파일 크기 검증 (5MB 제한)
     if (file.size > 5 * 1024 * 1024) {
       alert('파일 크기는 5MB 이하여야 합니다.');
       return;
     }
     
-    // 파일 타입 검증
     if (!file.type.startsWith('image/')) {
       alert('이미지 파일만 업로드 가능합니다.');
       return;
     }
     
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setImageUrl(e.target.result); // Base64 데이터 URL 저장
-    };
-    reader.readAsDataURL(file);
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!imageUrl) {
+    if (!imageFile) {
       alert('이미지를 먼저 업로드하세요.');
       return;
     }
 
-    // 필수 필드 검증
     if (!title || !startPrice || !startDate || !startTime || !endDate || !endTime || !minBid) {
       alert('필수 항목을 모두 입력해주세요.');
       return;
     }
 
-    // 날짜/시간 검증
     const startDateTime = new Date(`${startDate} ${startTime}`);
     const endDateTime = new Date(`${endDate} ${endTime}`);
     const now = new Date();
@@ -77,6 +71,8 @@ function AuctionNew() {
       return;
     }
 
+    const formData = new FormData();
+    
     const auctionData = {
       title,
       category,
@@ -86,22 +82,23 @@ function AuctionNew() {
       startPrice: parseInt(startPrice),
       buyNowPrice: buyNow ? parseInt(buyNow) : null,
       bidUnit: parseInt(bidUnit),
-      startAt: `${startDate} ${startTime}:00`,
-      endAt: `${endDate} ${endTime}:00`,
+      startTime: `${startDate}T${startTime}:00`,
+      endTime: `${endDate}T${endTime}:00`,
       minBidCount: parseInt(minBid),
       autoExtend: autoExt,
       shippingFee: shipping,
       shippingType,
       location,
-      imageBase64: imageUrl // Base64 이미지 데이터
     };
+
+    formData.append('auction', new Blob([JSON.stringify(auctionData)], { type: "application/json" }));
+    formData.append('image', imageFile);
 
     try {
       console.log('📤 전송할 데이터:', auctionData);
       const res = await fetch('/api/auctions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(auctionData),
+        body: formData,
       });
       
       if (!res.ok) {
@@ -110,10 +107,10 @@ function AuctionNew() {
         throw new Error(`서버 오류 (${res.status}): ${errorText}`);
       }
       
-      const result = await res.text();
+      const result = await res.json();
       console.log('✅ 성공 응답:', result);
       alert('경매가 등록되었습니다');
-      navigate('/');
+      navigate(`/auction/${result.id}`);
     } catch (err) {
       console.error('❌ 오류 발생:', err);
       alert('에러 발생: ' + err.message);
@@ -208,8 +205,8 @@ function AuctionNew() {
                 id="image-upload"
               />
               <label htmlFor="image-upload" className="image-upload-label">
-                {imageUrl ? (
-                  <img src={imageUrl} alt="업로드 미리보기" className="image-preview" />
+                {imagePreview ? (
+                  <img src={imagePreview} alt="업로드 미리보기" className="image-preview" />
                 ) : (
                   <div className="upload-placeholder">
                     <div className="upload-icon">📷</div>

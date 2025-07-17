@@ -3,8 +3,10 @@ package com.auction.service;
 import java.util.List;
 
 import com.auction.dto.AuctionDto;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface AuctionService {
+    AuctionDto createAuction(AuctionDto auctionDto, MultipartFile imageFile);
     AuctionDto createAuction(AuctionDto auctionDto);
     List<AuctionDto> getAllAuctions();
     AuctionDto getAuctionById(Long id);

@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -91,19 +93,28 @@ public class Auction {
     @Column(nullable = false)
     private Integer bidCount;
 
-    public Auction() {
+    @PrePersist
+    public void onPrePersist() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.highestBid = 0;
-        this.isClosed = false;
-        this.status = "신품";
-        this.bidUnit = 1000;
-        this.minBidCount = 1;
-        this.autoExtend = false;
-        this.shippingFee = "무료";
-        this.shippingType = "택배";
-        this.viewCount = 0;
-        this.bidCount = 0;
+        if (this.highestBid == null) this.highestBid = 0;
+        if (this.isClosed == null) this.isClosed = false;
+        if (this.status == null) this.status = "신품";
+        if (this.bidUnit == null) this.bidUnit = 1000;
+        if (this.minBidCount == null) this.minBidCount = 1;
+        if (this.autoExtend == null) this.autoExtend = false;
+        if (this.shippingFee == null) this.shippingFee = "무료";
+        if (this.shippingType == null) this.shippingType = "택배";
+        if (this.viewCount == null) this.viewCount = 0;
+        if (this.bidCount == null) this.bidCount = 0;
+    }
+
+    @PreUpdate
+    public void onPreUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public Auction() {
     }
 
     // Getters and Setters

@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.dto.AuctionDto;
 import com.auction.dto.BidDto;
@@ -54,7 +56,6 @@ public class AuctionController {
         try {
             logger.info("샘플 데이터 생성 시작");
             
-            // 샘플 경매 데이터 생성
             AuctionDto auction1 = new AuctionDto();
             auction1.setTitle("애플 맥북 프로 16인치");
             auction1.setCategory("전자제품");
@@ -73,11 +74,10 @@ public class AuctionController {
             auction1.setHighestBid(2000000);
             auction1.setLocation("서울시 강남구");
             auction1.setImageUrl1("https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500");
-            auction1.setImageBase64("https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500");
             auction1.setIsClosed(false);
             auction1.setCreatedAt(java.time.LocalDateTime.now());
             auction1.setUpdatedAt(java.time.LocalDateTime.now());
-            auctionService.createAuction(auction1);
+            auctionService.createAuction(auction1, null);
 
             AuctionDto auction2 = new AuctionDto();
             auction2.setTitle("소니 A7M4 카메라");
@@ -97,62 +97,13 @@ public class AuctionController {
             auction2.setHighestBid(1500000);
             auction2.setLocation("서울시 서초구");
             auction2.setImageUrl1("https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500");
-            auction2.setImageBase64("https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500");
             auction2.setIsClosed(false);
             auction2.setCreatedAt(java.time.LocalDateTime.now());
             auction2.setUpdatedAt(java.time.LocalDateTime.now());
-            auctionService.createAuction(auction2);
-
-            AuctionDto auction3 = new AuctionDto();
-            auction3.setTitle("로렉스 서브마리너 시계");
-            auction3.setCategory("쥬얼리");
-            auction3.setStatus("신품");
-            auction3.setBrand("Rolex");
-            auction3.setDescription("로렉스 서브마리너 데이트저스트, 41mm, 블랙 다이얼. 정품 보증서 포함.");
-            auction3.setStartPrice(8000000);
-            auction3.setBuyNowPrice(10000000);
-            auction3.setBidUnit(100000);
-            auction3.setStartTime(java.time.LocalDateTime.now());
-            auction3.setEndTime(java.time.LocalDateTime.now().plusDays(10));
-            auction3.setMinBidCount(1);
-            auction3.setAutoExtend(false);
-            auction3.setShippingFee("무료");
-            auction3.setShippingType("택배");
-            auction3.setHighestBid(8000000);
-            auction3.setLocation("서울시 중구");
-            auction3.setImageUrl1("https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=500");
-            auction3.setImageBase64("https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=500");
-            auction3.setIsClosed(false);
-            auction3.setCreatedAt(java.time.LocalDateTime.now());
-            auction3.setUpdatedAt(java.time.LocalDateTime.now());
-            auctionService.createAuction(auction3);
-
-            AuctionDto auction4 = new AuctionDto();
-            auction4.setTitle("닌텐도 스위치 OLED");
-            auction4.setCategory("전자제품");
-            auction4.setStatus("신품");
-            auction4.setBrand("Nintendo");
-            auction4.setDescription("닌텐도 스위치 OLED 모델, 화이트, 조이콘 2개, 게임 5개 포함. 완벽한 상태입니다.");
-            auction4.setStartPrice(300000);
-            auction4.setBuyNowPrice(350000);
-            auction4.setBidUnit(1000);
-            auction4.setStartTime(java.time.LocalDateTime.now());
-            auction4.setEndTime(java.time.LocalDateTime.now().plusDays(3));
-            auction4.setMinBidCount(1);
-            auction4.setAutoExtend(false);
-            auction4.setShippingFee("무료");
-            auction4.setShippingType("택배");
-            auction4.setHighestBid(300000);
-            auction4.setLocation("서울시 마포구");
-            auction4.setImageUrl1("https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=500");
-            auction4.setImageBase64("https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=500");
-            auction4.setIsClosed(false);
-            auction4.setCreatedAt(java.time.LocalDateTime.now());
-            auction4.setUpdatedAt(java.time.LocalDateTime.now());
-            auctionService.createAuction(auction4);
+            auctionService.createAuction(auction2, null);
 
             logger.info("샘플 데이터 생성 완료");
-            return ResponseEntity.ok("샘플 데이터 생성 완료! 4개의 경매가 추가되었습니다.");
+            return ResponseEntity.ok("샘플 데이터 생성 완료! 2개의 경매가 추가되었습니다.");
         } catch (Exception e) {
             logger.error("샘플 데이터 생성 실패", e);
             return ResponseEntity.status(500).body("샘플 데이터 생성 실패: " + e.getMessage());
@@ -187,10 +138,10 @@ public class AuctionController {
     }
 
     @PostMapping
-    public ResponseEntity<AuctionDto> createAuction(@RequestBody AuctionDto auctionDto) {
+    public ResponseEntity<AuctionDto> createAuction(@RequestPart("auction") AuctionDto auctionDto, @RequestPart(value = "image", required = false) MultipartFile imageFile) {
         try {
             logger.info("새 경매 생성: {}", auctionDto.getTitle());
-            AuctionDto created = auctionService.createAuction(auctionDto);
+            AuctionDto created = auctionService.createAuction(auctionDto, imageFile);
             return ResponseEntity.ok(created);
         } catch (Exception e) {
             logger.error("경매 생성 실패", e);

@@ -1,12 +1,19 @@
 package com.auction.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.dto.AuctionDto;
 import com.auction.entity.Auction;
@@ -16,6 +23,8 @@ import com.auction.repository.AuctionRepository;
 public class AuctionServiceImpl implements AuctionService {
     @Autowired
     private AuctionRepository auctionRepository;
+
+    private final String uploadDir = "uploads/";
 
     private AuctionDto toDto(Auction auction) {
         AuctionDto dto = new AuctionDto();
@@ -48,7 +57,6 @@ public class AuctionServiceImpl implements AuctionService {
         
         // 프론트엔드 호환성을 위한 필드 설정
         dto.setImageUrl(auction.getImageUrl1());
-        dto.setImageBase64(auction.getImageUrl1()); // Base64 이미지로 설정
         dto.setCurrentPrice(auction.getHighestBid() != null ? auction.getHighestBid().longValue() : 0L);
         dto.setStartAt(auction.getStartTime());
         dto.setEndAt(auction.getEndTime());
@@ -64,14 +72,7 @@ public class AuctionServiceImpl implements AuctionService {
         auction.setCategory(dto.getCategory());
         auction.setStatus(dto.getStatus());
         auction.setBrand(dto.getBrand());
-        
-        // Base64 이미지 처리
-        if (dto.getImageBase64() != null && dto.getImageBase64().startsWith("data:image/")) {
-            auction.setImageUrl1(dto.getImageBase64());
-        } else {
-            auction.setImageUrl1(dto.getImageUrl1());
-        }
-        
+        auction.setImageUrl1(dto.getImageUrl1());
         auction.setImageUrl2(dto.getImageUrl2());
         auction.setImageUrl3(dto.getImageUrl3());
         auction.setDescription(dto.getDescription());
@@ -94,10 +95,40 @@ public class AuctionServiceImpl implements AuctionService {
     }
 
     @Override
-    public AuctionDto createAuction(AuctionDto auctionDto) {
+    public AuctionDto createAuction(AuctionDto auctionDto, MultipartFile imageFile) {
+        String imageUrl = null;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                // Ensure upload directory exists
+                File directory = new File(uploadDir);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+
+                String originalFilename = imageFile.getOriginalFilename();
+                String fileExtension = "";
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                }
+                String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
+                Path filePath = Paths.get(uploadDir + uniqueFilename);
+                Files.copy(imageFile.getInputStream(), filePath);
+                imageUrl = "/uploads/" + uniqueFilename;
+            } catch (IOException e) {
+                // Proper error handling should be implemented here
+                e.printStackTrace();
+            }
+        }
+
+        auctionDto.setImageUrl1(imageUrl);
         Auction auction = toEntity(auctionDto);
         Auction saved = auctionRepository.save(auction);
         return toDto(saved);
+    }
+
+    @Override
+    public AuctionDto createAuction(AuctionDto auctionDto) {
+        return createAuction(auctionDto, null);
     }
 
     @Override
@@ -188,4 +219,4 @@ public class AuctionServiceImpl implements AuctionService {
             auctionRepository.save(auction);
         }
     }
-} 
+}
