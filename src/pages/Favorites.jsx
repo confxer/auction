@@ -86,7 +86,7 @@ const Favorites = () => {
 
   // 진행중인 경매만 필터링
   const activeFavorites = favorites.filter(favorite => {
-    if (!favorite.auctionEndTime) return false;
+    if (!favorite.auctionEndTime|| favorite.auctionIsClosed) return false;
     const now = currentTime.getTime();
     const end = new Date(favorite.auctionEndTime).getTime();
     return end > now;
@@ -213,6 +213,7 @@ const Favorites = () => {
             {favorites
               .filter(favorite => {
                 if (!favorite.auctionEndTime) return false;
+                if(favorite.auctionIsClosed) return true;
                 const now = currentTime.getTime();
                 const end = new Date(favorite.auctionEndTime).getTime();
                 return end <= now;

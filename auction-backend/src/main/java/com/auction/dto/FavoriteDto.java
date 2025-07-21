@@ -15,7 +15,7 @@ public class FavoriteDto {
     private Integer auctionHighestBid;
     private LocalDateTime auctionEndTime;
     private String auctionCategory;
-    
+    private Boolean auctionIsClosed;
     // 기본 생성자
     public FavoriteDto() {}
     
@@ -105,5 +105,13 @@ public class FavoriteDto {
     
     public void setAuctionCategory(String auctionCategory) {
         this.auctionCategory = auctionCategory;
+    }
+
+    public Boolean getAuctionIsClosed() {
+        return auctionIsClosed;
+    }
+
+    public void setAuctionIsClosed(Boolean auctionIsClosed) {
+        this.auctionIsClosed = auctionIsClosed;
     }
 } 

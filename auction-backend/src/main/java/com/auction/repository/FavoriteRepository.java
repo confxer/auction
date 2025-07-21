@@ -32,7 +32,7 @@ public class FavoriteRepository {
             SELECT f.id, f.auction_id, f.user_id, f.created_at,
                    a.title as auction_title, a.image_url1 as auction_image_url,
                    a.start_price as auction_start_price, a.highest_bid as auction_highest_bid,
-                   a.end_time as auction_end_time, a.category as auction_category
+                   a.end_time as auction_end_time, a.category as auction_category, a.is_closed as auction_is_closed
             FROM favorites f
             JOIN auction a ON f.auction_id = a.id
             WHERE f.user_id = ?
@@ -51,6 +51,7 @@ public class FavoriteRepository {
             favorite.setAuctionHighestBid(rs.getInt("auction_highest_bid"));
             favorite.setAuctionEndTime(rs.getTimestamp("auction_end_time").toLocalDateTime());
             favorite.setAuctionCategory(rs.getString("auction_category"));
+            favorite.setAuctionIsClosed(rs.getBoolean("auction_is_closed"));
             return favorite;
         }, userId);
     }
