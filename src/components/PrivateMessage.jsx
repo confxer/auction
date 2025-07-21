@@ -9,14 +9,14 @@ function PrivateMessage(props) {
   const { user } = useUser();
   // props로 받은 값이 없으면 user에서 자동 세팅
   const auctionId = props.auctionId || '';
-  const userId = props.userId || (user ? user.id : '');
+  const userId = props.userId || (user ? user.username : '');
   const userName = props.userName || (user ? user.nickname || user.name : '');
   const onClose = props.onClose || (() => window.history.back());
 
   const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showCompose, setShowCompose] = useState(false);
-  const [newMessage, setNewMessage] = useState({ subject: '', content: '', receiverId: '', receiverName: '' });
+  const [newMessage, setNewMessage] = useState({ subject: '', content: '', receiverId: '' });
   const [activeTab, setActiveTab] = useState('received'); // received, sent
   const stompClient = useRef(null);
 
@@ -24,10 +24,21 @@ function PrivateMessage(props) {
   const loadMessages = async (type) => {
     try {
       const endpoint = type === 'received' ? 'received' : 'sent';
-      const response = await fetch(`http://localhost:8080/api/messages/${endpoint}/${userId}`);
+      console.log('쪽지 목록 API 호출:', `http://localhost:8080/api/messages/${endpoint}/${userId}`);
+      const headers = {};
+      if (user && user.accessToken) {
+        headers['Authorization'] = `Bearer ${user.accessToken}`;
+      }
+      const response = await fetch(`http://localhost:8080/api/messages/${endpoint}/${userId}`, {
+        headers
+      });
+      console.log('API 응답 status:', response.status);
       if (response.ok) {
         const messageList = await response.json();
+        console.log('받은 쪽지 목록 데이터:', messageList);
         setMessages(messageList);
+      } else {
+        console.warn('쪽지 목록 API 응답 오류:', response.status);
       }
     } catch (error) {
       console.error('쪽지 로드 실패:', error);
@@ -76,19 +87,28 @@ function PrivateMessage(props) {
       return;
     }
 
+    // 디버깅: accessToken 값과 Authorization 헤더 출력
+    console.log('user.accessToken:', user && user.accessToken);
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      ...(user && user.accessToken ? { 'Authorization': `Bearer ${user.accessToken}` } : {})
+    };
+    console.log('Authorization 헤더:', headers['Authorization']);
+
+    // auctionId가 undefined, null, 빈 문자열이면 0으로 대체
+    const auctionIdToSend = auctionId && auctionId !== '' ? auctionId : 0;
+
     try {
       const response = await fetch('http://localhost:8080/api/messages', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `auctionId=${auctionId}&senderId=${userId}&senderName=${encodeURIComponent(userName)}&receiverId=${newMessage.receiverId}&receiverName=${encodeURIComponent(newMessage.receiverName)}&subject=${encodeURIComponent(newMessage.subject)}&content=${encodeURIComponent(newMessage.content)}`
+        headers,
+        body: `auctionId=${auctionIdToSend}&senderId=${userId}&receiverId=${newMessage.receiverId}&subject=${encodeURIComponent(newMessage.subject)}&content=${encodeURIComponent(newMessage.content)}`
       });
 
       if (response.ok) {
         alert('쪽지가 전송되었습니다.');
         setShowCompose(false);
-        setNewMessage({ subject: '', content: '', receiverId: '', receiverName: '' });
+        setNewMessage({ subject: '', content: '', receiverId: '' });
         loadMessages(activeTab);
       } else {
         alert('쪽지 전송에 실패했습니다.');
@@ -102,8 +122,13 @@ function PrivateMessage(props) {
   // 쪽지 읽음 처리
   const markAsRead = async (messageId) => {
     try {
+      const headers = {};
+      if (user && user.accessToken) {
+        headers['Authorization'] = `Bearer ${user.accessToken}`;
+      }
       await fetch(`http://localhost:8080/api/messages/${messageId}/read`, {
-        method: 'PUT'
+        method: 'PUT',
+        headers
       });
       loadMessages(activeTab);
     } catch (error) {
@@ -238,12 +263,6 @@ function PrivateMessage(props) {
                 placeholder="받는 사람 ID"
                 value={newMessage.receiverId}
                 onChange={(e) => setNewMessage(prev => ({ ...prev, receiverId: e.target.value }))}
-              />
-              <input
-                type="text"
-                placeholder="받는 사람 이름"
-                value={newMessage.receiverName}
-                onChange={(e) => setNewMessage(prev => ({ ...prev, receiverName: e.target.value }))}
               />
               <input
                 type="text"

@@ -129,9 +129,7 @@ public class InquiryService {
             privateMessageService.sendMessage(
                 null, // auctionId 없음
                 "admin", // 관리자 ID(고정)
-                "관리자",
                 inquiry.getUserId(),
-                inquiry.getUserName() != null ? inquiry.getUserName() : "문의자",
                 "1:1문의 답변",
                 String.format("문의 제목: %s\n\n답변: %s", inquiry.getTitle(), answer)
             );

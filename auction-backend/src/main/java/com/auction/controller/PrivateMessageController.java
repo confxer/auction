@@ -22,14 +22,11 @@ public class PrivateMessageController {
     @PostMapping
     public ResponseEntity<PrivateMessageDto> sendMessage(@RequestParam Long auctionId,
                                                         @RequestParam String senderId,
-                                                        @RequestParam String senderName,
                                                         @RequestParam String receiverId,
-                                                        @RequestParam String receiverName,
                                                         @RequestParam String subject,
                                                         @RequestParam String content) {
         try {
-            PrivateMessageDto message = privateMessageService.sendMessage(auctionId, senderId, senderName,
-                                                                        receiverId, receiverName, subject, content);
+            PrivateMessageDto message = privateMessageService.sendMessage(auctionId, senderId, receiverId, subject, content);
             return ResponseEntity.ok(message);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
