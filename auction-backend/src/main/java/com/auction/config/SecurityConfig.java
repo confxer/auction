@@ -39,6 +39,7 @@ public class SecurityConfig {
                 // 공개 API - 인증 불필요
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**", "/api/auctions", "/api/auctions/*", "/api/bids/**", "/ws-auction/**", "/api/dashboard", "/api/sample-data").permitAll()
+                .requestMatchers("/api/uploads/**").permitAll()
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
                 // 관리자 전용 API
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
