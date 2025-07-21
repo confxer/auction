@@ -44,7 +44,8 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
                 // 관리자 전용 API
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                // 인증 필요 API
+                // 인증 필요 API (USER, ADMIN 모두 허용)
+                .requestMatchers("/api/favorites/**", "/api/auctions/**", "/api/inquiry/**", "/api/comments/**", "/api/notifications/**", "/api/private-message/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtUtil.jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

@@ -44,6 +44,14 @@ function AuctionNew() {
     setImagePreview(URL.createObjectURL(file));
   };
 
+  // 쿠키에서 accessToken을 꺼내는 함수 추가
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -95,9 +103,17 @@ function AuctionNew() {
     formData.append('image', imageFile);
 
     try {
+      const token = getCookie('accessToken');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
       console.log('📤 전송할 데이터:', auctionData);
       const res = await fetch('/api/auctions', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData,
       });
       
