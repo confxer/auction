@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getAccessToken, getRefreshToken, clearTokens } from './utils/cookieUtils';
 
 // axios 기본 설정
-axios.defaults.baseURL = "";
+axios.defaults.baseURL = "http://localhost:8080";
 axios.defaults.withCredentials = true; // 쿠키 자동 전송
 
 // 요청 인터셉터 - 토큰 자동 추가

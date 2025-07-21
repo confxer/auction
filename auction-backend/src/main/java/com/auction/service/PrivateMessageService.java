@@ -1,13 +1,13 @@
 package com.auction.service;
 
-import com.auction.dto.PrivateMessageDto;
-import com.auction.repository.PrivateMessageRepository;
-import com.auction.service.NotificationService;
-import com.auction.dto.NotificationDto;
+import java.util.List;
+
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.auction.dto.NotificationDto;
+import com.auction.dto.PrivateMessageDto;
+import com.auction.repository.PrivateMessageRepository;
 
 @Service
 public class PrivateMessageService {
@@ -25,17 +25,23 @@ public class PrivateMessageService {
     }
 
     // 쪽지 전송
-    public PrivateMessageDto sendMessage(Long auctionId, String senderId, String senderName,
-                                       String receiverId, String receiverName, String subject, String content) {
-        PrivateMessageDto message = new PrivateMessageDto(auctionId, senderId, senderName, 
-                                                        receiverId, receiverName, subject, content);
+    public PrivateMessageDto sendMessage(Long auctionId, String senderId, String receiverId, String subject, String content) {
+        PrivateMessageDto message = new PrivateMessageDto();
+        message.setAuctionId(auctionId);
+        message.setSenderId(senderId);
+        message.setReceiverId(receiverId);
+        message.setSubject(subject);
+        message.setContent(content);
+        message.setRead(false);
+        message.setDeleted(false);
+        message.setCreatedAt(java.time.LocalDateTime.now());
         privateMessageRepository.save(message);
 
         // WebSocket으로 실시간 쪽지 알림 전송
         messagingTemplate.convertAndSend("/topic/messages/" + receiverId, message);
 
         // NotificationBell용 쪽지 알림 전송
-        String notiMsg = String.format("%s님에게서 쪽지가 도착했습니다: %s", senderName, subject);
+        String notiMsg = String.format("새 쪽지가 도착했습니다: %s", subject);
         NotificationDto notification = new NotificationDto(auctionId, subject, receiverId, "MESSAGE", notiMsg);
         notificationService.saveAndNotify(notification);
 

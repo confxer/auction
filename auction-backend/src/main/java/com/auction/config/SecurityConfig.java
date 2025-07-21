@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/public/**", "/api/auctions", "/api/auctions/*", "/api/auctions/*/view", "/api/bids/**", "/ws-auction/**", "/api/dashboard", "/api/sample-data").permitAll()
                 .requestMatchers("/api/uploads/**").permitAll()
+                .requestMatchers("/api/users/check-nickname").permitAll()
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
                 // 관리자 전용 API
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

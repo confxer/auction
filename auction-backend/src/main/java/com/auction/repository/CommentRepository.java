@@ -1,11 +1,12 @@
 package com.auction.repository;
 
-import com.auction.dto.CommentDto;
+import java.sql.Timestamp;
+import java.util.List;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Timestamp;
-import java.util.List;
+import com.auction.dto.CommentDto;
 
 @Repository
 public class CommentRepository {
@@ -102,5 +103,23 @@ public class CommentRepository {
     public int countAll() {
         String sql = "SELECT COUNT(*) FROM comments WHERE is_deleted = FALSE";
         return jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+    // 사용자별 댓글 목록 조회
+    public List<CommentDto> findByUserId(Long userId) {
+        String sql = "SELECT * FROM comments WHERE user_id = ? AND is_deleted = FALSE ORDER BY created_at DESC";
+        
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            CommentDto comment = new CommentDto();
+            comment.setId(rs.getLong("id"));
+            comment.setAuctionId(rs.getLong("auction_id"));
+            comment.setUserId(rs.getObject("user_id") == null ? null : rs.getLong("user_id"));
+            comment.setAuthor(rs.getString("author"));
+            comment.setContent(rs.getString("content"));
+            comment.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            comment.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+            comment.setDeleted(rs.getBoolean("is_deleted"));
+            return comment;
+        }, userId);
     }
 } 

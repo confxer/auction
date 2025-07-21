@@ -8,7 +8,7 @@ import com.auction.dto.UserDto;
 import com.auction.entity.User;
 
 public interface UserService {
-    User register(UserDto userDto);
+    UserDto register(UserDto userDto);
     User login(String usernameOrEmail, String password);
     Optional<User> authenticate(String usernameOrEmail, String password);
     Optional<User> findByUsername(String username);
@@ -20,6 +20,10 @@ public interface UserService {
     UserDto findByEmailDto(String email);
     UserDto findByEmailVerificationToken(String token);
     UserDto findById(Long id);
+    
+    // 👤 마이페이지 관련 메서드
+    UserDto findByNickname(String nickname);
+    UserDto updateUser(UserDto userDto);
     
     // 🔄 Refresh Token 관련
     void updateRefreshToken(Long userId, String refreshToken);

@@ -14,6 +14,7 @@ import com.auction.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
+    Optional<User> findByNickname(String nickname);
     Optional<User> findByEmailVerificationToken(String token);
     
     // 통계용 메서드

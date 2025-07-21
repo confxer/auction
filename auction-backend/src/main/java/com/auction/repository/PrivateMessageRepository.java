@@ -1,11 +1,11 @@
 package com.auction.repository;
 
-import com.auction.dto.PrivateMessageDto;
+import java.util.List;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Timestamp;
-import java.util.List;
+import com.auction.dto.PrivateMessageDto;
 
 @Repository
 public class PrivateMessageRepository {
@@ -18,18 +18,15 @@ public class PrivateMessageRepository {
 
     // 쪽지 저장
     public void save(PrivateMessageDto dto) {
-        String sql = "INSERT INTO private_messages (auction_id, sender_id, sender_name, receiver_id, receiver_name, " +
-                "subject, content, is_read, created_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO private_messages (auction_id, sender_id, receiver_id, subject, content, is_read, created_at, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
                 dto.getAuctionId(),
                 dto.getSenderId(),
-                dto.getSenderName(),
                 dto.getReceiverId(),
-                dto.getReceiverName(),
                 dto.getSubject(),
                 dto.getContent(),
                 dto.isRead() ? 1 : 0,
-                Timestamp.valueOf(dto.getCreatedAt()),
+                java.sql.Timestamp.valueOf(dto.getCreatedAt()),
                 dto.isDeleted() ? 1 : 0
         );
     }
@@ -43,9 +40,7 @@ public class PrivateMessageRepository {
             dto.setId(rs.getLong("id"));
             dto.setAuctionId(rs.getLong("auction_id"));
             dto.setSenderId(rs.getString("sender_id"));
-            dto.setSenderName(rs.getString("sender_name"));
             dto.setReceiverId(rs.getString("receiver_id"));
-            dto.setReceiverName(rs.getString("receiver_name"));
             dto.setSubject(rs.getString("subject"));
             dto.setContent(rs.getString("content"));
             dto.setRead(rs.getBoolean("is_read"));
@@ -64,9 +59,7 @@ public class PrivateMessageRepository {
             dto.setId(rs.getLong("id"));
             dto.setAuctionId(rs.getLong("auction_id"));
             dto.setSenderId(rs.getString("sender_id"));
-            dto.setSenderName(rs.getString("sender_name"));
             dto.setReceiverId(rs.getString("receiver_id"));
-            dto.setReceiverName(rs.getString("receiver_name"));
             dto.setSubject(rs.getString("subject"));
             dto.setContent(rs.getString("content"));
             dto.setRead(rs.getBoolean("is_read"));
@@ -84,9 +77,7 @@ public class PrivateMessageRepository {
             dto.setId(rs.getLong("id"));
             dto.setAuctionId(rs.getLong("auction_id"));
             dto.setSenderId(rs.getString("sender_id"));
-            dto.setSenderName(rs.getString("sender_name"));
             dto.setReceiverId(rs.getString("receiver_id"));
-            dto.setReceiverName(rs.getString("receiver_name"));
             dto.setSubject(rs.getString("subject"));
             dto.setContent(rs.getString("content"));
             dto.setRead(rs.getBoolean("is_read"));

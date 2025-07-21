@@ -93,6 +93,9 @@ public class Auction {
     @Column(nullable = false)
     private Integer bidCount;
 
+    @Column(nullable = false)
+    private Long userId; // 경매 등록자 ID
+
     @PrePersist
     public void onPrePersist() {
         this.createdAt = LocalDateTime.now();
@@ -195,4 +198,7 @@ public class Auction {
     
     public Integer getBidCount() { return bidCount; }
     public void setBidCount(Integer bidCount) { this.bidCount = bidCount; }
+
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 } 

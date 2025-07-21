@@ -17,6 +17,14 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // 앱 시작 시 accessToken을 user에 복원
+  useEffect(() => {
+    const token = getAccessToken();
+    if (token && (!user || !user.accessToken)) {
+      setUser(prev => ({ ...(prev || {}), accessToken: token }));
+    }
+  }, []);
+
   // 앱 시작 시 인증 상태 확인
   useEffect(() => {
     checkAuthStatus();
@@ -37,7 +45,10 @@ export const UserProvider = ({ children }) => {
       });
 
       if (response.data) {
-        setUser(response.data);
+        setUser({
+          ...response.data,
+          accessToken: token
+        });
         console.log('인증 상태 확인 성공:', response.data);
       }
     } catch (error) {
@@ -83,7 +94,11 @@ export const UserProvider = ({ children }) => {
       if (response.data.accessToken) {
         // 토큰을 쿠키와 로컬 스토리지에 저장
         setTokens(response.data.accessToken, response.data.refreshToken);
-        setUser(response.data.user);
+        setUser({
+          ...response.data.user,
+          accessToken: response.data.accessToken,
+          refreshToken: response.data.refreshToken
+        });
         console.log('로그인 성공:', response.data);
         return { success: true, data: response.data };
       } else {
