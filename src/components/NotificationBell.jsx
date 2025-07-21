@@ -3,7 +3,7 @@ import { useUser } from '../UserContext';
 import { useNavigate } from 'react-router-dom';
 import '../style/NotificationBell.css';
 
-function NotificationBell() {
+function NotificationBell({ pageMode }) {
   const { user } = useUser();
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
@@ -33,16 +33,27 @@ function NotificationBell() {
   // 알림 클릭 시 라우팅
   const handleNotificationClick = (noti) => {
     if (noti.type === 'MESSAGE') {
-      // 쪽지 상세 페이지로 이동 (예: /messages?messageId=xxx)
       navigate(`/messages?messageId=${noti.messageId || ''}`);
     } else if (noti.type === 'AUCTION_ENDING_SOON' || noti.type === 'FAVORITE_AUCTION') {
-      // 경매 상세 페이지로 이동 (예: /auction/:auctionId)
       if (noti.auctionId) {
         navigate(`/auction/${noti.auctionId}`);
       }
     }
   };
 
+  if (!pageMode) {
+    // 종 아이콘 + 알림 개수 뱃지 (드롭다운 없음)
+    return (
+      <div className="notification-bell" style={{ position: 'relative', display: 'inline-block' }}>
+        <span style={{ cursor: 'pointer', fontSize: 24 }} onClick={() => navigate('/notifications')}>
+          🔔
+        </span>
+        {notifications.length > 0 && <span className="badge">{notifications.length}</span>}
+      </div>
+    );
+  }
+
+  // 알림함 페이지 전체 리스트
   return (
     <div className="notification-list-page" style={{ maxWidth: 600, margin: '0 auto', padding: 24 }}>
       <h2>알림함</h2>

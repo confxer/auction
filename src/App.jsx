@@ -46,7 +46,7 @@ function NotificationsPage() {
   return (
     <div style={{ maxWidth: 600, margin: '40px auto', padding: 24 }}>
       <h2>알림함</h2>
-      <NotificationBell />
+      <NotificationBell pageMode />
     </div>
   );
 }
