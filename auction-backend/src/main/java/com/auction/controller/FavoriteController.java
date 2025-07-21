@@ -92,7 +92,7 @@ public class FavoriteController {
             List<FavoriteDto> favorites = favoriteService.getUserFavorites(userId);
             return ResponseEntity.ok(favorites);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.ok(List.of()); // null 대신 빈 리스트 반환
         }
     }
     
@@ -150,7 +150,7 @@ public class FavoriteController {
             List<FavoriteDto> favorites = favoriteService.getFavoritesEndingSoon(userId);
             return ResponseEntity.ok(favorites);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.ok(List.of()); // null 대신 빈 리스트 반환
         }
     }
 } 

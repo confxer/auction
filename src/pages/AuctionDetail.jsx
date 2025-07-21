@@ -76,7 +76,7 @@ const AuctionDetail = () => {
   const getImageUrl = (url) => {
     if (!url) return "https://placehold.co/400x400?text=경매";
     if (url.startsWith('/uploads/')) {
-      return `http://localhost:8080${url}`;
+      return `/api${url}`;
     }
     return url;
   };
@@ -126,7 +126,7 @@ const AuctionDetail = () => {
     }
 
     setProcessing(true);
-    fetch(`http://localhost:8080/api/bids`, {
+    fetch(`/api/bids`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

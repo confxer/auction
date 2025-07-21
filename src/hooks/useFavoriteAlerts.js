@@ -23,17 +23,29 @@ export const useFavoriteAlerts = () => {
     const checkEndingSoonFavorites = async () => {
       try {
         const response = await axios.get(`favorites/user/${user.id}/ending-soon`);
-        const endingSoonFavorites = response.data || [];
+        
+        // 응답 데이터가 null이거나 배열이 아닌 경우 빈 배열로 처리
+        let endingSoonFavorites = [];
+        if (response.data && Array.isArray(response.data)) {
+          endingSoonFavorites = response.data;
+        }
 
         endingSoonFavorites.forEach(favorite => {
-          const alertKey = `${favorite.auctionId}-${favorite.auctionEndTime}`;
+          // auctionEndTime이 LocalDateTime 객체인 경우 문자열로 변환
+          let endTimeStr = favorite.auctionEndTime;
+          if (typeof favorite.auctionEndTime === 'object' && favorite.auctionEndTime !== null) {
+            // LocalDateTime을 ISO 문자열로 변환
+            endTimeStr = favorite.auctionEndTime.replace('T', ' ').split('.')[0];
+          }
+          
+          const alertKey = `${favorite.auctionId}-${endTimeStr}`;
           
           // 이미 알림을 보낸 경매는 제외
           if (alertShownRef.current.has(alertKey)) return;
 
           // 마감까지 남은 시간 계산
           const now = new Date().getTime();
-          const endTime = new Date(favorite.auctionEndTime).getTime();
+          const endTime = new Date(endTimeStr).getTime();
           const remainingMinutes = Math.floor((endTime - now) / (1000 * 60));
 
           // 30분 이내인 경우에만 알림
