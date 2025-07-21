@@ -48,6 +48,7 @@ function PrivateMessage(props) {
   // 초기 로드
   useEffect(() => {
     loadMessages(activeTab);
+    console.log(user);
   }, [userId, activeTab]);
 
   // WebSocket 연결 (새 쪽지 알림)
