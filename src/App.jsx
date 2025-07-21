@@ -9,6 +9,7 @@ import Footer from "./components/Footer";
 import Navigation from "./components/Navigation";
 import QuickMenu from "./components/QuickMenu";
 import PrivateMessage from './components/PrivateMessage';
+import NotificationBell from './components/NotificationBell';
 
 // 페이지들
 import Home from "./pages/Home";
@@ -40,6 +41,15 @@ import OAuth2Success from "./pages/OAuth2Success";
 import SearchResult from "./pages/SearchResult";
 import MyPage from "./pages/MyPage";
 import Favorites from "./pages/Favorites";
+
+function NotificationsPage() {
+  return (
+    <div style={{ maxWidth: 600, margin: '40px auto', padding: 24 }}>
+      <h2>알림함</h2>
+      <NotificationBell />
+    </div>
+  );
+}
 
 function App() {
   const [dashboardData, setDashboardData] = useState({
@@ -139,6 +149,7 @@ function App() {
                 <Route path="/mypage" element={<MyPage />} />
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/messages" element={<PrivateMessage />} />
+                <Route path="/notifications" element={<NotificationsPage />} />
               </Routes>
             </main>
             <QuickMenu />
