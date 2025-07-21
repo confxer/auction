@@ -9,7 +9,7 @@ const KakaoMap = () => {
     style={{ width: "100%", height: "360px" }}
   >
     <MapMarker position={{ lat: 33.55635, lng: 126.795841 }}>
-      <div style={{color:"#000"}}>Hello World!</div>
+      <div style={{color:"#000"}}>아 위치 어디지</div>
     </MapMarker>
   </Map>
   );

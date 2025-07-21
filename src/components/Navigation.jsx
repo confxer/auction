@@ -4,7 +4,8 @@ import { useUser } from '../UserContext';
 import { FaTrophy } from 'react-icons/fa';
 import { IoPersonCircle } from 'react-icons/io5';
 import MyPageDropdown from './MyPageDropdown';
-import PrivateMessage from './PrivateMessage'; // Import PrivateMessage
+import PrivateMessage from './PrivateMessage';
+import Notifications from './Notifications';
 import './Navigation.css';
 
 const Navigation = () => {
@@ -14,7 +15,8 @@ const Navigation = () => {
   const isAdmin = user && user.role === 'ADMIN';
 
   const [myPageOpen, setMyPageOpen] = useState(false);
-  const [privateMessageOpen, setPrivateMessageOpen] = useState(false); // State for PrivateMessage
+  const [privateMessageOpen, setPrivateMessageOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const myPageRef = useRef(null);
 
   useEffect(() => {
@@ -37,8 +39,12 @@ const Navigation = () => {
     setMyPageOpen((prev) => !prev);
   };
 
-  const togglePrivateMessage = () => { // Toggle function for PrivateMessage
+  const togglePrivateMessage = () => {
     setPrivateMessageOpen((prev) => !prev);
+  };
+
+  const toggleNotifications = () => {
+    setNotificationsOpen((prev) => !prev);
   };
 
   const handleLogout = () => {
@@ -59,7 +65,7 @@ const Navigation = () => {
   const isLinkActive = (itemPath) => {
     if (itemPath === '/') return location.pathname === '/';
     if (itemPath === '/auction') return location.pathname.startsWith('/auction');
-    if (itemPath === '/customer-service') return location.pathname === '/customer-service';
+    if (itemPath === '/customer-service') return location.pathname.startsWith('/customer-service');
     if (isAdmin) return location.pathname.startsWith(itemPath);
     if (itemPath === '/inquiry/my' || itemPath === '/inquiry') return location.pathname.startsWith('/inquiry');
     return location.pathname.startsWith(itemPath);
@@ -101,7 +107,7 @@ const Navigation = () => {
               >
                 <IoPersonCircle size={30} />
               </button>
-              <MyPageDropdown user={user} onLogout={handleLogout} isOpen={myPageOpen} setMyPageOpen={setMyPageOpen} onTogglePrivateMessage={togglePrivateMessage} />
+              <MyPageDropdown user={user} onLogout={handleLogout} isOpen={myPageOpen} setMyPageOpen={setMyPageOpen} onTogglePrivateMessage={togglePrivateMessage} onToggleNotifications={toggleNotifications} />
             </div>
           ) : (
             <div className="auth-buttons">
@@ -119,9 +125,9 @@ const Navigation = () => {
         </div>
       </div>
       {privateMessageOpen && <PrivateMessage isOpen={privateMessageOpen} onClose={togglePrivateMessage} />}
+      {notificationsOpen && <Notifications isOpen={notificationsOpen} onClose={toggleNotifications} />}
     </nav>
   );
 };
 
 export default Navigation;
- 
