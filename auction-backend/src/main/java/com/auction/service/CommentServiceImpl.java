@@ -89,4 +89,9 @@ public class CommentServiceImpl implements CommentService {
     public int getTotalCommentCount() {
         return commentRepository.countAll();
     }
+
+    @Override
+    public List<CommentDto> getCommentsByUserId(Long userId) {
+        return commentRepository.findByUserId(userId);
+    }
 } 

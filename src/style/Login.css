@@ -488,3 +488,143 @@
     padding: 0.8rem;
   }
 } 
+
+/* 이메일 인증 섹션 스타일 */
+.email-verification-section {
+  padding: 20px 0;
+}
+
+.email-verification-section .verification-info {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px solid #e9ecef;
+}
+
+.email-verification-section .verification-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  display: block;
+}
+
+.email-verification-section .verification-info h3 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.email-verification-section .verification-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.email-verification-section .verification-info strong {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.email-verification-section .verification-actions {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.email-verification-section .btn {
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.email-verification-section .btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.email-verification-section .btn-primary:hover {
+  background: #0056b3;
+}
+
+.email-verification-section .btn-primary:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.email-verification-section .btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.email-verification-section .btn-secondary:hover {
+  background: #545b62;
+}
+
+.email-verification-section .btn-outline {
+  background: transparent;
+  color: #007bff;
+  border: 1px solid #007bff;
+}
+
+.email-verification-section .btn-outline:hover {
+  background: #007bff;
+  color: white;
+}
+
+.email-verification-section .input-group {
+  margin-bottom: 20px;
+}
+
+.email-verification-section .input-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.email-verification-section .input-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+
+.email-verification-section .input-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* 로딩 스피너 */
+.loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} 

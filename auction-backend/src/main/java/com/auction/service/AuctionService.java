@@ -2,8 +2,9 @@ package com.auction.service;
 
 import java.util.List;
 
-import com.auction.dto.AuctionDto;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.auction.dto.AuctionDto;
 
 public interface AuctionService {
     AuctionDto createAuction(AuctionDto auctionDto, MultipartFile imageFile);
@@ -14,6 +15,7 @@ public interface AuctionService {
     void deleteAuction(Long id);
     AuctionDto checkAndCloseAuction(AuctionDto auctionDto);
     List<AuctionDto> getRandomAuctions(int count);
+    List<AuctionDto> getAuctionsByUserId(Long userId);
     
     // 조회수 증가
     void incrementViewCount(Long auctionId);

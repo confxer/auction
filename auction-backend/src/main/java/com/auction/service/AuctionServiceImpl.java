@@ -219,4 +219,10 @@ public class AuctionServiceImpl implements AuctionService {
             auctionRepository.save(auction);
         }
     }
+
+    @Override
+    public List<AuctionDto> getAuctionsByUserId(Long userId) {
+        List<Auction> auctions = auctionRepository.findByUserId(userId);
+        return auctions.stream().map(this::toDto).collect(Collectors.toList());
+    }
 }

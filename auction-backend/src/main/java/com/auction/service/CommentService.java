@@ -1,7 +1,8 @@
 package com.auction.service;
 
-import com.auction.dto.CommentDto;
 import java.util.List;
+
+import com.auction.dto.CommentDto;
 
 public interface CommentService {
     // 댓글 등록
@@ -9,6 +10,9 @@ public interface CommentService {
     
     // 경매별 댓글 목록 조회
     List<CommentDto> getCommentsByAuctionId(Long auctionId);
+    
+    // 사용자별 댓글 목록 조회
+    List<CommentDto> getCommentsByUserId(Long userId);
     
     // 댓글 단일 조회
     CommentDto getCommentById(Long id);

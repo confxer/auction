@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../UserContext";
+import axios from "../axiosConfig";
 import "../style/Register.css";
 
 const Register = () => {
@@ -21,6 +22,10 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
   const navigate = useNavigate();
   const { register } = useUser();
 
@@ -87,8 +92,8 @@ const Register = () => {
     }
 
     try {
-      // UserContext의 register 함수 사용
-      const result = await register({
+      // 회원가입 요청
+      const response = await axios.post('/api/auth/register', {
         username: form.username,
         email: form.email,
         password: form.password,
@@ -99,20 +104,75 @@ const Register = () => {
         socialType: form.socialType
       });
       
-      if (result.success) {
+      if (response.data.success) {
         setSuccess(true);
-        
+        setVerificationSent(true);
+        setCurrentStep(3); // 이메일 인증 단계로 이동
+      } else {
+        setError(response.data.message || "회원가입에 실패했습니다.");
+      }
+    } catch (err) {
+      console.error('회원가입 오류:', err);
+      setError(err.response?.data?.message || "회원가입에 실패했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerification = async () => {
+    if (!verificationCode.trim()) {
+      setError("인증 코드를 입력해주세요.");
+      return;
+    }
+
+    setIsVerifying(true);
+    setError("");
+
+    try {
+      const requestData = { token: verificationCode };
+      console.log('🔍 인증 요청 데이터:', requestData);
+      
+      const response = await axios.post('/api/auth/verify-email', requestData);
+      console.log('✅ 인증 응답:', response.data);
+
+      if (response.data.success) {
+        setVerificationSuccess(true);
+        setError("");
         // 3초 후 로그인 페이지로 이동
         setTimeout(() => {
           navigate("/login");
         }, 3000);
       } else {
-        setError(result.error);
+        setError(response.data.message || "인증에 실패했습니다.");
       }
     } catch (err) {
-      setError("회원가입에 실패했습니다.");
+      console.error('❌ 이메일 인증 오류:', err);
+      console.error('📊 에러 상세:', {
+        status: err.response?.status,
+        statusText: err.response?.statusText,
+        data: err.response?.data,
+        message: err.response?.data?.message
+      });
+      setError(err.response?.data?.message || "인증에 실패했습니다.");
     } finally {
-      setIsLoading(false);
+      setIsVerifying(false);
+    }
+  };
+
+  const resendVerification = async () => {
+    try {
+      const response = await axios.post('/api/auth/resend-verification', {
+        email: form.email
+      });
+
+      if (response.data.success) {
+        alert("인증 메일이 재발송되었습니다.");
+      } else {
+        setError(response.data.message || "인증 메일 재발송에 실패했습니다.");
+      }
+    } catch (err) {
+      console.error('인증 메일 재발송 오류:', err);
+      setError(err.response?.data?.message || "인증 메일 재발송에 실패했습니다.");
     }
   };
 
@@ -152,10 +212,10 @@ const Register = () => {
             <p>계정을 생성하여 경매에 참여하세요</p>
           </div>
 
-          {success ? (
+          {verificationSuccess ? (
             <div className="success-message">
               <div className="success-icon">🎉</div>
-              <h3>회원가입 성공!</h3>
+              <h3>이메일 인증 완료!</h3>
               <p>로그인 페이지로 이동합니다...</p>
               <div className="loading-spinner"></div>
             </div>
@@ -171,6 +231,11 @@ const Register = () => {
                 <div className={`step ${currentStep >= 2 ? 'active' : ''}`}>
                   <span className="step-number">2</span>
                   <span className="step-label">추가 정보</span>
+                </div>
+                <div className="step-line"></div>
+                <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>
+                  <span className="step-number">3</span>
+                  <span className="step-label">이메일 인증</span>
                 </div>
               </div>
 
@@ -255,7 +320,7 @@ const Register = () => {
                       다음 단계
                     </button>
                   </div>
-                ) : (
+                ) : currentStep === 2 ? (
                   <div className="step-content">
                     <div className="input-group">
                       <label htmlFor="name">이름 *</label>
@@ -330,6 +395,64 @@ const Register = () => {
                       </button>
                     </div>
                   </div>
+                ) : (
+                  // 이메일 인증 단계
+                  <div className="step-content">
+                    <div className="verification-info">
+                      <div className="verification-icon">📧</div>
+                      <h3>이메일 인증</h3>
+                      <p>
+                        <strong>{form.email}</strong>로 인증 메일을 발송했습니다.
+                      </p>
+                      <p>메일함을 확인하여 인증을 완료해주세요.</p>
+                    </div>
+
+                    <div className="input-group">
+                      <label htmlFor="verificationCode">인증 코드</label>
+                      <input
+                        id="verificationCode"
+                        type="text"
+                        value={verificationCode}
+                        onChange={(e) => setVerificationCode(e.target.value)}
+                        placeholder="이메일로 받은 인증 코드를 입력하세요"
+                      />
+                    </div>
+
+                    <div className="verification-actions">
+                      <button
+                        type="button"
+                        onClick={handleVerification}
+                        className={`btn btn-primary ${isVerifying ? 'loading' : ''}`}
+                        disabled={isVerifying}
+                      >
+                        {isVerifying ? (
+                          <>
+                            <span className="loading-spinner"></span>
+                            인증 중...
+                          </>
+                        ) : (
+                          '인증 완료'
+                        )}
+                      </button>
+                      
+                      <button
+                        type="button"
+                        onClick={resendVerification}
+                        className="btn btn-secondary"
+                      >
+                        인증 메일 재발송
+                      </button>
+                    </div>
+
+                    <div className="verification-help">
+                      <p>인증 메일이 오지 않았나요?</p>
+                      <ul>
+                        <li>스팸 메일함을 확인해보세요</li>
+                        <li>이메일 주소가 정확한지 확인해보세요</li>
+                        <li>위의 "재발송" 버튼을 클릭해보세요</li>
+                      </ul>
+                    </div>
+                  </div>
                 )}
               </form>
 
@@ -345,9 +468,9 @@ const Register = () => {
               <div className="auth-links">
                 <p>
                   이미 계정이 있으신가요?{" "}
-                  {/* <Link to="/login" className="login-link"> */}
+                  <Link to="/login" className="login-link">
                     로그인
-                  {/* </Link> */}
+                  </Link>
                 </p>
               </div>
 

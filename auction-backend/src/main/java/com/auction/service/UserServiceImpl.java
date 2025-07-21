@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.auction.dto.UserDto;
@@ -21,16 +22,35 @@ public class UserServiceImpl implements UserService {
     
     @Autowired
     private UserRepository userRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
-    public User register(UserDto userDto) {
+    public UserDto register(UserDto userDto) {
         User user = new User();
         user.setUsername(userDto.getUsername());
-        // 평문 비밀번호로 저장
-        user.setPassword(userDto.getPassword());
+        // 비밀번호 encode 중복 방지
+        String rawOrHashed = userDto.getPassword();
+        if (rawOrHashed != null && !rawOrHashed.startsWith("$2a$")) {
+            user.setPassword(passwordEncoder.encode(rawOrHashed));
+        } else {
+            user.setPassword(rawOrHashed);
+        }
         user.setEmail(userDto.getEmail());
-        user.setRole("USER"); // 기본값 USER
-        return userRepository.save(user);
+        user.setName(userDto.getName());
+        user.setNickname(userDto.getNickname());
+        user.setAddress(userDto.getAddress());
+        user.setPhone(userDto.getPhone());
+        user.setSocialType(userDto.getSocialType());
+        user.setRole(userDto.getRole());
+        user.setIsActive(userDto.getIsActive());
+        user.setEmailVerified(userDto.getEmailVerified());
+        user.setEmailVerificationToken(userDto.getEmailVerificationToken());
+        user.setEmailVerificationExpiry(userDto.getEmailVerificationExpiry());
+        
+        User savedUser = userRepository.save(user);
+        return convertToDto(savedUser);
     }
 
     @Override
@@ -41,7 +61,7 @@ public class UserServiceImpl implements UserService {
         }
         User user = userOpt.get();
         // 평문 비밀번호 비교
-        if (!password.equals(user.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
         return user;
@@ -58,7 +78,7 @@ public class UserServiceImpl implements UserService {
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             // 평문 비밀번호 비교
-            if (password.equals(user.getPassword())) {
+            if (passwordEncoder.matches(password, user.getPassword())) {
                 return userOpt;
             }
         }
@@ -82,8 +102,13 @@ public class UserServiceImpl implements UserService {
         User user = new User();
         user.setUsername(userDto.getUsername());
         user.setEmail(userDto.getEmail());
-        // 비밀번호를 BCrypt로 암호화하여 저장
-        user.setPassword(userDto.getPassword());
+        // 비밀번호 encode 중복 방지
+        String rawOrHashed = userDto.getPassword();
+        if (rawOrHashed != null && !rawOrHashed.startsWith("$2a$")) {
+            user.setPassword(passwordEncoder.encode(rawOrHashed));
+        } else {
+            user.setPassword(rawOrHashed);
+        }
         user.setNickname(userDto.getNickname());
         user.setAddress(userDto.getAddress());
         user.setPhone(userDto.getPhone());
@@ -116,14 +141,75 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto findByEmailVerificationToken(String token) {
+        logger.info("토큰으로 사용자 검색 시작: token={}", token);
+        
         Optional<User> userOpt = userRepository.findByEmailVerificationToken(token);
-        return userOpt.map(this::convertToDto).orElse(null);
+        
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            logger.info("토큰으로 사용자 찾음: userId={}, email={}", user.getId(), user.getEmail());
+            return convertToDto(user);
+        } else {
+            logger.warn("토큰으로 사용자를 찾을 수 없음: token={}", token);
+            return null;
+        }
     }
 
     @Override
     public UserDto findById(Long id) {
         Optional<User> userOpt = userRepository.findById(id);
         return userOpt.map(this::convertToDto).orElse(null);
+    }
+
+    // 👤 마이페이지 관련 메서드 구현
+    @Override
+    public UserDto findByNickname(String nickname) {
+        Optional<User> userOpt = userRepository.findByNickname(nickname);
+        return userOpt.map(this::convertToDto).orElse(null);
+    }
+
+    @Override
+    public UserDto updateUser(UserDto userDto) {
+        Optional<User> userOpt = userRepository.findById(userDto.getId());
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+        }
+
+        User user = userOpt.get();
+        
+        // 업데이트 가능한 필드만 수정
+        if (userDto.getNickname() != null) {
+            user.setNickname(userDto.getNickname());
+        }
+        if (userDto.getAddress() != null) {
+            user.setAddress(userDto.getAddress());
+        }
+        if (userDto.getPhone() != null) {
+            user.setPhone(userDto.getPhone());
+        }
+        if (userDto.getPassword() != null) {
+            String rawOrHashed = userDto.getPassword();
+            if (rawOrHashed != null && !rawOrHashed.startsWith("$2a$")) {
+                user.setPassword(passwordEncoder.encode(rawOrHashed));
+            } else {
+                user.setPassword(rawOrHashed);
+            }
+        }
+        if (userDto.getIsActive() != null) {
+            user.setIsActive(userDto.getIsActive());
+        }
+        if (userDto.getEmailVerified() != null) {
+            user.setEmailVerified(userDto.getEmailVerified());
+        }
+        if (userDto.getEmailVerificationToken() != null) {
+            user.setEmailVerificationToken(userDto.getEmailVerificationToken());
+        }
+        if (userDto.getEmailVerificationExpiry() != null) {
+            user.setEmailVerificationExpiry(userDto.getEmailVerificationExpiry());
+        }
+        
+        User updatedUser = userRepository.save(user);
+        return convertToDto(updatedUser);
     }
 
     // 🔄 Refresh Token 관련 메서드 구현
