@@ -7,7 +7,8 @@ const TimeDisplay = memo(({
   onTimeUp, 
   onStatusChange,
   mode = 'text', // 'text', 'timer', 'compact'
-  className = ''
+  className = '',
+  closed = false
 }) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
@@ -23,6 +24,15 @@ const TimeDisplay = memo(({
     const end = new Date(endTime).getTime();
     
     // 상태 결정
+    if(closed){
+      setStatus('마감');
+      return {
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0
+      };
+    }
     if (now < start) {
       const newStatus = '예정';
       if (status !== newStatus) {

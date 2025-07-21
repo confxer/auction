@@ -16,6 +16,7 @@ public interface AuctionService {
     AuctionDto checkAndCloseAuction(AuctionDto auctionDto);
     List<AuctionDto> getRandomAuctions(int count);
     List<AuctionDto> getAuctionsByUserId(Long userId);
+    void buyNow(Long id);
     
     // 조회수 증가
     void incrementViewCount(Long auctionId);

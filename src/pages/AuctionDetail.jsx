@@ -8,6 +8,7 @@ import BidHistory from '../components/BidHistory';
 import LiveBidding from '../components/LiveBidding';
 import FavoriteButton from '../components/FavoriteButton';
 import { useUser } from '../UserContext'; // Import useUser
+import axios from '../axiosConfig';
 import '../style/AuctionDetail.css';
 
 const AuctionDetail = () => {
@@ -24,9 +25,7 @@ const AuctionDetail = () => {
   const [currentPrice, setCurrentPrice] = useState(0);
 
   // Fetch user data when component mounts or user changes
-  useEffect(() => {
-   
-  }, [checkAuthStatus]);
+  
 
   useEffect(() => {
     // "new" ID인 경우 경매 등록 페이지로 리다이렉트
@@ -45,7 +44,9 @@ const AuctionDetail = () => {
         console.log("데이터: ",data );
         setCurrentPrice(Math.max(data.startPrice, data.highestBid || 0));
         setLoading(false);
-        
+        if(data.isClosed){
+          setAuctionStatus('종료');
+        }
         // 조회수 증가
         fetch(`/api/auctions/${id}/view`, {
           method: 'POST',
@@ -168,10 +169,7 @@ const AuctionDetail = () => {
 
   // 실제 즉시구매 구현
   const handleBuyNow = async () => {
-    await fetch(`/auctions/${auction.id}/buy-now`, {
-      method: 'POST',
-      credentials: 'include',
-    });
+    await axios.post(`/api/auctions/${auction.id}/buy-now`, {}, { withCredentials: true });
     setAuctionStatus('종료');
   };
 
@@ -227,6 +225,7 @@ const AuctionDetail = () => {
               onTimeUp={() => {
                 setAuctionStatus('종료');
               }}
+              closed={auction.isClosed} 
             />
           </div>
           <FavoriteButton auctionId={auction.id} />

@@ -226,4 +226,15 @@ public class AuctionServiceImpl implements AuctionService {
         List<Auction> auctions = auctionRepository.findByUserId(userId);
         return auctions.stream().map(this::toDto).collect(Collectors.toList());
     }
+
+    @Override
+    public void buyNow(Long id) {
+        Optional<Auction> auctionOpt = auctionRepository.findById(id);
+        if (auctionOpt.isPresent()) {
+            Auction auction = auctionOpt.get();
+            auction.setStatus("종료");
+            auction.setIsClosed(true);
+            auctionRepository.save(auction);
+        }
+    }
 }

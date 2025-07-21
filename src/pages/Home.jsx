@@ -32,6 +32,7 @@ const Home = ({ dashboardData }) => {
   useEffect(() => {
     if (dashboardData?.auctions) {
       setAuctions(dashboardData.auctions);
+      console.log("dashboardData.auctions",dashboardData.auctions);
     }
   }, [dashboardData?.auctions]);
 
@@ -93,7 +94,7 @@ const Home = ({ dashboardData }) => {
 
 
   // 경매 카드 컴포넌트
-  const AuctionCard = ({ auction, isFavorited = false }) => {
+  const AuctionCard = ({ auction, isFavorited = false, closed = false }) => {
     
     // 이미지 소스 결정 로직 - Auction 페이지와 동일하게
     const getImageSrc = () => {
@@ -144,6 +145,7 @@ const Home = ({ dashboardData }) => {
                 endTime={auction.endAt}
                 mode="compact"
                 className="time-value"
+                closed={closed}
               />
             </div>
             <div className="auction-meta">
@@ -207,9 +209,12 @@ const Home = ({ dashboardData }) => {
               </Link>
             </div>
             <div className="auction-grid">
-              {activeFavoritedAuctions.slice(0, 4).map((auction) => (
-                <AuctionCard key={auction.id} auction={auction} isFavorited={true} />
-              ))}
+              {activeFavoritedAuctions
+                .filter(auction => !auction.isClosed) // 종료된 경매는 제외
+                .slice(0, 4)
+                .map((auction) => (
+                  <AuctionCard key={auction.id} auction={auction} isFavorited={true} />
+                ))}
             </div>
           </div>
         </section>
@@ -237,13 +242,13 @@ const Home = ({ dashboardData }) => {
             {filteredAuctions.length > 0 ? (
               selectedCategory === '전체' ? (
                 <>
-                  {filteredAuctions.slice(0, 8).map((auction) => (
-                    <AuctionCard key={auction.id} auction={auction} />
+                  {filteredAuctions.filter(auction => !auction.isClosed).slice(0, 8).map((auction) => (
+                    <AuctionCard key={auction.id} auction={auction} closed={auction.isClosed} />
                   ))}
                 </>
               ) : (
-                filteredAuctions.map((auction) => (
-                  <AuctionCard key={auction.id} auction={auction} />
+                filteredAuctions.filter(auction => !auction.isClosed).map((auction) => (
+                  <AuctionCard key={auction.id} auction={auction} closed={auction.isClosed} />
                 ))
               )
             ) : (

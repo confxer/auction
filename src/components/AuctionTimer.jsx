@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './AuctionTimer.css';
 
-const AuctionTimer = ({ endTime, onTimeUp }) => {
+const AuctionTimer = ({ endTime, onTimeUp, closed }) => {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -26,7 +26,15 @@ const AuctionTimer = ({ endTime, onTimeUp }) => {
           seconds: 0
         };
       }
-
+      if(closed){
+        setIsEnded(true);
+        return {
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0
+        };
+      }
       return {
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),

@@ -236,4 +236,10 @@ public class AuctionController {
             return ResponseEntity.status(500).build();
         }
     }
+
+    @PostMapping("/{id}/buy-now")
+    public ResponseEntity<String> buyNow(@PathVariable Long id) {
+        auctionService.buyNow(id);
+        return ResponseEntity.ok("즉시구매가 완료되었습니다.");
+    }
 }
