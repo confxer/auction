@@ -5,16 +5,24 @@ import axios from '../axiosConfig';
 import '../style/MyPage.css';
 
 const MyPage = () => {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
-  const [userInfo, setUserInfo] = useState({});
+  const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    loadUserInfo();
+  }, [user, navigate]);
+
   const loadUserInfo = async () => {
     try {
       console.log('🔍 사용자 정보 로드 시작');
-      const response = await axios.get(`/api/users/me`);
+      const response = await axios.get('/api/users/me');
       console.log('✅ 사용자 정보 로드 성공:', response.data);
       setUserInfo(response.data);
       setLoading(false);
@@ -29,14 +37,6 @@ const MyPage = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (!user ) {
-      navigate('/login');
-      return;
-    }
-    loadUserInfo();
-  }, [user, navigate]);
 
   if (loading) {
     return (
@@ -145,8 +145,9 @@ const ProfileTab = ({ userInfo, onUpdate }) => {
           <label>닉네임</label>
           <input
             type="text"
-            readOnly
             value={formData.nickname}
+            onChange={(e) => setFormData({...formData, nickname: e.target.value})}
+            placeholder="닉네임을 입력하세요"
           />
         </div>
         

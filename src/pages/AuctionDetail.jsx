@@ -25,7 +25,7 @@ const AuctionDetail = () => {
 
   // Fetch user data when component mounts or user changes
   useEffect(() => {
-    checkAuthStatus();
+   
   }, [checkAuthStatus]);
 
   useEffect(() => {
