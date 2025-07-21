@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.auction.dto.AuctionDto;
 import com.auction.dto.BidDto;
+import com.auction.entity.User;
 import com.auction.service.AuctionService;
 import com.auction.service.BidService;
+import com.auction.service.UserService;
 
 @RestController
 @RequestMapping("/api/auctions")
@@ -35,6 +38,9 @@ public class AuctionController {
     
     @Autowired
     private BidService bidService;
+
+    @Autowired
+    private UserService userService;
 
     // 데이터베이스 연결 테스트용 엔드포인트
     @GetMapping("/test")
@@ -138,9 +144,15 @@ public class AuctionController {
     }
 
     @PostMapping
-    public ResponseEntity<AuctionDto> createAuction(@RequestPart("auction") AuctionDto auctionDto, @RequestPart(value = "image", required = false) MultipartFile imageFile) {
+    public ResponseEntity<AuctionDto> createAuction(@RequestPart("auction") AuctionDto auctionDto, @RequestPart(value = "image", required = false) MultipartFile imageFile, Authentication authentication) {
         try {
-            logger.info("새 경매 생성: {}", auctionDto.getTitle());
+            if (authentication == null) {
+                return ResponseEntity.status(401).body(null); // 401 Unauthorized
+            }
+            String username = authentication.getName();
+            User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+            auctionDto.setUserId(user.getId());
+            logger.info("새 경매 생성: {} (userId: {})", auctionDto.getTitle(), user.getId());
             AuctionDto created = auctionService.createAuction(auctionDto, imageFile);
             return ResponseEntity.ok(created);
         } catch (Exception e) {

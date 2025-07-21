@@ -1,32 +1,55 @@
 package com.auction.controller;
 
-import com.auction.dto.CommentDto;
-import com.auction.service.CommentService;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.auction.dto.CommentDto;
+import com.auction.dto.UserDto;
+import com.auction.service.CommentService;
+import com.auction.service.UserService;
 
 @RestController
 @RequestMapping("/api/comments")
 @CrossOrigin(origins = "http://localhost:5173")
 public class CommentController {
     private final CommentService commentService;
+    private final UserService userService;
 
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, UserService userService) {
         this.commentService = commentService;
+        this.userService = userService;
     }
 
     // 댓글 등록
     @PostMapping
-    public ResponseEntity<?> createComment(@RequestBody CommentDto comment) {
+    public ResponseEntity<?> createComment(@RequestBody CommentDto comment, Authentication authentication) {
         try {
+
+            if (authentication == null) {
+                return ResponseEntity.status(401).body("로그인이 필요합니다.");
+            }
+            String username = authentication.getName();
+            UserDto user = userService.findByUsernameDto(username);
+            if (user == null) {
+                return ResponseEntity.status(401).body("사용자 정보를 찾을 수 없습니다.");
+            }
+            comment.setUserId(user.getId());
+            comment.setAuthor(user.getNickname() != null ? user.getNickname() : user.getUsername());
+
             // 유효성 검사
             if (comment.getAuctionId() == null) {
                 return ResponseEntity.badRequest().body("경매 ID가 필요합니다.");
-            }
-            if (comment.getAuthor() == null || comment.getAuthor().trim().isEmpty()) {
-                return ResponseEntity.badRequest().body("작성자 이름이 필요합니다.");
             }
             if (comment.getContent() == null || comment.getContent().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("댓글 내용이 필요합니다.");

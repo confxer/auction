@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './CommentSection.css';
+import axios from '../axiosConfig';
 
 const CommentSection = ({ auctionId }) => {
   const [comments, setComments] = useState([]);
@@ -12,75 +13,33 @@ const CommentSection = ({ auctionId }) => {
     loadComments();
   }, [auctionId]);
 
-  const loadComments = () => {
-    // 임시 댓글 데이터
-    const mockComments = [
-      {
-        id: 1,
-        userId: "user123",
-        username: "경매왕",
-        content: "정말 좋은 물건이네요! 입찰해보고 싶습니다.",
-        timestamp: "2024-01-10T15:30:00",
-        likes: 3,
-        replies: [
-          {
-            id: 11,
-            userId: "seller1",
-            username: "애플전문점",
-            content: "감사합니다! 좋은 가격에 낙찰되시길 바랍니다.",
-            timestamp: "2024-01-10T16:00:00"
-          }
-        ]
-      },
-      {
-        id: 2,
-        userId: "user456",
-        username: "스마트쇼퍼",
-        content: "배터리 상태는 어떤가요? 사용 기간이 궁금합니다.",
-        timestamp: "2024-01-10T14:45:00",
-        likes: 1,
-        replies: []
-      },
-      {
-        id: 3,
-        userId: "user789",
-        username: "디지털러버",
-        content: "M2 Pro 성능이 정말 대단하죠. 게임도 잘 돌아갈까요?",
-        timestamp: "2024-01-10T14:20:00",
-        likes: 2,
-        replies: []
-      },
-      {
-        id: 4,
-        userId: "user101",
-        username: "테크마스터",
-        content: "보증 기간이 1년이라니 안심이네요. 애플 공식 보증이니까요.",
-        timestamp: "2024-01-10T13:55:00",
-        likes: 4,
-        replies: []
-      }
-    ];
-
-    setComments(mockComments);
+  // 서버에서 댓글 목록 불러오기
+  const loadComments = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`/api/comments/auction/${auctionId}`);
+      setComments(res.data);
+    } catch (err) {
+      setComments([]);
+    }
     setLoading(false);
   };
 
-  const handleSubmitComment = (e) => {
+  // 댓글 작성
+  const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
-
-    const comment = {
-      id: Date.now(),
-      userId: "currentUser",
-      username: "나",
-      content: newComment,
-      timestamp: new Date().toISOString(),
-      likes: 0,
-      replies: []
-    };
-
-    setComments([comment, ...comments]);
-    setNewComment('');
+    try {
+      await axios.post('/api/comments', {
+        auctionId,
+        content: newComment,
+        // userId, author는 백엔드에서 자동 세팅
+      });
+      setNewComment('');
+      loadComments(); // 댓글 목록 새로고침
+    } catch (err) {
+      alert('댓글 등록 실패');
+    }
   };
 
   const handleSubmitReply = (commentId) => {
@@ -134,6 +93,9 @@ const CommentSection = ({ auctionId }) => {
     });
   };
 
+  // 댓글 목록이 배열이 아닐 때 안전하게 처리
+  const safeComments = Array.isArray(comments) ? comments : [];
+
   if (loading) {
     return (
       <div className="comment-section-loading">
@@ -147,7 +109,7 @@ const CommentSection = ({ auctionId }) => {
     <div className="comment-section">
       <div className="comment-header">
         <h2>댓글</h2>
-        <span className="comment-count">{comments.length}개</span>
+        <span className="comment-count">{safeComments.length}개</span>
       </div>
 
       {/* 댓글 작성 폼 */}
@@ -172,87 +134,34 @@ const CommentSection = ({ auctionId }) => {
 
       {/* 댓글 목록 */}
       <div className="comment-list">
-        {comments.length === 0 ? (
+        {safeComments.length === 0 ? (
           <div className="no-comments">
             <div className="no-comments-icon">💬</div>
             <p>아직 댓글이 없습니다.</p>
             <span>첫 번째 댓글을 작성해보세요!</span>
           </div>
         ) : (
-          comments.map((comment) => (
+          safeComments.map((comment) => (
             <div key={comment.id} className="comment-item">
               <div className="comment-header">
                 <div className="comment-user">
-                  <span className="username">{comment.username}</span>
-                  <span className="timestamp">{formatTime(comment.timestamp)}</span>
+                  <span className="username">{comment.author}</span>
+                  <span className="timestamp">{formatTime(comment.createdAt)}</span>
                 </div>
-                <div className="comment-actions">
-                  <button 
-                    className="btn-like"
-                    onClick={() => handleLike(comment.id)}
-                  >
-                    👍 {comment.likes}
-                  </button>
-                  <button 
-                    className="btn-reply"
-                    onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-                  >
-                    답글
-                  </button>
-                </div>
+                {/* 좋아요/답글 등은 서버 연동 후 구현 */}
               </div>
-              
               <div className="comment-content">
                 {comment.content}
               </div>
-
-              {/* 답글 작성 폼 */}
+              {/* 답글/답글 목록은 서버 연동 후 구현 (현재는 주석 처리) */}
+              {/*
               {replyTo === comment.id && (
-                <div className="reply-form">
-                  <textarea
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="답글을 작성해주세요..."
-                    rows="2"
-                    className="reply-input"
-                  />
-                  <div className="reply-actions">
-                    <button 
-                      className="btn-submit-reply"
-                      onClick={() => handleSubmitReply(comment.id)}
-                      disabled={!replyText.trim()}
-                    >
-                      답글 작성
-                    </button>
-                    <button 
-                      className="btn-cancel-reply"
-                      onClick={() => {
-                        setReplyTo(null);
-                        setReplyText('');
-                      }}
-                    >
-                      취소
-                    </button>
-                  </div>
-                </div>
+                <div className="reply-form"> ... </div>
               )}
-
-              {/* 답글 목록 */}
-              {comment.replies.length > 0 && (
-                <div className="reply-list">
-                  {comment.replies.map((reply) => (
-                    <div key={reply.id} className="reply-item">
-                      <div className="reply-header">
-                        <span className="username">{reply.username}</span>
-                        <span className="timestamp">{formatTime(reply.timestamp)}</span>
-                      </div>
-                      <div className="reply-content">
-                        {reply.content}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {comment.replies && comment.replies.length > 0 && (
+                <div className="reply-list"> ... </div>
               )}
+              */}
             </div>
           ))
         )}

@@ -91,6 +91,7 @@ public class AuctionServiceImpl implements AuctionService {
         auction.setHighestBid(dto.getHighestBid());
         auction.setIsClosed(dto.getIsClosed());
         auction.setWinner(dto.getWinner());
+        auction.setUserId(dto.getUserId()); // userId 세팅 추가
         return auction;
     }
 
