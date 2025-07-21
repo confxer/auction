@@ -40,6 +40,7 @@ import OAuth2Success from "./pages/OAuth2Success";
 import SearchResult from "./pages/SearchResult";
 import MyPage from "./pages/MyPage";
 import Favorites from "./pages/Favorites";
+import KakaoMap from "./pages/KakaoMap";
 
 function App() {
   const [dashboardData, setDashboardData] = useState({
@@ -138,7 +139,8 @@ function App() {
                 <Route path="/search" element={<SearchResult />} />
                 <Route path="/mypage" element={<MyPage />} />
                 <Route path="/favorites" element={<Favorites />} />
-                <Route path="/messages" element={<PrivateMessage />} />
+                
+                <Route path="/map" element={<KakaoMap />}/>
               </Routes>
             </main>
             <QuickMenu />

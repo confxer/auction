@@ -7,11 +7,13 @@ import AuctionTimer from '../components/AuctionTimer';
 import BidHistory from '../components/BidHistory';
 import LiveBidding from '../components/LiveBidding';
 import FavoriteButton from '../components/FavoriteButton';
+import { useUser } from '../UserContext'; // Import useUser
 import '../style/AuctionDetail.css';
 
 const AuctionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user, checkAuthStatus } = useUser(); // Get user and checkAuthStatus
   const [auction, setAuction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentBid, setCurrentBid] = useState('');
@@ -20,6 +22,11 @@ const AuctionDetail = () => {
   const [processing, setProcessing] = useState(false);
   const [auctionStatus, setAuctionStatus] = useState('진행중');
   const [currentPrice, setCurrentPrice] = useState(0);
+
+  // Fetch user data when component mounts or user changes
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
 
   useEffect(() => {
     // "new" ID인 경우 경매 등록 페이지로 리다이렉트
@@ -35,6 +42,7 @@ const AuctionDetail = () => {
       })
       .then((data) => {
         setAuction(data);
+        console.log("데이터: ",data );
         setCurrentPrice(Math.max(data.startPrice, data.highestBid || 0));
         setLoading(false);
         
@@ -59,6 +67,7 @@ const AuctionDetail = () => {
         .then((res) => res.json())
         .then((data) => {
           const newPrice = Math.max(data.startPrice, data.highestBid || 0);
+          console.log(data.highestBid);
           setCurrentPrice(newPrice);
           setAuction(prev => ({ ...prev, ...data }));
         })
@@ -145,7 +154,7 @@ const AuctionDetail = () => {
         setShowBidModal(false);
         setCurrentBid('');
         setProcessing(false);
-        
+        console.log("11: ",bidAmount)
         // 현재가 즉시 업데이트
         const newPrice = Math.max(auction.startPrice, bidAmount);
         setCurrentPrice(newPrice);
@@ -203,7 +212,7 @@ const AuctionDetail = () => {
         <div className="auction-title-section">
           <h1>{auction.title}</h1>
           <div className="auction-seller-id" style={{fontSize:'0.98rem',color:'#888',marginTop:'4px',fontWeight:500}}>
-            판매자: {auction.seller || auction.userId || '알수없음'}
+            판매자: {user ? user.username : auction.seller || auction.userId || '알수없음'}
           </div>
           <div className="auction-meta">
             <span className="category">{auction.category}</span>
