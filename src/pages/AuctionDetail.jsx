@@ -67,7 +67,7 @@ const AuctionDetail = () => {
         .then((res) => res.json())
         .then((data) => {
           const newPrice = Math.max(data.startPrice, data.highestBid || 0);
-          console.log(data.highestBid);
+          console.log(data.highestBid,data);
           setCurrentPrice(newPrice);
           setAuction(prev => ({ ...prev, ...data }));
         })
@@ -141,7 +141,7 @@ const AuctionDetail = () => {
       body: JSON.stringify({
         auctionId: auction.id,
         bidAmount: bidAmount,
-        bidder: 'guest' // 실제 로그인 사용자로 대체 가능
+        bidder: user.nickname // 실제 로그인 사용자로 대체 가능
       }),
     })
       .then(async res => {

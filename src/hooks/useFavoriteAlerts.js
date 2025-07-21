@@ -22,7 +22,7 @@ export const useFavoriteAlerts = () => {
     // 마감 임박 경매 체크 함수
     const checkEndingSoonFavorites = async () => {
       try {
-        const response = await axios.get(`favorites/user/${user.id}/ending-soon`);
+        const response = await axios.get(`api/favorites/user/${user.id}/ending-soon`);
         
         // 응답 데이터가 null이거나 배열이 아닌 경우 빈 배열로 처리
         let endingSoonFavorites = [];
