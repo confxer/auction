@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Notice from './Notice';
 import axios from 'axios';
 import '../style/CustomerService.css';
 
@@ -118,32 +119,7 @@ const CustomerService = () => {
       {/* 공지사항 탭 */}
       {activeTab === 'notice' && (
         <div className="cs-content">
-          <h3>공지사항</h3>
-          {notices.length === 0 ? (
-            <div className="empty-message">등록된 공지사항이 없습니다.</div>
-          ) : (
-            <div className="notice-list">
-              {notices.map((notice) => (
-                <div key={notice.id} className="notice-item" onClick={() => navigate(`/notice/${notice.id}`)}>
-                  <div className="notice-header">
-                    <h4 className="notice-title">
-                      {notice.important && <span className="important-badge">중요</span>}
-                      {notice.title}
-                    </h4>
-                    <span className="notice-date">
-                      {new Date(notice.createdAt).toLocaleDateString('ko-KR')}
-                    </span>
-                  </div>
-                  <p className="notice-excerpt">
-                    {notice.content.length > 100 
-                      ? notice.content.substring(0, 100) + '...' 
-                      : notice.content
-                    }
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
+          <Notice />
         </div>
       )}
 

@@ -31,7 +31,7 @@ import InquiryDetail from "./pages/InquiryDetail";
 import InquiryAdmin from "./pages/InquiryAdmin";
 import InquiryAdminDetailPage from "./pages/InquiryAdminDetailPage";
 import Notice from "./pages/Notice";
-import NoticeList from "./pages/NoticeList";
+import NoticeList from "./components/NoticeList";
 import NoticeDetail from "./pages/NoticeDetail";
 import NoticeAdmin from "./pages/NoticeAdmin";
 import Event from "./pages/Event";
