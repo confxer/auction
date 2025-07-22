@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../UserContext";
 import axios from "../axiosConfig";
 import "../style/Register.css";
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -26,6 +27,8 @@ const Register = () => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
   const [verificationSuccess, setVerificationSuccess] = useState(false);
+  const [isCaptchaSuccessful, setIsCaptchaSuccessful] = useState(false);
+  const recaptchaRef = useRef();
   const navigate = useNavigate();
   const { register } = useUser();
 
@@ -49,6 +52,10 @@ const Register = () => {
     }
     if (!form.email.includes('@')) {
       setError("올바른 이메일 형식을 입력해주세요.");
+      return false;
+    }
+    if (!isCaptchaSuccessful) {
+      setError("reCAPTCHA를 완료해주세요.");
       return false;
     }
     return true;
@@ -179,6 +186,13 @@ const Register = () => {
   const handleSocialRegister = (provider) => {
     setError(`${provider} 회원가입은 준비 중입니다.`);
   };
+
+  function handleCaptchaChange(token) {
+    console.log("reCAPTCHA token:", token);
+    if (token) {
+      setIsCaptchaSuccessful(true);
+    }
+  }
 
   return (
     <div className="register-page">
@@ -311,11 +325,16 @@ const Register = () => {
                         </button>
                       </div>
                     </div>
-
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      sitekey="6LcgJIsrAAAAAOTBM3zn0dDZfOp6c5Rmm9BameYp"
+                      onChange={handleCaptchaChange}
+                    />
                     <button
                       type="button"
                       onClick={nextStep}
                       className="btn btn-primary"
+                      disabled={!isCaptchaSuccessful}
                     >
                       다음 단계
                     </button>
