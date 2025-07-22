@@ -190,4 +190,9 @@ public class EventController {
     public Map<String, Object> getEventStats() {
         return eventService.getEventStats();
     }
+
+    @GetMapping("/{id}")
+    public EventDto getEventbyId(@PathVariable Long id) {
+        return eventService.getEventbyId(id);
+    }
 } 

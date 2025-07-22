@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../style/EventDetail.css';
 
 const EventDetail = () => {
@@ -16,13 +17,9 @@ const EventDetail = () => {
       return;
     }
 
-    fetch(`/api/event/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error('이벤트를 불러올 수 없습니다.');
-        return res.json();
-      })
-      .then(setEvent)
-      .catch((e) => setError(e.message))
+    axios.get(`http://localhost:8080/api/event/${id}`, { withCredentials: true })
+      .then(res => setEvent(res.data))
+      .catch(e => setError(e.response?.data || e.message))
       .finally(() => setLoading(false));
   }, [id, navigate]);
 

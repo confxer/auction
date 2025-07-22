@@ -133,4 +133,8 @@ public class EventService {
         
         return stats;
     }
+
+    public EventDto getEventbyId(Long id) {
+        return eventRepository.findById(id);
+    }
 } 
