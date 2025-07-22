@@ -232,6 +232,7 @@ public class AuctionServiceImpl implements AuctionService {
         Optional<Auction> auctionOpt = auctionRepository.findById(id);
         if (auctionOpt.isPresent()) {
             Auction auction = auctionOpt.get();
+            auction.setHighestBid(auction.getBuyNowPrice());
             auction.setStatus("종료");
             auction.setIsClosed(true);
             auctionRepository.save(auction);
