@@ -144,10 +144,14 @@ const EventAdmin = () => {
   const confirmDelete = async () => {
     if (selectedEvent) {
       try {
+        const token = localStorage.getItem('token');
+        const axiosConfig = {
+          withCredentials: true,
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        };
         console.log('🗑️ 이벤트 삭제 시작:', selectedEvent.id);
-        await axios.delete(`/api/event/admin/${selectedEvent.id}`);
+        await axios.delete(`/api/event/admin/${selectedEvent.id}`, axiosConfig);
         console.log('✅ 이벤트 삭제 완료');
-        
         // 목록 새로고침
         await loadEvents();
         setShowDeleteModal(false);
@@ -172,6 +176,11 @@ const EventAdmin = () => {
 
   const handleFormSubmit = async (formData) => {
     try {
+      const token = localStorage.getItem('token');
+      const axiosConfig = {
+        withCredentials: true,
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      };
       if (editingEvent) {
         // 수정
         console.log('✏️ 이벤트 수정 시작:', editingEvent.id);
@@ -180,8 +189,7 @@ const EventAdmin = () => {
           id: editingEvent.id,
           status: formData.status || 'published'
         };
-        
-        await axios.put('/api/event/admin', updateData);
+        await axios.put('/api/event/admin', updateData, axiosConfig);
         console.log('✅ 이벤트 수정 완료');
         alert('이벤트가 성공적으로 수정되었습니다.');
       } else {
@@ -192,12 +200,10 @@ const EventAdmin = () => {
           status: formData.status || 'published',
           author: formData.author || '관리자'
         };
-        
-        await axios.post('/api/event/admin', createData);
+        await axios.post('/api/event/admin', createData, axiosConfig);
         console.log('✅ 이벤트 생성 완료');
         alert('이벤트가 성공적으로 생성되었습니다.');
       }
-      
       // 목록 새로고침
       await loadEvents();
       setShowForm(false);
@@ -440,12 +446,12 @@ const EventAdmin = () => {
 const EventForm = ({ event, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     title: event?.title || '',
-    description: event?.description || '',
+    content: event?.content || '',
     startDate: event?.startDate || '',
     endDate: event?.endDate || '',
     status: event?.status || 'upcoming',
     imageUrl: event?.imageUrl || '',
-    isFeatured: event?.isFeatured || false
+
   });
 
   const handleSubmit = (e) => {
@@ -482,8 +488,8 @@ const EventForm = ({ event, onSubmit, onCancel }) => {
           <div className="form-group">
             <label>이벤트 설명 *</label>
             <textarea
-              name="description"
-              value={formData.description}
+              name="content"
+              value={formData.content}
               onChange={handleInputChange}
               required
               rows="6"
@@ -546,17 +552,7 @@ const EventForm = ({ event, onSubmit, onCancel }) => {
             </div>
           </div>
 
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="isFeatured"
-                checked={formData.isFeatured}
-                onChange={handleInputChange}
-              />
-              추천 이벤트로 설정
-            </label>
-          </div>
+          
 
           <div className="form-actions">
             <button type="button" onClick={onCancel} className="cancel-btn">

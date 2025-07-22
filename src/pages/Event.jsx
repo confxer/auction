@@ -67,7 +67,7 @@ const Event = () => {
           console.log(`🔍 이벤트 "${event.title}" 상태 확인:`, event.status);
           const now = new Date();
           const endDate = new Date(event.endDate);
-          const isEnded = now > endDate;
+          const isEnded = now > endDate || event.status === 'ended';
           console.log(`📅 종료 확인 - 현재: ${now.toISOString()}, 종료: ${endDate.toISOString()}, 종료됨: ${isEnded}`);
           return isEnded;
         });
@@ -78,8 +78,8 @@ const Event = () => {
       if (searchTerm) {
         filteredEvents = filteredEvents.filter(event =>
           event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (event.subtitle && event.subtitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase()))
+          (event.title && event.subtitle.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (event.content && event.description.toLowerCase().includes(searchTerm.toLowerCase()))
         );
         console.log('🔍 검색어 필터 적용 후:', filteredEvents.length, '개');
       }
@@ -101,39 +101,6 @@ const Event = () => {
     } catch (error) {
       console.error('❌ 이벤트 로드 실패:', error);
       console.error('❌ 에러 상세:', error.response?.data || error.message);
-      
-      // API 실패 시 임시 데이터 사용
-      const mockEvents = [
-        {
-          id: 1,
-          title: "신년 맞이 특별 이벤트",
-          subtitle: "2024년 새해를 맞이하여 특별한 혜택을 드립니다!",
-          description: "1월 한 달간 경매 수수료 50% 할인 혜택을 드립니다. 신규 회원 가입 시 추가 혜택도 함께 제공됩니다.",
-          image: "https://placehold.co/400x250/3498db/ffffff?text=신년+이벤트",
-          startDate: "2024-01-01",
-          endDate: "2024-01-31",
-          status: "ongoing",
-          category: "discount",
-          participants: 1250,
-          isHot: true
-        },
-        {
-          id: 2,
-          title: "첫 경매 참여 이벤트",
-          subtitle: "처음 경매에 참여하시는 분들을 위한 특별 이벤트",
-          description: "첫 경매 참여 시 수수료 면제 및 10,000원 할인 쿠폰을 제공합니다. 경험해보세요!",
-          image: "https://placehold.co/400x250/e74c3c/ffffff?text=첫+경매+이벤트",
-          startDate: "2024-01-15",
-          endDate: "2024-02-15",
-          status: "ongoing",
-          category: "newbie",
-          participants: 890,
-          isHot: false
-        }
-      ];
-      
-      console.log('🔄 임시 데이터 사용:', mockEvents);
-      setEvents(mockEvents);
       setTotalPages(1);
     } finally {
       console.log('🏁 이벤트 로딩 완료');
@@ -274,7 +241,7 @@ const Event = () => {
                         {formatDate(event.startDate)} ~ {formatDate(event.endDate)}
                       </span>
                     </div>
-                    {event.status === 'ongoing' && (
+                    {event.status === 'published' && (
                       <div className="days-left">
                         <span className="days-label">남은 기간:</span>
                         <span className="days-value">{getDaysLeft(event.endDate)}일</span>

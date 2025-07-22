@@ -9,7 +9,7 @@ public class EventDto {
     private String content;
     private String category;
     private String status;
-    private boolean isImportant;
+    private Boolean isImportant;
     private int views;
     private String author;
     private String imageUrl;
@@ -23,7 +23,7 @@ public class EventDto {
 
     // 생성자
     public EventDto(Long id, String title, String content, String category, String status, 
-                   boolean isImportant, int views, String author, String imageUrl,
+                   Boolean isImportant, int views, String author, String imageUrl,
                    LocalDate startDate, LocalDate endDate, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.title = title;
@@ -81,12 +81,12 @@ public class EventDto {
         this.status = status;
     }
 
-    public boolean isImportant() {
+    public Boolean isImportant() {
         return isImportant;
     }
 
-    public void setImportant(boolean important) {
-        isImportant = important;
+    public void setImportant(Boolean isImportant) {
+        this.isImportant = isImportant;
     }
 
     public int getViews() {

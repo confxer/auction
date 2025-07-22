@@ -55,7 +55,7 @@ public class EventRepository {
     }
 
     public List<EventDto> findPublishedEvents() {
-        String sql = "SELECT * FROM event WHERE status = 'published' ORDER BY is_important DESC, created_at DESC";
+        String sql = "SELECT * FROM event ORDER BY is_important DESC, created_at DESC";
         return jdbcTemplate.query(sql, this::mapRowToDto);
     }
 

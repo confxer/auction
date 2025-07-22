@@ -42,8 +42,18 @@ public class SecurityConfig {
                 .requestMatchers("/api/uploads/**").permitAll()
                 .requestMatchers("/api/users/check-nickname").permitAll()
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
-                // 관리자 전용 API
-                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                // 이벤트 공개 API
+                .requestMatchers(
+                    "/api/event/published",
+                    "/api/event/published/**",
+                    "/api/event/ongoing",
+                    "/api/event/category/**",
+                    "/api/event/search"
+                ).permitAll()
+                // 이벤트 관리자 전용 API
+                .requestMatchers("/api/event/admin/**").hasRole("ADMIN")
+                // 나머지 이벤트 API는 인증 필요
+                .requestMatchers("/api/event/**").authenticated()
                 // 인증 필요 API (USER, ADMIN 모두 허용)
                 .requestMatchers("/api/favorites/**", "/api/auctions/**", "/api/inquiry/**", "/api/comments/**", "/api/notifications/**", "/api/private-message/**").hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
