@@ -8,6 +8,7 @@ import FavoriteButton from '../components/FavoriteButton';
 import TimeDisplay from '../components/TimeDisplay';
 import { useUser } from '../UserContext';
 import MainBanner from '../components/MainBanner';
+import ReportPanel from '../components/admin/ReportPanel';
 
 const Home = ({ dashboardData }) => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Home = ({ dashboardData }) => {
   const [auctions, setAuctions] = useState(dashboardData?.auctions || []);
   const [favoritedAuctions, setFavoritedAuctions] = useState([]);
   const [loadingFavorites, setLoadingFavorites] = useState(false);
+  const [showReport, setShowReport] = useState(false);
 
   
   // 실시간 경매 업데이트 콜백
@@ -276,7 +278,9 @@ const Home = ({ dashboardData }) => {
       <div className="home-section-row">
         {/* 공지사항 */}
         <div className="home-section-card">
-          <div className="home-section-header">📢 공지사항</div>
+          <div className="home-section-header">📢 공지사항
+            <Link to="/notice" className="home-section-morebox">+</Link>
+          </div>
           <div className="home-section-listbox">
             {notices.length > 0 ? notices.map(notice => (
               <div className="home-section-itembox" key={notice.id}>
@@ -284,24 +288,26 @@ const Home = ({ dashboardData }) => {
                 <span className="home-section-date">{new Date(notice.createdAt).toLocaleDateString('ko-KR')}</span>
               </div>
             )) : <div className="home-section-itembox">공지사항이 없습니다.</div>}
-            <Link to="/notice" className="home-section-morebox">...</Link>
           </div>
         </div>
         {/* FAQ */}
         <div className="home-section-card">
-          <div className="home-section-header">❓ 자주 묻는 질문</div>
+          <div className="home-section-header">❓ 자주 묻는 질문
+            <Link to="/faq" className="home-section-morebox">+</Link>
+          </div>
           <div className="home-section-listbox">
             {faqs.length > 0 ? faqs.map(faq => (
               <div className="home-section-itembox" key={faq.id}>
                 <span className="home-section-title">{faq.question}</span>
               </div>
             )) : <div className="home-section-itembox">FAQ가 없습니다.</div>}
-            <Link to="/faq" className="home-section-morebox">...</Link>
           </div>
         </div>
         {/* 이벤트 */}
         <div className="home-section-card">
-          <div className="home-section-header">🎊 진행중인 이벤트</div>
+          <div className="home-section-header">🎊 진행중인 이벤트
+            <Link to="/event" className="home-section-morebox">+</Link>
+          </div>
           <div className="home-section-listbox">
             {events.length > 0 ? events.map(event => (
               <div className="home-section-itembox" key={event.id}>
@@ -309,12 +315,18 @@ const Home = ({ dashboardData }) => {
                 <span className="home-section-date">{new Date(event.startDate).toLocaleDateString('ko-KR')}</span>
               </div>
             )) : <div className="home-section-itembox">이벤트가 없습니다.</div>}
-            <Link to="/event" className="home-section-morebox">...</Link>
           </div>
         </div>
       </div>
 
       {/* 이하 기존 경매/찜/카테고리 등 기존 홈 콘텐츠 유지 ... */}
+      {/* 신고 내역 관리자 패널 (관리자만 노출) */}
+      {user && user.role === 'ADMIN' && (
+        <div style={{ marginTop: 40 }}>
+          <h2>신고 내역(관리자용)</h2>
+          <ReportPanel />
+        </div>
+      )}
     </div>
   );
 };

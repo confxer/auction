@@ -7,6 +7,7 @@ import AuctionTimer from '../components/AuctionTimer';
 import BidHistory from '../components/BidHistory';
 import LiveBidding from '../components/LiveBidding';
 import FavoriteButton from '../components/FavoriteButton';
+import ReportButton from '../components/ReportButton';
 import { useUser } from '../UserContext'; // Import useUser
 import axios from '../axiosConfig';
 import '../style/AuctionDetail.css';
@@ -282,6 +283,8 @@ const AuctionDetail = () => {
               </button>
             )}
           </div>
+          {/* 신고하기 버튼 추가 */}
+          <ReportButton auctionId={auction.id} />
         </div>
       </div>
 

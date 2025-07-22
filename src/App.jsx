@@ -9,6 +9,9 @@ import Footer from "./components/Footer";
 import Navigation from "./components/Navigation";
 import QuickMenu from "./components/QuickMenu";
 
+
+
+
 // 페이지들
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -131,6 +134,7 @@ function App() {
                 <Route path="/mypage" element={<MyPage />} />
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/map" element={<KakaoMap />} />
+               
               </Routes>
             </main>
             <QuickMenu />

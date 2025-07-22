@@ -18,7 +18,9 @@
   font-size: 1.1rem;
   font-weight: bold;
   margin-bottom: 12px;
-  text-align: center;
+  text-align: left;
+  display: flex;
+  align-items: center;
 }
 .home-section-listbox {
   display: flex;
@@ -51,17 +53,16 @@
   margin-left: 8px;
 }
 .home-section-morebox {
-  background: #eee;
   color: #888;
   font-size: 1.2rem;
   text-decoration: none;
-  margin-top: auto;
-  transition: background 0.2s;
-  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 8px;
 }
 .home-section-morebox:hover {
-  background: #ff9800;
-  color: #fff;
+  color: #ff9800;
 }
 @media (max-width: 900px) {
   .home-section-row {
