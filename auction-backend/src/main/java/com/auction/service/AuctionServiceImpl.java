@@ -54,6 +54,7 @@ public class AuctionServiceImpl implements AuctionService {
         dto.setWinner(auction.getWinner());
         dto.setViewCount(auction.getViewCount());
         dto.setBidCount(auction.getBidCount());
+        dto.setUserId(auction.getUserId());
         
         // 프론트엔드 호환성을 위한 필드 설정
         dto.setImageUrl(auction.getImageUrl1());

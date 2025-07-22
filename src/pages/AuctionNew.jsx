@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../style/AuctionNew.css';
+import { useUser } from '../UserContext';
 
 function AuctionNew() {
+  const { user } = useUser();
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('가전');
   const [brand, setBrand] = useState('기타');
@@ -97,6 +99,7 @@ function AuctionNew() {
       shippingFee: shipping,
       shippingType,
       location,
+      userId: user.id,
     };
 
     formData.append('auction', new Blob([JSON.stringify(auctionData)], { type: "application/json" }));

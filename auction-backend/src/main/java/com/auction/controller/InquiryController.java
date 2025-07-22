@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.auction.dto.InquiryDto;
 import com.auction.service.InquiryService;
 
+import ch.qos.logback.core.status.Status;
+
 @RestController
 @RequestMapping("/api/inquiry")
 @CrossOrigin(origins = "*")
@@ -97,6 +99,12 @@ public class InquiryController {
     @GetMapping("/admin/status/{status}")
     public List<InquiryDto> getInquiriesByStatus(@PathVariable String status) {
         return inquiryService.getInquiriesByStatus(status);
+    }
+
+    @PostMapping("/admin/status/{status}")
+    public ResponseEntity<String> updateStatus(@RequestParam Long id, @RequestParam String status) {
+        inquiryService.updateStatus(id, status);
+        return ResponseEntity.ok("상태가 성공적으로 변경되었습니다.");
     }
 
     @GetMapping("/admin/priority/{priority}")

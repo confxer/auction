@@ -27,49 +27,54 @@ const AuctionDetail = () => {
 
   // Fetch user data when component mounts or user changes
   
-
+  
+  
   useEffect(() => {
     // "new" ID인 경우 경매 등록 페이지로 리다이렉트
     if (id === 'new') {
       navigate('/auction-new');
       return;
     }
-
     fetch(`/api/auctions/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error('서버 응답 오류');
-        return res.json();
-      })
-      .then((data) => {
-        setAuction(data);
-        console.log("데이터: ",data );
-        setCurrentPrice(Math.max(data.startPrice, data.highestBid || 0));
-        setLoading(false);
-        if(data.isClosed){
-          setAuctionStatus('종료');
-        }
-        // 조회수 증가
-        fetch(`/api/auctions/${id}/view`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        }).catch(err => console.log('조회수 증가 실패:', err));
-      })
-      .catch((err) => {
-        setAuction(null);
-        setLoading(false);
-      });
+    .then((res) => {
+      if (!res.ok) throw new Error('서버 응답 오류');
+      return res.json();
+    })
+    .then((data) => {
+      setAuction(data);
+      console.log("데이터: ",data, user.id, data);
+      setCurrentPrice(Math.max(data.startPrice, data.highestBid || 0));
+      setLoading(false);
+      if(data.isClosed){
+        setAuctionStatus('종료');
+      }
+      // 조회수 증가
+      fetch(`/api/auctions/${id}/view`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      }).catch(err => console.log('조회수 증가 실패:', err));
+    })
+    .catch((err) => {
+      setAuction(null);
+      setLoading(false);
+    });
   }, [id, navigate]);
-
+  
+  const handleDelete = async () => {
+    
+    await axios.delete(`/api/auctions/${id}`);
+    navigate('/auction');
+  };
+  
   // 실시간 현재가 업데이트를 위한 인터벌
   useEffect(() => {
     if (!auction) return;
-
+    
     const interval = setInterval(() => {
       fetch(`/api/auctions/${id}`)
-        .then((res) => res.json())
+      .then((res) => res.json())
         .then((data) => {
           const newPrice = Math.max(data.startPrice, data.highestBid || 0);
-          console.log(data.highestBid,data);
           setCurrentPrice(newPrice);
           setAuction(prev => ({ ...prev, ...data }));
         })
@@ -211,7 +216,7 @@ const AuctionDetail = () => {
         <div className="auction-title-section">
           <h1>{auction.title}</h1>
           <div className="auction-seller-id" style={{fontSize:'0.98rem',color:'#888',marginTop:'4px',fontWeight:500}}>
-            판매자: {user ? user.username : auction.seller || auction.userId || '알수없음'}
+            판매자: {auction.userId ? auction.userId : auction.seller || auction.userId || '알수없음'}
           </div>
           <div className="auction-meta">
             <span className="category">{auction.category}</span>
@@ -229,6 +234,12 @@ const AuctionDetail = () => {
               closed={auction.isClosed} 
             />
           </div>
+          {user.id === auction.userId && (
+            <button onClick={() => handleDelete()}>삭제</button>
+          )}
+          {user.role === 'ADMIN' && (
+            <button onClick={() => handleDelete()}>삭제</button>
+          )}
           <FavoriteButton auctionId={auction.id} />
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../style/InquiryAdmin.css';
+import axios from '../axiosConfig';
 
 const InquiryAdmin = () => {
   const [inquiries, setInquiries] = useState([]);
@@ -20,75 +21,24 @@ const InquiryAdmin = () => {
     loadInquiries();
   }, []);
 
-  const loadInquiries = () => {
-    // 임시 문의 데이터
-    const mockInquiries = [
-      {
-        id: 1,
-        title: "경매 참여 방법에 대해 문의드립니다",
-        content: "경매에 처음 참여하려고 하는데, 어떤 절차를 거쳐야 하는지 자세히 알려주세요. 입찰 방법과 주의사항도 함께 부탁드립니다.",
-        category: "auction",
-        status: "pending",
-        author: "김철수",
-        email: "kim@example.com",
-        date: "2024-01-10",
-        priority: "high",
-        hasReply: false
-      },
-      {
-        id: 2,
-        title: "결제 오류가 발생했습니다",
-        content: "입찰 후 결제를 시도했는데 '결제 오류' 메시지가 나옵니다. 카드 정보는 정확히 입력했는데 왜 이런 문제가 발생하는지 궁금합니다.",
-        category: "payment",
-        status: "in_progress",
-        author: "이영희",
-        email: "lee@example.com",
-        date: "2024-01-09",
-        priority: "high",
-        hasReply: true,
-        reply: "결제 시스템 점검 중입니다. 잠시 후 다시 시도해 주세요."
-      },
-      {
-        id: 3,
-        title: "배송 문의",
-        content: "낙찰된 상품이 언제 배송되는지 궁금합니다. 배송 추적도 가능한가요?",
-        category: "delivery",
-        status: "completed",
-        author: "박민수",
-        email: "park@example.com",
-        date: "2024-01-08",
-        priority: "medium",
-        hasReply: true,
-        reply: "낙찰 후 1-2일 내에 배송됩니다. 배송 추적은 마이페이지에서 확인 가능합니다."
-      },
-      {
-        id: 4,
-        title: "환불 신청",
-        content: "받은 상품에 하자가 있어서 환불을 신청하고 싶습니다. 어떤 절차를 거쳐야 하나요?",
-        category: "refund",
-        status: "pending",
-        author: "최지영",
-        email: "choi@example.com",
-        date: "2024-01-07",
-        priority: "high",
-        hasReply: false
-      },
-      {
-        id: 5,
-        title: "회원정보 수정",
-        content: "연락처를 변경하고 싶은데 회원정보 수정이 안 됩니다. 어떻게 해야 하나요?",
-        category: "account",
-        status: "completed",
-        author: "정수민",
-        email: "jung@example.com",
-        date: "2024-01-06",
-        priority: "low",
-        hasReply: true,
-        reply: "마이페이지 > 회원정보에서 수정 가능합니다. 문제가 지속되면 고객센터로 연락 주세요."
-      }
-    ];
+  const handleStatusFilter = async (status) => {
+    await axios.post(`/api/inquiry/admin/status/${status}`,{
+      status: status,
+      id: id
+    })
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.error(error);
+    });
+    setStatusFilter(status);
+  };
 
-    setInquiries(mockInquiries);
+  const loadInquiries = async () => {
+    // 임시 문의 데이터
+    const response = await axios.get('/api/inquiry/admin');
+    setInquiries(response.data);
     setLoading(false);
   };
 
@@ -256,7 +206,7 @@ const InquiryAdmin = () => {
         <div className="filter-options">
           <select 
             value={statusFilter} 
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => handleStatusFilter(e.target.value)}
             className="filter-select"
           >
             <option value="all">전체 상태</option>

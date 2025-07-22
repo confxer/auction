@@ -61,7 +61,7 @@ const NoticeAdmin = () => {
           status: "published",
           createdAt: "2024-01-10",
           views: 1250,
-          important: true,
+          isImportant: true,
           author: "관리자"
         },
         {
@@ -460,7 +460,6 @@ const NoticeForm = ({ notice, onSubmit, onCancel }) => {
     title: notice?.title || '',
     content: notice?.content || '',
     category: notice?.category || 'important',
-    isImportant: notice?.isImportant || false,
     status: notice?.status || 'draft'
   });
 
@@ -537,18 +536,6 @@ const NoticeForm = ({ notice, onSubmit, onCancel }) => {
                 <option value="published">발행</option>
               </select>
             </div>
-          </div>
-
-          <div className="form-group checkbox-group">
-            <label>
-              <input
-                type="checkbox"
-                name="isImportant"
-                checked={formData.isImportant}
-                onChange={handleInputChange}
-              />
-              중요 공지사항으로 설정
-            </label>
           </div>
 
           <div className="form-actions">

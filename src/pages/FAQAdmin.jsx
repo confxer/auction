@@ -419,7 +419,6 @@ const FAQForm = ({ faq, onSubmit, onCancel }) => {
     question: faq?.question || '',
     answer: faq?.answer || '',
     category: faq?.category || 'auction',
-    order: faq?.order || 1
   });
 
   const handleSubmit = (e) => {
@@ -482,19 +481,6 @@ const FAQForm = ({ faq, onSubmit, onCancel }) => {
                 <option value="account">회원정보</option>
                 <option value="technical">기술지원</option>
               </select>
-            </div>
-
-            <div className="form-group">
-              <label>표시 순서</label>
-              <input
-                type="number"
-                name="order"
-                value={formData.order}
-                onChange={handleInputChange}
-                min="1"
-                className="form-input"
-                placeholder="1"
-              />
             </div>
           </div>
 
