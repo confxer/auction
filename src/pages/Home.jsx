@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../style/Home.css";
+import "../style/HomeSection.css";
 import axios from '../axiosConfig';
 import useAuctionSocket from '../hooks/useAuctionSocket';
 import FavoriteButton from '../components/FavoriteButton';
 import TimeDisplay from '../components/TimeDisplay';
 import { useUser } from '../UserContext';
+import MainBanner from '../components/MainBanner';
 
 const Home = ({ dashboardData }) => {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ const Home = ({ dashboardData }) => {
   const [favoritedAuctions, setFavoritedAuctions] = useState([]);
   const [loadingFavorites, setLoadingFavorites] = useState(false);
 
+  
   // 실시간 경매 업데이트 콜백
   const handleAuctionUpdate = useCallback((updatedAuction) => {
     setAuctions(prevAuctions => {
@@ -182,8 +185,14 @@ const Home = ({ dashboardData }) => {
   console.log('✅ FAQ 표시 조건:', faqsCondition);
   console.log('✅ 이벤트 표시 조건:', eventsCondition);
   
+  // 공지/FAQ/이벤트 조건
+  const notices = dashboardData?.notices?.slice(0, 3) || [];
+  const faqs = dashboardData?.faqs?.slice(0, 3) || [];
+  const events = dashboardData?.events?.slice(0, 2) || [];
+
   return (
     <div className="home-container">
+      <MainBanner />
 
       {/* 상단 경매 등록/전체보기 버튼 영역 */}
       <div className="auction-action-bar">
@@ -263,85 +272,49 @@ const Home = ({ dashboardData }) => {
         </div>
       </section>
 
-      {/* 공지사항 */}
-      {noticesCondition && (
-        <section className="notice-section">
-          <div className="container">
-            <div className="section-header">
-              <h2>공지사항</h2>
-            </div>
-            <div className="notice-list">
-              {dashboardData.notices.slice(0, 3).map((notice) => (
-                <div key={notice.id} className={`notice-item ${notice.isImportant ? 'important' : ''}`}>
-                  <div className="notice-content">
-                    <h3 className="notice-title">
-                      {notice.isImportant && <span className="important-badge">중요</span>}
-                      {notice.title}
-                    </h3>
-                    <p className="notice-excerpt">{notice.content.substring(0, 50)}...</p>
-                    <div className="notice-meta">
-                      <span className="notice-date">
-                        {new Date(notice.createdAt).toLocaleDateString('ko-KR')}
-                      </span>
-                      <span className="notice-views">조회 {notice.views}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+      {/* 3등분 카드형 공지/FAQ/이벤트 */}
+      <div className="home-section-row">
+        {/* 공지사항 */}
+        <div className="home-section-card">
+          <div className="home-section-header">📢 공지사항</div>
+          <div className="home-section-listbox">
+            {notices.length > 0 ? notices.map(notice => (
+              <div className="home-section-itembox" key={notice.id}>
+                <span className="home-section-title">{notice.title}</span>
+                <span className="home-section-date">{new Date(notice.createdAt).toLocaleDateString('ko-KR')}</span>
+              </div>
+            )) : <div className="home-section-itembox">공지사항이 없습니다.</div>}
+            <Link to="/notice" className="home-section-morebox">...</Link>
           </div>
-        </section>
-      )}
+        </div>
+        {/* FAQ */}
+        <div className="home-section-card">
+          <div className="home-section-header">❓ 자주 묻는 질문</div>
+          <div className="home-section-listbox">
+            {faqs.length > 0 ? faqs.map(faq => (
+              <div className="home-section-itembox" key={faq.id}>
+                <span className="home-section-title">{faq.question}</span>
+              </div>
+            )) : <div className="home-section-itembox">FAQ가 없습니다.</div>}
+            <Link to="/faq" className="home-section-morebox">...</Link>
+          </div>
+        </div>
+        {/* 이벤트 */}
+        <div className="home-section-card">
+          <div className="home-section-header">🎊 진행중인 이벤트</div>
+          <div className="home-section-listbox">
+            {events.length > 0 ? events.map(event => (
+              <div className="home-section-itembox" key={event.id}>
+                <span className="home-section-title">{event.title}</span>
+                <span className="home-section-date">{new Date(event.startDate).toLocaleDateString('ko-KR')}</span>
+              </div>
+            )) : <div className="home-section-itembox">이벤트가 없습니다.</div>}
+            <Link to="/event" className="home-section-morebox">...</Link>
+          </div>
+        </div>
+      </div>
 
-      {/* FAQ */}
-      {faqsCondition && (
-        <section className="faq-section">
-          <div className="container">
-            <div className="section-header">
-              <h2>자주 묻는 질문</h2>
-            </div>
-            <div className="faq-list">
-              {dashboardData.faqs.slice(0, 3).map((faq) => (
-                <div key={faq.id} className="faq-item">
-                  <div className="faq-question">
-                    <h3>{faq.question}</h3>
-                    <p className="faq-answer">{faq.answer.substring(0, 100)}...</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 이벤트 */}
-      {eventsCondition && (
-        <section className="event-section">
-          <div className="container">
-            <div className="section-header">
-              <h2>진행중인 이벤트</h2>
-            </div>
-            <div className="event-list">
-              {dashboardData.events.slice(0, 2).map((event) => (
-                <div key={event.id} className="event-item">
-                  <div className="event-content">
-                    <h3 className="event-title">
-                      {event.isImportant && <span className="important-badge">중요</span>}
-                      {event.title}
-                    </h3>
-                    <p className="event-excerpt">{event.content.substring(0, 80)}...</p>
-                    <div className="event-meta">
-                      <span className="event-date">
-                        {new Date(event.startDate).toLocaleDateString('ko-KR')} ~ {new Date(event.endDate).toLocaleDateString('ko-KR')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* 이하 기존 경매/찜/카테고리 등 기존 홈 콘텐츠 유지 ... */}
     </div>
   );
 };

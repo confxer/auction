@@ -70,6 +70,7 @@
 
 .auction-content {
   display: flex;
+  flex-direction: row;
   gap: 36px;
   margin-bottom: 36px;
 }

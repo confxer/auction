@@ -1,20 +1,14 @@
-import React from "react";
-import "./MainBanner.css";
-
-const banners = [
-  { img: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=800", text: "에이티즈 앨범 한정판" },
-  { img: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800", text: "시그니처 도로시" },
-  { img: "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?w=800", text: "단 3일 주말 장보기" },
-];
+import React from 'react';
+import '../style/MainBanner.css';
 
 const MainBanner = () => (
   <div className="main-banner">
-    {banners.map((b, i) => (
-      <div className="banner-slide" key={i}>
-        <img src={b.img} alt={b.text} />
-        <div className="banner-text">{b.text}</div>
-      </div>
-    ))}
+    <img src="/public/images/sopum.jpg" alt="광고 배너" />
+    <div className="banner-text">
+      <h2>🎉 지금 경매 이벤트 진행중!</h2>
+      <p>최대 50% 할인 경매, 신규회원 특별 혜택!</p>
+      <a href="/event" className="banner-btn">이벤트 바로가기</a>
+    </div>
   </div>
 );
 

@@ -41,13 +41,18 @@ import MyPage from "./pages/MyPage";
 import Favorites from "./pages/Favorites";
 import KakaoMap from "./pages/KakaoMap";
 
+
+
+
 function App() {
   const [dashboardData, setDashboardData] = useState({
     auctions: [],
     notices: [],
     faqs: [],
     events: []
+    
   });
+ 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -71,6 +76,8 @@ function App() {
 
     fetchDashboardData();
   }, []);
+
+  
 
   if (loading) {
     return (
@@ -130,6 +137,7 @@ function App() {
             <Footer />
           </div>
         </Router>
+        
       </FavoriteAlertProvider>
     </UserProvider>
   );
