@@ -25,11 +25,16 @@ const formatTimeLeft = (target) => {
   return result.trim();
 };
 
-const AuctionTimeLeft = ({ startTime, endTime, onStatusChange }) => {
+const AuctionTimeLeft = ({ startTime, endTime, onStatusChange, ended }) => {
   const [status, setStatus] = useState("진행중");
   const [timeText, setTimeText] = useState("");
 
   useEffect(() => {
+    if (ended) {
+      setStatus("마감");
+      setTimeText("마감");
+      return;
+    }
     const update = () => {
       const { status, time } = getStatusAndTime(startTime, endTime);
       setStatus(status);
