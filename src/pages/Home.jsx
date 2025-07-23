@@ -9,6 +9,7 @@ import TimeDisplay from '../components/TimeDisplay';
 import { useUser } from '../UserContext';
 import MainBanner from '../components/MainBanner';
 import ReportPanel from '../components/admin/ReportPanel';
+import KakaoMap from './KakaoMap';
 
 const Home = ({ dashboardData }) => {
   const navigate = useNavigate();
@@ -317,6 +318,33 @@ const Home = ({ dashboardData }) => {
             )) : <div className="home-section-itembox">이벤트가 없습니다.</div>}
           </div>
         </div>
+      </div>
+
+      {/* KakaoMap: 홈 하단에 지도 표시 */}
+      <div style={{ margin: '40px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 16, maxWidth: 800, marginLeft: 'auto', marginRight: 'auto' }}>
+          <h2 style={{ fontSize: '1.3rem', margin: 0 }}>오시는 길</h2>
+          <a
+            href="https://map.kakao.com/link/to/단성사,37.5709,126.9923"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-block',
+              background: '#fee500',
+              color: '#181600',
+              fontWeight: 700,
+              borderRadius: 8,
+              padding: '8px 18px',
+              fontSize: '1rem',
+              textDecoration: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+              transition: 'background 0.2s',
+            }}
+          >
+            카카오맵 길찾기
+          </a>
+        </div>
+        <KakaoMap />
       </div>
 
       {/* 이하 기존 경매/찜/카테고리 등 기존 홈 콘텐츠 유지 ... */}

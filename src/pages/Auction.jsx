@@ -31,16 +31,16 @@ const Auction = () => {
   const getSortedAuctions = (auctions, searchTerm, categoryFilter) => {
     const now = new Date();
     // 진행중: 시작됨~마감전
-    const ongoing = auctions.filter(a => new Date(a.startTime) <= now && new Date(a.endTime) > now);
+    const ongoing = auctions.filter(a => a.startAt && a.endAt && new Date(a.startAt) <= now && new Date(a.endAt) > now);
     // 예정: 시작 전
-    const upcoming = auctions.filter(a => new Date(a.startTime) > now);
+    const upcoming = auctions.filter(a => a.startAt && new Date(a.startAt) > now);
     // 마감: 종료
-    const ended = auctions.filter(a => new Date(a.endTime) <= now);
+    const ended = auctions.filter(a => a.endAt && new Date(a.endAt) <= now);
 
     // 정렬
-    ongoing.sort((a, b) => new Date(a.endTime) - new Date(b.endTime)); // 남은시간 적은 순
-    upcoming.sort((a, b) => new Date(a.startTime) - new Date(b.startTime)); // 시작일 빠른 순
-    ended.sort((a, b) => new Date(b.endTime) - new Date(a.endTime)); // 종료일 늦은 순
+    ongoing.sort((a, b) => new Date(a.endAt) - new Date(b.endAt)); // 남은시간 적은 순
+    upcoming.sort((a, b) => new Date(a.startAt) - new Date(b.startAt)); // 시작일 빠른 순
+    ended.sort((a, b) => new Date(b.endAt) - new Date(a.endAt)); // 종료일 늦은 순
 
     let sorted = [...ongoing, ...upcoming, ...ended];
 

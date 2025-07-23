@@ -27,18 +27,20 @@
   margin-bottom: 2rem;
   border-bottom: 2px solid #eee;
   padding-bottom: 1rem;
+  justify-content: center; /* 가운데 정렬 */
 }
 
 .cs-tabs button {
-  padding: 1rem 2rem;
+  padding: 0.8rem 2.2rem;
   border: none;
-  background: #f8f9fa;
-  color: #666;
-  border-radius: 8px;
+  background: #f4f6fa;
+  color: #444;
+  border-radius: 24px 24px 0 0;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-size: 1.08rem;
+  font-weight: 600;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .cs-tabs button:hover {
@@ -47,16 +49,18 @@
 }
 
 .cs-tabs button.active {
-  background: #007bff;
-  color: white;
+  background: #0047ab;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0,71,171,0.08);
 }
 
 /* 콘텐츠 영역 */
 .cs-content {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 18px;
+  padding: 2.2rem 2rem;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+  margin-bottom: 2rem;
 }
 
 .cs-content h3 {
@@ -81,9 +85,16 @@
 }
 
 .faq-item {
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  overflow: hidden;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0,71,171,0.06);
+  border-radius: 12px;
+  margin-bottom: 1.2rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.faq-item:hover {
+  box-shadow: 0 6px 24px rgba(0,71,171,0.13);
+  transform: translateY(-2px) scale(1.01);
 }
 
 .faq-question {
@@ -136,16 +147,16 @@
 }
 
 .notice-item {
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0,71,171,0.06);
+  border-radius: 12px;
+  margin-bottom: 1.2rem;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .notice-item:hover {
-  border-color: #007bff;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 6px 24px rgba(0,71,171,0.13);
+  transform: translateY(-2px) scale(1.01);
 }
 
 .notice-header {
@@ -157,9 +168,9 @@
 
 .notice-title {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 1.13rem;
+  font-weight: 700;
+  color: #0047ab;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -185,16 +196,16 @@
 }
 
 .event-item {
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 1.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 2px 12px rgba(0,71,171,0.06);
+  border-radius: 12px;
+  margin-bottom: 1.2rem;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 
 .event-item:hover {
-  border-color: #28a745;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.1);
+  box-shadow: 0 6px 24px rgba(0,71,171,0.13);
+  transform: translateY(-2px) scale(1.01);
 }
 
 .event-header {
@@ -206,9 +217,9 @@
 
 .event-title {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 1.13rem;
+  font-weight: 700;
+  color: #0047ab;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -250,5 +261,14 @@
   .notice-date,
   .event-date {
     white-space: normal;
+  }
+
+  .cs-content {
+    padding: 1rem 0.5rem;
+    border-radius: 10px;
+  }
+  .notice-item, .event-item, .faq-item {
+    margin-bottom: 0.7rem;
+    padding: 1rem 0.7rem;
   }
 } 
