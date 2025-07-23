@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../UserContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from '../axiosConfig';
 import '../style/MyPage.css';
 
@@ -125,9 +125,10 @@ const ProfileTab = ({ userInfo, onUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+    // 닉네임을 제외한 값만 전송
+    const { address, phone } = formData;
     try {
-      await axios.put('/api/users/me', formData);
+      await axios.put('/api/users/me', { address, phone });
       alert('회원정보가 수정되었습니다.');
       onUpdate();
     } catch (error) {
@@ -146,9 +147,13 @@ const ProfileTab = ({ userInfo, onUpdate }) => {
           <input
             type="text"
             value={formData.nickname}
-            onChange={(e) => setFormData({...formData, nickname: e.target.value})}
-            placeholder="닉네임을 입력하세요"
+            readOnly
+            style={{ background: "#f5f5f5", color: "#888" }}
+            placeholder="닉네임은 닉네임 변경 탭에서만 수정 가능합니다"
           />
+          <small style={{ color: "#888" }}>
+            닉네임은 '닉네임 변경' 탭에서만 수정할 수 있습니다.
+          </small>
         </div>
         
         <div className="form-group">
@@ -475,7 +480,11 @@ const MyAuctionsTab = () => {
         <div className="auctions-list">
           {auctions.map(auction => (
             <div key={auction.id} className="auction-item">
-              <h3>{auction.title}</h3>
+              <h3>
+                <Link to={`/auction/${auction.id}`} style={{ color: '#1976d2', textDecoration: 'underline' }}>
+                  {auction.title}
+                </Link>
+              </h3>
               <p>시작가: {auction.startPrice?.toLocaleString()}원</p>
               <p>현재가: {auction.highestBid?.toLocaleString()}원</p>
               <p>상태: {auction.isClosed ? '종료' : '진행중'}</p>
@@ -524,7 +533,7 @@ const MyCommentsTab = () => {
             <div key={comment.id} className="comment-item">
               <p className="comment-content">{comment.content}</p>
               <p className="comment-meta">
-                경매: {comment.auctionId} | 작성일: {new Date(comment.createdAt).toLocaleDateString()}
+                경매: <Link to={`/auction/${comment.auctionId}`} style={{ color: '#1976d2', textDecoration: 'underline' }}>{comment.auctionId}</Link> | 작성일: {new Date(comment.createdAt).toLocaleDateString()}
               </p>
             </div>
           ))}

@@ -18,11 +18,16 @@ import org.springframework.web.multipart.MultipartFile;
 import com.auction.dto.AuctionDto;
 import com.auction.entity.Auction;
 import com.auction.repository.AuctionRepository;
+import com.auction.repository.UserRepository;
+import com.auction.entity.User;
 
 @Service
 public class AuctionServiceImpl implements AuctionService {
     @Autowired
     private AuctionRepository auctionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private final String uploadDir = "uploads/";
 
@@ -55,14 +60,16 @@ public class AuctionServiceImpl implements AuctionService {
         dto.setViewCount(auction.getViewCount());
         dto.setBidCount(auction.getBidCount());
         dto.setUserId(auction.getUserId());
-        
+        // seller(username) 세팅 추가
+        if (auction.getUserId() != null) {
+            userRepository.findById(auction.getUserId()).ifPresent(user -> dto.setSeller(user.getUsername()));
+        }
         // 프론트엔드 호환성을 위한 필드 설정
         dto.setImageUrl(auction.getImageUrl1());
         dto.setCurrentPrice(auction.getHighestBid() != null ? auction.getHighestBid().longValue() : 0L);
         dto.setStartAt(auction.getStartTime());
         dto.setEndAt(auction.getEndTime());
         dto.setOwnerId(null); // 실제로는 owner 정보가 없음
-        
         return dto;
     }
     

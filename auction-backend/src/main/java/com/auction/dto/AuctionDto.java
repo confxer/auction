@@ -30,6 +30,7 @@ public class AuctionDto {
     private Integer viewCount;
     private Integer bidCount;
     private Long userId;
+    private String seller; // 판매자 닉네임
 
     // 프론트엔드 호환성을 위한 추가 필드들
     private String imageUrl; // imageUrl1을 대체
@@ -118,6 +119,9 @@ public class AuctionDto {
 
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
+
+    public String getSeller() { return seller; }
+    public void setSeller(String seller) { this.seller = seller; }
 
     // 프론트엔드 호환성을 위한 메서드들
     public String getImageUrl() { 

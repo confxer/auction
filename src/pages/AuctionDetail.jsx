@@ -76,7 +76,7 @@ const AuctionDetail = () => {
         .then((data) => {
           const newPrice = Math.max(data.startPrice, data.highestBid || 0);
           setCurrentPrice(newPrice);
-          setAuction(prev => ({ ...prev, ...data }));
+          setAuction(prev => ({ ...prev, ...data, seller: data.seller ?? prev.seller }));
         })
         .catch((err) => console.log('현재가 업데이트 실패:', err));
     }, 5000); // 5초마다 업데이트
@@ -209,6 +209,9 @@ const AuctionDetail = () => {
   const minBidAmount = isNaN(getMinBidAmount()) || getMinBidAmount() < 1000 ? 1000 : getMinBidAmount();
   const bidStep = isNaN(getBidStep(currentPrice)) || getBidStep(currentPrice) < 1000 ? 1000 : getBidStep(currentPrice);
 
+  // 렌더링 직전 auction 객체 콘솔 출력
+  console.log("렌더링 auction 객체:", auction);
+
   return (
     <div className="auction-detail">
       {/* 상단 정보 */}
@@ -216,7 +219,7 @@ const AuctionDetail = () => {
         <div className="auction-title-section">
           <h1>{auction.title}</h1>
           <div className="auction-seller-id" style={{fontSize:'0.98rem',color:'#888',marginTop:'4px',fontWeight:500}}>
-            판매자: {auction.userId ? auction.userId : auction.seller || auction.userId || '알수없음'}
+            판매자: {auction.seller || '알수없음'}
           </div>
           <div className="auction-meta">
             <span className="category">{auction.category}</span>
@@ -373,7 +376,9 @@ const AuctionDetail = () => {
         <h2>판매자 정보</h2>
         <div className="seller-card">
           <div className="seller-header">
-            <div className="seller-name">아이디: {auction.seller || auction.userId || '알수없음'}</div>
+            <div className="seller-name">
+              판매자: {auction.seller ? auction.seller : '알수없음'}
+            </div>
           </div>
         </div>
       </div>

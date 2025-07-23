@@ -16,6 +16,12 @@ public class AuctionRowMapper implements RowMapper<AuctionDto> {
         dto.setId(rs.getLong("id"));
         dto.setTitle(rs.getString("title"));
         dto.setStartPrice(rs.getInt("start_price"));
+        // 판매자 닉네임 매핑
+        try {
+            dto.setSeller(rs.getString("seller"));
+        } catch (SQLException e) {
+            dto.setSeller(null);
+        }
         return dto;
     }
 }
