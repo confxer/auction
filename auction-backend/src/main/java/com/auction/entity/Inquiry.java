@@ -1,25 +1,62 @@
-package com.auction.dto;
+package com.auction.entity;
 
 import java.time.LocalDateTime;
 
-public class InquiryDto {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "inquiry")
+public class Inquiry {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "user_id", nullable = false, length = 100)
     private String userId;
+
+    @Column(name = "user_name", length = 50)
     private String userName;
+
+    @Column(nullable = false, length = 200)
     private String title;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    @Column(length = 50)
     private String category;
+
+    @Column(length = 20)
     private String priority;
+
+    @Column(columnDefinition = "TEXT")
     private String answer;
+
+    @Column(length = 50)
     private String answerer;
+
+    @Column(name = "answered_at")
     private LocalDateTime answeredAt;
+
+    @Column(name = "attachment_url", length = 255)
     private String attachmentUrl;
+
+    @Column(length = 20)
     private String status;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // ✅ 모든 getter & setter 생성
-
+    // ✅ 모든 getter/setter
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

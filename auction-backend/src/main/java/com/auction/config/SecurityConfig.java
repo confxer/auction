@@ -2,24 +2,30 @@ package com.auction.config;
 
 import java.util.Arrays;
 
+import com.auction.util.JwtUtil;
+import com.auction.config.JwtAuthenticationFilter;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import com.auction.util.JwtUtil;
 
 @Configuration
 @EnableWebSecurity
@@ -36,13 +42,20 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // 공개 API - 인증 불필요
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/public/**", "/api/auctions", "/api/auctions/*", "/api/auctions/*/view", "/api/bids/**", "/ws-auction/**", "/api/dashboard", "/api/sample-data").permitAll()
-                .requestMatchers("/api/uploads/**").permitAll()
-                .requestMatchers("/api/users/check-nickname").permitAll()
+                .requestMatchers(
+                    "/api/public/**", 
+                    "/api/auctions", 
+                    "/api/auctions/*", 
+                    "/api/auctions/*/view", 
+                    "/api/bids/**", 
+                    "/ws-auction/**", 
+                    "/api/dashboard", 
+                    "/api/sample-data",
+                    "/api/uploads/**",
+                    "/api/users/check-nickname"
+                ).permitAll()
                 .requestMatchers("/actuator/**").hasRole("ADMIN")
-                // 이벤트 공개 API
                 .requestMatchers(
                     "/api/event/published",
                     "/api/event/published/**",
@@ -50,43 +63,49 @@ public class SecurityConfig {
                     "/api/event/category/**",
                     "/api/event/search"
                 ).permitAll()
-                // 이벤트 관리자 전용 API
                 .requestMatchers("/api/event/admin/**").hasRole("ADMIN")
-                // 나머지 이벤트 API는 인증 필요
                 .requestMatchers("/api/event/**").authenticated()
-                // 인증 필요 API (USER, ADMIN 모두 허용)
-                .requestMatchers("/api/favorites/**", "/api/auctions/**", "/api/inquiry/**", "/api/comments/**", "/api/notifications/**", "/api/private-message/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers(
+                    "/api/favorites/**", 
+                    "/api/auctions/**", 
+                    "/api/inquiry/**", 
+                    "/api/comments/**", 
+                    "/api/notifications/**", 
+                    "/api/private-message/**"
+                ).hasAnyRole("USER", "ADMIN")
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtUtil.jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
-        
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOriginPatterns(Arrays.asList("*"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowCredentials(true);
+        config.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
+
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtUtil);
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
-} 
+}

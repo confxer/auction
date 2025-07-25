@@ -58,7 +58,7 @@ const Navigation = () => {
     { path: isAdmin ? '/event/admin' : '/event', label: '이벤트', icon: '🎁' },
     { path: isAdmin ? '/notice/admin' : '/notice', label: '공지사항', icon: '📢' },
     { path: isAdmin ? '/faq/admin' : '/faq', label: 'FAQ', icon: '❓' },
-    { path: isAdmin ? '/inquiry/admin' : (user ? '/inquiry/my' : '/inquiry'), label: '1:1문의', icon: '💬' },
+    { path: isAdmin ? '/inquiry/admin' : '/inquiry', label: '1:1문의', icon: '💬' },
     { path: '/customer-service', label: '고객센터', icon: '📞' },
   ];
 
@@ -66,8 +66,8 @@ const Navigation = () => {
     if (itemPath === '/') return location.pathname === '/';
     if (itemPath === '/auction') return location.pathname.startsWith('/auction');
     if (itemPath === '/customer-service') return location.pathname.startsWith('/customer-service');
+    if (itemPath === '/inquiry' || itemPath === '/inquiry/admin') return location.pathname.startsWith('/inquiry');
     if (isAdmin) return location.pathname.startsWith(itemPath);
-    if (itemPath === '/inquiry/my' || itemPath === '/inquiry') return location.pathname.startsWith('/inquiry');
     return location.pathname.startsWith(itemPath);
   };
 

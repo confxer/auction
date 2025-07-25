@@ -141,22 +141,36 @@ const InquiryAdmin = () => {
     ));
   };
 
-  const handleReplySubmit = (replyContent) => {
+  const handleReplySubmit = async (replyContent) => {
     if (replyingTo) {
-      setInquiries(prev => prev.map(inquiry => 
-        inquiry.id === replyingTo.id 
-          ? { 
-              ...inquiry, 
-              reply: replyContent,
-              hasReply: true,
-              status: 'completed'
-            }
-          : inquiry
-      ));
-      setShowReplyModal(false);
-      setReplyingTo(null);
+      try {
+        const response = await axios.post(`/api/inquiry/${replyingTo.id}/answer`, {
+          answer: replyContent  // ✅ answerer 제거, 백엔드에서 처리
+        });
+  
+        if (response.status === 200) {
+          // ✅ 상태를 completed로 반영
+          setInquiries(prev => prev.map(inquiry =>
+            inquiry.id === replyingTo.id
+              ? {
+                  ...inquiry,
+                  reply: replyContent,
+                  hasReply: true,
+                  status: 'completed'
+                }
+              : inquiry
+          ));
+          setShowReplyModal(false);
+          setReplyingTo(null);
+        }
+      } catch (error) {
+        console.error('답변 등록 실패:', error);
+        alert('답변 등록 중 오류가 발생했습니다.');
+      }
     }
   };
+  
+  
 
   if (loading) {
     return (

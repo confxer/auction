@@ -1,5 +1,5 @@
 import React from 'react';
-import InquiryAdminDetail from '../components/InquiryAdminDetail';
+import InquiryAdminDetail from '../pages/InquiryAdmin';
 
 const InquiryAdminDetailPage = () => {
   return (

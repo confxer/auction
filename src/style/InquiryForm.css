@@ -1,135 +1,147 @@
+/* 공통 유틸리티 */
+.section-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #1976d2;
+  margin-bottom: 1rem;
+}
+
+/* 문의 폼 컨테이너 */
 .inquiry-form {
-  max-width: 480px;
+  max-width: 600px;
   margin: 32px auto;
-  padding: 20px 24px;
+  padding: 24px;
   background: #f9f9f9;
   border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   display: flex;
   flex-direction: column;
-  gap: 0;
-  align-items: stretch;
+  gap: 16px;
 }
-.inquiry-form h3 {
-  text-align: center;
-  margin-bottom: 18px;
-  color: #1976d2;
-  flex-basis: auto;
-  width: 100%;
-}
-.inquiry-form > div {
-  flex: none;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
+
+/* 입력 영역 */
 .inquiry-form label {
-  display: block;
-  margin-bottom: 6px;
   font-weight: 500;
+  margin-bottom: 6px;
+  display: block;
 }
+
 .inquiry-form input,
 .inquiry-form textarea {
   width: 100%;
-  padding: 8px;
-  margin-bottom: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 10px;
   font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
 }
+
 .inquiry-form textarea {
-  min-height: 80px;
+  min-height: 100px;
   resize: vertical;
 }
-.inquiry-form button {
-  padding: 7px 18px;
+
+/* 버튼 스타일 */
+.form-button {
+  padding: 10px;
   border: none;
-  border-radius: 5px;
-  background: #1976d2;
-  color: #fff;
+  border-radius: 6px;
   font-weight: 500;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background 0.2s;
-  align-self: stretch;
-  margin-top: 0;
+  transition: opacity 0.2s ease-in-out;
 }
-.inquiry-form button:hover {
-  opacity: 0.85;
+
+.form-button.primary {
+  background-color: #1976d2;
+  color: white;
 }
+
+.form-button.primary:hover {
+  opacity: 0.9;
+}
+
+.form-button.cancel {
+  background-color: #eee;
+  color: #555;
+}
+
+/* 문의 페이지 레이아웃 (리스트 + 상세) */
 .inquiry-form-row {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 20px;
-  align-items: flex-start;
-  width: 100%;
+  justify-content: space-between;
   max-width: 1200px;
   margin: 32px auto;
-  padding: 24px 16px;
+  padding: 24px;
   background: #f9f9f9;
   border-radius: 10px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
+
+/* 컬럼 공통 */
 .inquiry-col {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: none;
 }
+
+/* 카테고리 선택 */
 .category-col {
-  min-width: 120px;
-  max-width: 140px;
-  align-items: stretch;
+  min-width: 140px;
 }
+
 .category-btn {
-  margin-bottom: 6px;
-  padding: 8px 0;
-  border: 1px solid #ddd;
-  border-radius: 6px;
   background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px 0;
   cursor: pointer;
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   transition: background 0.2s;
 }
 .category-btn:hover {
   background: #e3f0ff;
 }
+
+/* 내용 입력 */
 .content-col {
-  min-width: 220px;
   flex: 2;
+  min-width: 280px;
 }
+
+/* 파일 업로드 */
 .file-col {
   min-width: 160px;
-  max-width: 180px;
-  align-items: center;
+  max-width: 200px;
 }
 .file-upload-box {
-  border: 1px dashed #bbb;
+  border: 1px dashed #aaa;
   border-radius: 8px;
-  padding: 12px 8px;
+  padding: 12px;
   text-align: center;
   background: #fafbfc;
 }
-.file-upload-icon {
-  font-size: 1.5rem;
-  display: block;
-  margin-bottom: 6px;
-}
 .file-upload-desc {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #555;
 }
 .file-upload-info {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #888;
-  margin-top: 6px;
+  margin-top: 4px;
 }
+
+/* 안내 텍스트 */
 .guide-col {
   min-width: 160px;
-  max-width: 180px;
+  max-width: 200px;
   background: #eaf4ff;
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 10px;
 }
 .guide-title {
   font-weight: bold;
@@ -139,57 +151,23 @@
 .guide-list {
   font-size: 0.95rem;
   color: #333;
-  padding-left: 16px;
+  padding-left: 1rem;
 }
+
+/* 버튼 컬럼 */
 .btn-col {
-  min-width: 100px;
-  max-width: 120px;
+  min-width: 120px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  align-items: stretch;
   justify-content: flex-end;
 }
-.cancel-btn {
-  background: #eee;
-  color: #555;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 0;
-  margin-bottom: 8px;
-  cursor: pointer;
-}
-.submit-btn {
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 12px 0;
-  font-weight: 500;
-  cursor: pointer;
-}
-.submit-btn:hover {
-  opacity: 0.9;
-}
-@media (max-width: 1100px) {
-  .inquiry-form-row {
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 12px 2px;
-  }
-  .inquiry-col {
-    min-width: 120px;
-    max-width: 100%;
-  }
-}
-@media (max-width: 700px) {
+
+/* 반응형 */
+@media (max-width: 1000px) {
   .inquiry-form-row {
     flex-direction: column;
-    gap: 0;
-    padding: 8px 0;
+    gap: 16px;
+    padding: 16px;
   }
-  .inquiry-col {
-    min-width: 0;
-    max-width: 100%;
-  }
-} 
+}
