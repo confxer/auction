@@ -21,7 +21,8 @@ const Inquiry = () => {
   const loadInquiries = async () => {
     try {
       const response = await axios.get("/api/inquiry/my");
-      setInquiries(response.data);
+      const sorted = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      setInquiries(sorted);
     } catch (error) {
       console.error("❌ 문의 조회 실패", error);
     } finally {
