@@ -9,17 +9,39 @@ public class InquiryDto {
     private String title;
     private String content;
     private String category;
-    private String priority;
+    private String priority;      // e.g., "normal", "high"
     private String answer;
     private String answerer;
     private LocalDateTime answeredAt;
     private String attachmentUrl;
-    private String status;
+    private String status;        // e.g., "대기", "완료"
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // ✅ 모든 getter & setter 생성
+    public InquiryDto() {}
 
+    // ✨ Builder 준비용 생성자
+    public InquiryDto(Long id, String userId, String userName, String title, String content,
+                      String category, String priority, String answer, String answerer,
+                      LocalDateTime answeredAt, String attachmentUrl, String status,
+                      LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.id = id;
+        this.userId = userId;
+        this.userName = userName;
+        this.title = title;
+        this.content = content;
+        this.category = category;
+        this.priority = priority;
+        this.answer = answer;
+        this.answerer = answerer;
+        this.answeredAt = answeredAt;
+        this.attachmentUrl = attachmentUrl;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    // ✅ Getter & Setter
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

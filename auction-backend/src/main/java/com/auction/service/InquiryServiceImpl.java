@@ -20,29 +20,39 @@ public class InquiryServiceImpl implements InquiryService {
         this.inquiryRepository = inquiryRepository;
     }
 
+    // ✅ 1. 문의 등록
     @Override
+    @Transactional
     public InquiryDto createInquiry(InquiryDto dto) {
         Inquiry inquiry = toEntity(dto);
         inquiry.setStatus("대기");
         inquiry.setCreatedAt(LocalDateTime.now());
-        return toDto(inquiryRepository.save(inquiry));
+        Inquiry saved = inquiryRepository.save(inquiry);
+        return toDto(saved);
     }
 
+    // ✅ 2. 전체 문의 목록 (관리자)
     @Override
+    @Transactional(readOnly = true)
     public List<InquiryDto> getAllInquiries() {
         return inquiryRepository.findAll()
-                .stream().map(this::toDto)
+                .stream()
+                .map(this::toDto)
                 .collect(Collectors.toList());
     }
 
+    // ✅ 3. 단일 문의 조회
     @Override
+    @Transactional(readOnly = true)
     public InquiryDto getInquiry(Long id) {
-        return inquiryRepository.findById(id)
-                .map(this::toDto)
+        Inquiry inquiry = inquiryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 문의가 존재하지 않습니다."));
+        return toDto(inquiry);
     }
 
+    // ✅ 4. 답변 작성 (관리자)
     @Override
+    @Transactional
     public void answerInquiry(Long id, String answer, String answerer) {
         Inquiry inquiry = inquiryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 문의가 존재하지 않습니다."));
@@ -54,7 +64,9 @@ public class InquiryServiceImpl implements InquiryService {
         inquiryRepository.save(inquiry);
     }
 
+    // ✅ 5. 문의 상태 변경
     @Override
+    @Transactional
     public void updateStatus(Long id, String status) {
         Inquiry inquiry = inquiryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 문의가 존재하지 않습니다."));
@@ -63,20 +75,27 @@ public class InquiryServiceImpl implements InquiryService {
         inquiryRepository.save(inquiry);
     }
 
+    // ✅ 6. 문의 삭제
     @Override
+    @Transactional
     public void deleteInquiry(Long id) {
+        if (!inquiryRepository.existsById(id)) {
+            throw new RuntimeException("삭제할 문의가 존재하지 않습니다.");
+        }
         inquiryRepository.deleteById(id);
     }
+
+    // ✅ 7. 내 문의 목록
     @Override
-public List<InquiryDto> getMyInquiries(Long userId) {
-    return inquiryRepository.findAll().stream()
-            .filter(inquiry -> inquiry.getUserId().equals(String.valueOf(userId)))
-            .map(this::toDto)
-            .collect(Collectors.toList());
-}
+    @Transactional(readOnly = true)
+    public List<InquiryDto> getMyInquiries(Long userId) {
+        return inquiryRepository.findAll().stream()
+                .filter(inquiry -> inquiry.getUserId().equals(String.valueOf(userId)))
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
 
-
-    // DTO <-> Entity 변환 메서드
+    // ✅ Entity -> DTO 변환
     private InquiryDto toDto(Inquiry entity) {
         InquiryDto dto = new InquiryDto();
         dto.setId(entity.getId());
@@ -96,6 +115,7 @@ public List<InquiryDto> getMyInquiries(Long userId) {
         return dto;
     }
 
+    // ✅ DTO -> Entity 변환
     private Inquiry toEntity(InquiryDto dto) {
         Inquiry entity = new Inquiry();
         entity.setUserId(dto.getUserId());

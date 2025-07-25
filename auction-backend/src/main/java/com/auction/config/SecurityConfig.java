@@ -2,30 +2,25 @@ package com.auction.config;
 
 import java.util.Arrays;
 
-import com.auction.util.JwtUtil;
-import com.auction.config.JwtAuthenticationFilter;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import com.auction.util.JwtUtil;
 
 @Configuration
 @EnableWebSecurity
@@ -42,6 +37,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // 🔓 인증 없이 접근 가능한 URL
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(
                     "/api/public/**", 
@@ -55,7 +51,24 @@ public class SecurityConfig {
                     "/api/uploads/**",
                     "/api/users/check-nickname"
                 ).permitAll()
-                .requestMatchers("/actuator/**").hasRole("ADMIN")
+
+                // 🔐 관리자 전용 접근
+                .requestMatchers("/actuator/**").hasAuthority("ADMIN")
+                .requestMatchers("/api/event/admin/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/inquiry/*/answer").hasAuthority("ADMIN") // ✅ 관리자 답변 등록
+                .requestMatchers("/api/inquiry/admin/**").hasAuthority("ADMIN") // ✅ 관리자 전용 목록 등
+
+                // 🧑 사용자/관리자 공용 API
+                .requestMatchers(
+                    "/api/favorites/**", 
+                    "/api/auctions/**", 
+                    "/api/inquiry/**",  // 일반 사용자도 가능
+                    "/api/comments/**", 
+                    "/api/notifications/**", 
+                    "/api/private-message/**"
+                ).hasAnyAuthority("USER", "ADMIN")
+
+                // 📢 이벤트 관련 공개 API
                 .requestMatchers(
                     "/api/event/published",
                     "/api/event/published/**",
@@ -63,16 +76,8 @@ public class SecurityConfig {
                     "/api/event/category/**",
                     "/api/event/search"
                 ).permitAll()
-                .requestMatchers("/api/event/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/event/**").authenticated()
-                .requestMatchers(
-                    "/api/favorites/**", 
-                    "/api/auctions/**", 
-                    "/api/inquiry/**", 
-                    "/api/comments/**", 
-                    "/api/notifications/**", 
-                    "/api/private-message/**"
-                ).hasAnyRole("USER", "ADMIN")
+
+                // 🔒 그 외 모든 요청은 인증 필요
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
