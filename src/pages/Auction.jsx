@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AuctionTimeLeft from '../components/AuctionTimeLeft';
 import '../style/Auction.css';
+import { useUser } from '../UserContext';
+import axios from '../axiosConfig';
 
 const Auction = () => {
   const [auctions, setAuctions] = useState([]);
@@ -76,6 +78,20 @@ const Auction = () => {
     return imageUrl1;
   };
 
+  // 경매 삭제 함수 (관리자만)
+  const handleDeleteAuction = async (auctionId) => {
+    if (!window.confirm('정말 이 경매와 모든 댓글을 삭제하시겠습니까?')) return;
+    try {
+      await axios.delete(`/api/auctions/${auctionId}`);
+      setAuctions(prev => prev.filter(a => a.id !== auctionId));
+      alert('경매와 모든 댓글이 삭제되었습니다.');
+    } catch (err) {
+      alert('경매 삭제에 실패했습니다.');
+    }
+  };
+
+  const { user } = useUser();
+
   return (
     <div className="auction-list-page">
       <div className="auction-list-header-with-search">
@@ -142,6 +158,18 @@ const Auction = () => {
                 <div className="auction-card-status">
                   {/* 상태는 AuctionTimeLeft에서 표시됨 */}
                 </div>
+                {user && user.role === 'ADMIN' && (
+                  <button
+                    className="auction-delete-btn"
+                    onClick={e => {
+                      e.preventDefault();
+                      handleDeleteAuction(auction.id);
+                    }}
+                    style={{ marginTop: 8, background: '#e74c3c', color: 'white', border: 'none', borderRadius: 4, padding: '4px 12px', cursor: 'pointer' }}
+                  >
+                    삭제
+                  </button>
+                )}
               </div>
             </Link>
           ))

@@ -2,6 +2,8 @@ package com.auction.service;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+
 import com.auction.dto.CommentDto;
 
 public interface CommentService {
@@ -21,11 +23,14 @@ public interface CommentService {
     void updateComment(Long id, CommentDto comment);
     
     // 댓글 삭제
-    void deleteComment(Long id);
+    void deleteComment(Long id, Authentication authentication);
     
     // 경매별 댓글 수 조회
     int getCommentCountByAuctionId(Long auctionId);
     
     // 전체 댓글 수 조회
     int getTotalCommentCount();
+    
+    // 경매별 전체 댓글 soft delete
+    void deleteAllByAuctionId(Long auctionId);
 } 

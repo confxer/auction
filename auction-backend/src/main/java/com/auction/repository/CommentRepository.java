@@ -122,4 +122,10 @@ public class CommentRepository {
             return comment;
         }, userId);
     }
+
+    // 경매별 전체 댓글 soft delete
+    public void deleteByAuctionId(Long auctionId) {
+        String sql = "UPDATE comments SET is_deleted = TRUE, updated_at = ? WHERE auction_id = ? AND is_deleted = FALSE";
+        jdbcTemplate.update(sql, Timestamp.valueOf(java.time.LocalDateTime.now()), auctionId);
+    }
 } 

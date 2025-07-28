@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './CommentSection.css';
 import axios from '../axiosConfig';
+import { useUser } from '../UserContext';
 
 const CommentSection = ({ auctionId }) => {
+  const { user } = useUser();
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [replyTo, setReplyTo] = useState(null);
@@ -69,6 +71,17 @@ const CommentSection = ({ auctionId }) => {
         ? { ...comment, likes: comment.likes + 1 }
         : comment
     ));
+  };
+
+  // 댓글 삭제
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('정말 이 댓글을 삭제하시겠습니까?')) return;
+    try {
+      await axios.delete(`/api/comments/${commentId}`);
+      setComments(prev => prev.filter(c => c.id !== commentId));
+    } catch (err) {
+      alert('댓글 삭제에 실패했습니다.');
+    }
   };
 
   const formatTime = (timestamp) => {
@@ -148,7 +161,16 @@ const CommentSection = ({ auctionId }) => {
                   <span className="username">{comment.author}</span>
                   <span className="timestamp">{formatTime(comment.createdAt)}</span>
                 </div>
-                {/* 좋아요/답글 등은 서버 연동 후 구현 */}
+                {/* 삭제 버튼: admin은 모두, user는 본인만 */}
+                {user && (user.role === 'ADMIN' || user.id === comment.userId) && (
+                  <button
+                    className="comment-delete-btn"
+                    onClick={() => handleDeleteComment(comment.id)}
+                    style={{ marginLeft: 8, background: '#e74c3c', color: 'white', border: 'none', borderRadius: 4, padding: '2px 8px', cursor: 'pointer' }}
+                  >
+                    삭제
+                  </button>
+                )}
               </div>
               <div className="comment-content">
                 {comment.content}

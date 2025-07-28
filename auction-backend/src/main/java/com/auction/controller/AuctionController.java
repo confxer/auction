@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -152,15 +153,16 @@ public class AuctionController {
         }
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAuction(@PathVariable Long id) {
+    public ResponseEntity<String> deleteAuction(@PathVariable Long id) {
         try {
             logger.info("경매 삭제: ID {}", id);
             auctionService.deleteAuction(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok("경매와 모든 댓글이 삭제되었습니다.");
         } catch (Exception e) {
             logger.error("경매 삭제 실패 - ID: {}", id, e);
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.status(500).body("경매 삭제에 실패했습니다: " + e.getMessage());
         }
     }
 

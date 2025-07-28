@@ -19,7 +19,6 @@ import com.auction.dto.AuctionDto;
 import com.auction.entity.Auction;
 import com.auction.repository.AuctionRepository;
 import com.auction.repository.UserRepository;
-import com.auction.entity.User;
 
 @Service
 public class AuctionServiceImpl implements AuctionService {
@@ -28,6 +27,9 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CommentService commentService;
 
     private final String uploadDir = "uploads/";
 
@@ -186,6 +188,9 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public void deleteAuction(Long id) {
+        // 경매의 모든 댓글 soft delete
+        commentService.deleteAllByAuctionId(id);
+        // 경매 삭제
         auctionRepository.deleteById(id);
     }
 

@@ -113,9 +113,9 @@ public class CommentController {
 
     // 댓글 삭제
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteComment(@PathVariable Long id) {
+    public ResponseEntity<?> deleteComment(@PathVariable Long id, Authentication authentication) {
         try {
-            commentService.deleteComment(id);
+            commentService.deleteComment(id, authentication);
             return ResponseEntity.ok("댓글이 삭제되었습니다.");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
