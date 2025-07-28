@@ -54,8 +54,23 @@ function AuctionNew() {
     return null;
   }
 
+  // 세자리 0으로 끝나는지 체크
+  const isThousandUnit = (value) => {
+    if (!value) return true;
+    return /^\d+000$/.test(value.toString());
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isThousandUnit(startPrice)) {
+      alert('시작가는 1,000, 2,000 등 세자리 0으로 끝나야 합니다.');
+      return;
+    }
+    if (buyNow && !isThousandUnit(buyNow)) {
+      alert('즉시구매가는 1,000, 2,000 등 세자리 0으로 끝나야 합니다.');
+      return;
+    }
 
     if (!imageFile) {
       alert('이미지를 먼저 업로드하세요.');
@@ -250,9 +265,20 @@ function AuctionNew() {
                   className="form-input"
                   placeholder="0"
                   value={startPrice} 
-                  onChange={e => setStartPrice(e.target.value)} 
+                  onChange={e => setStartPrice(e.target.value)}
+                  onBlur={e => {
+                    if (e.target.value && !isThousandUnit(e.target.value)) {
+                      alert('시작가는 1,000, 2,000 등 세자리 0으로 끝나야 합니다.');
+                      setStartPrice('');
+                    }
+                  }}
                   required 
                 />
+                {startPrice && !isThousandUnit(startPrice) && (
+                  <div style={{ color: 'red', fontSize: 12 }}>
+                    시작가는 1,000, 2,000 등 세자리 0으로 끝나야 합니다.
+                  </div>
+                )}
                 <span className="price-unit">원</span>
               </div>
             </div>
@@ -265,8 +291,19 @@ function AuctionNew() {
                   className="form-input"
                   placeholder="선택사항"
                   value={buyNow} 
-                  onChange={e => setBuyNow(e.target.value)} 
+                  onChange={e => setBuyNow(e.target.value)}
+                  onBlur={e => {
+                    if (e.target.value && !isThousandUnit(e.target.value)) {
+                      alert('즉시구매가는 1,000, 2,000 등 세자리 0으로 끝나야 합니다.');
+                      setBuyNow('');
+                    }
+                  }}
                 />
+                {buyNow && !isThousandUnit(buyNow) && (
+                  <div style={{ color: 'red', fontSize: 12 }}>
+                    즉시구매가는 1,000, 2,000 등 세자리 0으로 끝나야 합니다.
+                  </div>
+                )}
                 <span className="price-unit">원</span>
               </div>
             </div>

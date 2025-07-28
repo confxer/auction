@@ -68,7 +68,7 @@ public class AuctionServiceImpl implements AuctionService {
         }
         // 프론트엔드 호환성을 위한 필드 설정
         dto.setImageUrl(auction.getImageUrl1());
-        dto.setCurrentPrice(auction.getHighestBid() != null ? auction.getHighestBid().longValue() : 0L);
+        dto.setCurrentPrice(auction.getHighestBid() != null ? auction.getHighestBid().longValue() : auction.getStartPrice().longValue());
         dto.setStartAt(auction.getStartTime());
         dto.setEndAt(auction.getEndTime());
         dto.setOwnerId(null); // 실제로는 owner 정보가 없음

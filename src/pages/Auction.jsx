@@ -149,7 +149,17 @@ const Auction = () => {
                   {auction.title}
                 </div>
                 <div className="auction-card-price">
-                  <span className="price">{formatPrice(auction.highestBid)}<span className="won">원</span></span>
+                  <span className="price">
+                    {formatPrice(
+                      auction.highestBid && auction.highestBid > 0
+                        ? auction.highestBid
+                        : auction.startPrice
+                    )}
+                    <span className="won">원</span>
+                    {(!auction.highestBid || auction.highestBid === 0) && (
+                      <span style={{ color: '#888', fontSize: 12, marginLeft: 4 }}>시작가</span>
+                    )}
+                  </span>
                 </div>
                 <div className="auction-card-meta">
                   <span className="brand">{auction.brand}</span>
