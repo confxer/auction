@@ -13,44 +13,67 @@ const Auction = () => {
   const [filteredAuctions, setFilteredAuctions] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState('전체');
 
+  const { user } = useUser();
+
+  // 데이터 불러오기
   useEffect(() => {
     fetch("/api/auctions")
-      .then((res) => {
+      .then(res => {
         if (!res.ok) throw new Error("서버 응답 오류");
         return res.json();
       })
-      .then((data) => {
+      .then(data => {
         setAuctions(data);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(err => {
+        console.error(err);
         setError("경매 데이터를 불러올 수 없습니다.");
         setLoading(false);
       });
   }, []);
 
+  // 경매 상태 종료 시 콜백
+  const handleEnd = (id) => {
+    console.log("마감된 경매 ID:", id);
+  };
+
   // 정렬 및 필터링 함수
   const getSortedAuctions = (auctions, searchTerm, categoryFilter) => {
     const now = new Date();
-    // 진행중: 시작됨~마감전
-    const ongoing = auctions.filter(a => a.startAt && a.endAt && new Date(a.startAt) <= now && new Date(a.endAt) > now);
-    // 예정: 시작 전
-    const upcoming = auctions.filter(a => a.startAt && new Date(a.startAt) > now);
-    // 마감: 종료
-    const ended = auctions.filter(a => a.endAt && new Date(a.endAt) <= now);
 
-    // 정렬
-    ongoing.sort((a, b) => new Date(a.endAt) - new Date(b.endAt)); // 남은시간 적은 순
-    upcoming.sort((a, b) => new Date(a.startAt) - new Date(b.startAt)); // 시작일 빠른 순
-    ended.sort((a, b) => new Date(b.endAt) - new Date(a.endAt)); // 종료일 늦은 순
+    const ended = auctions.filter(
+      a => a.isClosed || (a.endAt && new Date(a.endAt) <= now)
+    );
+
+    const ongoing = auctions.filter(
+      a =>
+        !a.isClosed &&
+        a.startAt &&
+        a.endAt &&
+        new Date(a.startAt) <= now &&
+        new Date(a.endAt) > now
+    );
+
+    const upcoming = auctions.filter(
+      a =>
+        !a.isClosed &&
+        a.startAt &&
+        new Date(a.startAt) > now
+    );
+
+    ongoing.sort((a, b) => new Date(a.endAt) - new Date(b.endAt));
+    upcoming.sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
+    ended.sort((a, b) => new Date(b.endAt) - new Date(a.endAt));
 
     let sorted = [...ongoing, ...upcoming, ...ended];
 
     // 카테고리 필터
-    if (categoryFilter && categoryFilter !== '전체') {
+    if (categoryFilter !== '전체') {
       sorted = sorted.filter(a => a.category === categoryFilter);
     }
-    // 검색어 필터
+
+    // 검색 필터
     if (searchTerm) {
       const lower = searchTerm.toLowerCase();
       sorted = sorted.filter(a =>
@@ -59,45 +82,41 @@ const Auction = () => {
         (a.brand && a.brand.toLowerCase().includes(lower))
       );
     }
+
     return sorted;
   };
 
   useEffect(() => {
-    setFilteredAuctions(getSortedAuctions(auctions, searchTerm, categoryFilter));
+    const sorted = getSortedAuctions(auctions, searchTerm, categoryFilter);
+    setFilteredAuctions(sorted);
   }, [auctions, searchTerm, categoryFilter]);
 
-  const formatPrice = (price) => {
-    return price?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const formatPrice = (price) =>
+    price?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  const getImageUrl = (url) => {
+    if (!url) return "https://placehold.co/200x200?text=경매";
+    if (url.startsWith('/uploads/')) return `/api${url}`;
+    return url;
   };
 
-  const getImageUrl = (imageUrl1) => {
-    if (!imageUrl1) return "https://placehold.co/200x200?text=경매";
-    if (imageUrl1.startsWith('/uploads/')) {
-      return `/api${imageUrl1}`;
-    }
-    return imageUrl1;
-  };
-
-  // 경매 삭제 함수 (관리자만)
   const handleDeleteAuction = async (auctionId) => {
     if (!window.confirm('정말 이 경매와 모든 댓글을 삭제하시겠습니까?')) return;
     try {
       await axios.delete(`/api/auctions/${auctionId}`);
       setAuctions(prev => prev.filter(a => a.id !== auctionId));
       alert('경매와 모든 댓글이 삭제되었습니다.');
-    } catch (err) {
+    } catch {
       alert('경매 삭제에 실패했습니다.');
     }
   };
-
-  const { user } = useUser();
 
   return (
     <div className="auction-list-page">
       <div className="auction-list-header-with-search">
         <h1>전체 경매 리스트</h1>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <form className="auction-search" onSubmit={e => { e.preventDefault(); }}>
+          <form className="auction-search" onSubmit={e => e.preventDefault()}>
             <input
               type="text"
               placeholder="찾고 싶은 경매 물품을 검색하세요"
@@ -107,7 +126,11 @@ const Auction = () => {
             />
             <button type="submit" className="auction-search-btn">🔍</button>
           </form>
-          <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} style={{ height: 32 }}>
+          <select
+            value={categoryFilter}
+            onChange={e => setCategoryFilter(e.target.value)}
+            style={{ height: 32 }}
+          >
             <option value="전체">전체</option>
             <option value="가전">가전</option>
             <option value="전자제품">전자제품</option>
@@ -116,10 +139,10 @@ const Auction = () => {
             <option value="도서">도서</option>
             <option value="취미">취미</option>
             <option value="스포츠">스포츠</option>
-            {/* 필요시 카테고리 추가 */}
           </select>
         </div>
       </div>
+
       <div className="auction-card-grid">
         {loading ? (
           <div className="auction-list-loading">
@@ -141,7 +164,13 @@ const Auction = () => {
                   alt={auction.title}
                 />
                 <div className="auction-card-time">
-                  <AuctionTimeLeft startTime={auction.startTime} endTime={auction.endTime} ended = {auction.isClosed} />
+                  <AuctionTimeLeft
+                    startTime={auction.startTime}
+                    endTime={auction.endTime}
+                    isClosed={auction.isClosed} // ✅ 수정됨
+                    fnc={() => handleEnd(auction.id)}
+                    id={auction.id}
+                  />
                 </div>
               </div>
               <div className="auction-card-info">
@@ -156,7 +185,7 @@ const Auction = () => {
                         : auction.startPrice
                     )}
                     <span className="won">원</span>
-                    {(!auction.highestBid || auction.highestBid === 0) && (
+                    {!auction.highestBid && (
                       <span style={{ color: '#888', fontSize: 12, marginLeft: 4 }}>시작가</span>
                     )}
                   </span>
@@ -165,17 +194,22 @@ const Auction = () => {
                   <span className="brand">{auction.brand}</span>
                   <span className="category">{auction.category}</span>
                 </div>
-                <div className="auction-card-status">
-                  {/* 상태는 AuctionTimeLeft에서 표시됨 */}
-                </div>
-                {user && user.role === 'ADMIN' && (
+                {user?.role === 'ADMIN' && (
                   <button
                     className="auction-delete-btn"
                     onClick={e => {
                       e.preventDefault();
                       handleDeleteAuction(auction.id);
                     }}
-                    style={{ marginTop: 8, background: '#e74c3c', color: 'white', border: 'none', borderRadius: 4, padding: '4px 12px', cursor: 'pointer' }}
+                    style={{
+                      marginTop: 8,
+                      background: '#e74c3c',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 4,
+                      padding: '4px 12px',
+                      cursor: 'pointer'
+                    }}
                   >
                     삭제
                   </button>
@@ -189,4 +223,4 @@ const Auction = () => {
   );
 };
 
-export default Auction; 
+export default Auction;

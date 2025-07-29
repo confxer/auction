@@ -165,7 +165,11 @@ public class AuctionController {
             return ResponseEntity.status(500).body("경매 삭제에 실패했습니다: " + e.getMessage());
         }
     }
+    @PostMapping("/{id}/end")
+    public ResponseEntity<String> End(@PathVariable Long id){
 
+        return ResponseEntity.ok("경매 종료");
+    }
     @PostMapping("/{id}/buy-now")
     public ResponseEntity<String> buyNow(@PathVariable Long id) {
         auctionService.buyNow(id);

@@ -11,14 +11,32 @@ const AuctionTimer = ({ endTime, onTimeUp, closed }) => {
   const [isEnded, setIsEnded] = useState(false);
 
   useEffect(() => {
+    if (!endTime) {
+      // ⛔ endTime이 없으면 종료 상태 처리
+      setIsEnded(true);
+      return;
+    }
+    
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
       const end = new Date(endTime).getTime();
+
+      if (isNaN(end)) {
+        // ⛔ 유효하지 않은 endTime 처리
+        setIsEnded(true);
+        return {
+          days: 0,
+          hours: 0,
+          minutes: 0,
+          seconds: 0
+        };
+      }
+
       const difference = end - now;
 
-      if (difference <= 0) {
+      if (difference <= 0 || closed) {
         setIsEnded(true);
-        if (onTimeUp) onTimeUp();
+        if (onTimeUp && !closed) onTimeUp(); // 마감 콜백은 한 번만
         return {
           days: 0,
           hours: 0,
@@ -26,15 +44,7 @@ const AuctionTimer = ({ endTime, onTimeUp, closed }) => {
           seconds: 0
         };
       }
-      if(closed){
-        setIsEnded(true);
-        return {
-          days: 0,
-          hours: 0,
-          minutes: 0,
-          seconds: 0
-        };
-      }
+
       return {
         days: Math.floor(difference / (1000 * 60 * 60 * 24)),
         hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
@@ -43,23 +53,25 @@ const AuctionTimer = ({ endTime, onTimeUp, closed }) => {
       };
     };
 
-    // 초기 계산
     setTimeLeft(calculateTimeLeft());
 
-    // 1초마다 업데이트
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [endTime, onTimeUp]);
+  }, [endTime, closed, onTimeUp]);
 
   const getTimeStatus = () => {
-    const totalSeconds = timeLeft.days * 86400 + timeLeft.hours * 3600 + timeLeft.minutes * 60 + timeLeft.seconds;
-    
+    const totalSeconds =
+      timeLeft.days * 86400 +
+      timeLeft.hours * 3600 +
+      timeLeft.minutes * 60 +
+      timeLeft.seconds;
+
     if (isEnded) return 'ended';
-    if (totalSeconds <= 3600) return 'urgent'; // 1시간 이내
-    if (totalSeconds <= 86400) return 'warning'; // 24시간 이내
+    if (totalSeconds <= 3600) return 'urgent';
+    if (totalSeconds <= 86400) return 'warning';
     return 'normal';
   };
 
@@ -103,4 +115,4 @@ const AuctionTimer = ({ endTime, onTimeUp, closed }) => {
   );
 };
 
-export default AuctionTimer; 
+export default AuctionTimer;

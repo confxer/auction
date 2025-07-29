@@ -26,6 +26,7 @@ const TimeDisplay = memo(({
     // 상태 결정
     if(closed){
       setStatus('마감');
+      if (onTimeUp) onTimeUp();
       return {
         days: 0,
         hours: 0,
@@ -64,7 +65,6 @@ const TimeDisplay = memo(({
       if (status !== newStatus) {
         setStatus(newStatus);
         if (onStatusChange) onStatusChange(newStatus);
-        if (onTimeUp) onTimeUp();
       }
       return { days: 0, hours: 0, minutes: 0, seconds: 0 };
     }

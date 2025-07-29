@@ -60,6 +60,11 @@ const AuctionDetail = () => {
     });
   }, [id, navigate]);
   
+  //종료 확인용도로 쓰는 무언가 만들기
+  const handleEnd = () => {
+    setAuctionStatus("종료");
+  };
+
   const handleDelete = async () => {
     
     await axios.delete(`/api/auctions/${id}`);
@@ -232,7 +237,7 @@ const AuctionDetail = () => {
             <AuctionTimer 
               endTime={auction.endAt} 
               onTimeUp={() => {
-                setAuctionStatus('종료');
+                handleEnd();
               }}
               closed={auction.isClosed} 
             />

@@ -30,7 +30,11 @@ const Home = ({ dashboardData }) => {
       return updatedAuctions;
     });
   }, []);
-
+  
+  //또 만들어야하는 사실 복붙만 하면 될 그거 
+  const handleEnd = (id) => {
+    console.log(id)
+  }
   // WebSocket 연결
   useAuctionSocket(handleAuctionUpdate);
 
@@ -151,6 +155,8 @@ const Home = ({ dashboardData }) => {
                 endTime={auction.endAt}
                 mode="compact"
                 className="time-value"
+                id = {auction.id}
+                onTimeUp={() => handleEnd(auction.id)}
                 closed={closed}
               />
             </div>
