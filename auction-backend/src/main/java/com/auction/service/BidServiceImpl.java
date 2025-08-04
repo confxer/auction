@@ -58,6 +58,14 @@ public class BidServiceImpl implements BidService {
 
     @Override
     public BidDto createBid(BidDto bidDto) {
+        // 경매 정보 조회
+        AuctionDto auction = auctionService.getAuctionById(bidDto.getAuctionId());
+        
+        // 즉시 구매가가 설정되어 있고, 입찰가가 즉시 구매가보다 높은 경우 예외 발생
+        if (auction.getBuyNowPrice() != null && bidDto.getBidAmount() >= auction.getBuyNowPrice()) {
+            throw new IllegalArgumentException("입찰 가격은 즉시 구매가보다 낮아야 합니다. 현재 즉시 구매가: " + auction.getBuyNowPrice());
+        }
+        
         // 입찰 시간 설정
         bidDto.setBidTime(LocalDateTime.now());
         
