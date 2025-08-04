@@ -147,35 +147,98 @@ const AuctionDetail = () => {
     }
 
     setProcessing(true);
-    fetch(`/api/bids`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        auctionId: auction.id,
-        bidAmount: bidAmount,
-        bidder: user.nickname // 실제 로그인 사용자로 대체 가능
-      }),
+    
+    // Send bid request using axios with credentials
+    const bidData = {
+      auctionId: auction.id,
+      bidAmount: bidAmount,
+      bidder: user.nickname || user.username
+      // Removed bidderId as it's not part of the DTO
+    };
+    
+    console.log('Sending bid data:', bidData);
+    
+    // Use axios with credentials and proper headers
+    return axios.post('/api/bids', bidData, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
     })
-      .then(async res => {
-        const text = await res.text();
-        if (!res.ok) throw new Error(text);
-        return text;
-      })
-      .then(data => {
-        alert('입찰 성공!');
-        setShowBidModal(false);
-        setCurrentBid('');
-        setProcessing(false);
-        console.log("11: ",bidAmount)
-        // 현재가 즉시 업데이트
-        const newPrice = Math.max(auction.startPrice, bidAmount);
-        setCurrentPrice(newPrice);
-        setAuction(prev => ({ ...prev, highestBid: bidAmount }));
-      })
-      .catch(err => {
-        alert('입찰 실패: ' + err.message);
-        setProcessing(false);
-      });
+    .then(response => {
+      const data = response.data;
+      
+      // Send notification to seller
+      if (window.socket && auction.userId) {
+        const sellerNotification = {
+          type: 'NOTIFICATION',
+          data: {
+            userId: auction.userId, // Notify the seller
+            message: `💰 ${user.nickname || user.username || '입찰자'}님이 ${auction.title}에 ${formatPrice(bidAmount)}원에 입찰하셨습니다!`,
+            auctionId: auction.id.toString(), // Ensure auctionId is a string for consistency
+            auctionTitle: auction.title,
+            type: 'NEW_BID',
+            read: false,
+            createdAt: new Date().toISOString(),
+            senderId: user.id,
+            senderName: user.nickname || user.username,
+            // Add additional context for the notification
+            action: 'BID_PLACED',
+            bidAmount: bidAmount
+          }
+        };
+        console.log('Sending seller notification:', sellerNotification);
+        window.socket.send(JSON.stringify(sellerNotification));
+      }
+      
+      // Send notification to buyer (self)
+      if (window.socket && user.id) {
+        const buyerNotification = {
+          type: 'NOTIFICATION',
+          data: {
+            userId: user.id, // Notify the buyer
+            message: `✅ ${auction.title}에 ${formatPrice(bidAmount)}원으로 입찰하셨습니다.`,
+            auctionId: auction.id.toString(), // Ensure auctionId is a string for consistency
+            auctionTitle: auction.title,
+            type: 'BID_PLACED',
+            read: false,
+            createdAt: new Date().toISOString(),
+            senderId: 'system',
+            senderName: '시스템',
+            // Add additional context for the notification
+            action: 'BID_CONFIRMATION',
+            bidAmount: bidAmount,
+            auctionStatus: auction.status
+          }
+        };
+        console.log('Sending buyer notification:', buyerNotification);
+        window.socket.send(JSON.stringify(buyerNotification));
+      }
+      
+      // Update UI
+      alert('입찰 성공!');
+      setShowBidModal(false);
+      setCurrentBid('');
+      setProcessing(false);
+      
+      // Update current price
+      const newPrice = Math.max(auction.startPrice, bidAmount);
+      setCurrentPrice(newPrice);
+      setAuction(prev => ({
+        ...prev,
+        highestBid: bidAmount,
+        highestBidder: user.nickname || user.username,
+        highestBidderId: user.id
+      }));
+      
+      return data;
+    })
+    .catch(err => {
+      console.error('Bid error:', err);
+      alert(err.message || '입찰에 실패했습니다.');
+      setProcessing(false);
+    });
   };
 
   const fetchAuction = async () => {
@@ -189,31 +252,107 @@ const AuctionDetail = () => {
 
   // 실제 즉시구매 구현
   const handleBuyNow = async () => {
+    if (!window.confirm('정말로 즉시 구매하시겠습니까? 이 작업은 취소할 수 없습니다.')) {
+      return;
+    }
+
     try {
       setProcessing(true);
       
       // 1. Send buy-now request with credentials
       const response = await axios.post(
         `/api/auctions/${auction.id}/buy-now`, 
-        {winnerId: user.id}, 
+        {
+          winnerId: user.id,
+          winnerName: user.nickname || user.username || '구매자',
+          price: auction.buyNowPrice || auction.startPrice
+        }, 
         { 
           withCredentials: true,
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
         }
       );
       
       // 2. Update UI on success
       if (response.status === 200) {
+        // Send notification to buyer
+        const buyerMessage = `🎉 ${auction.title} 상품을 ${formatPrice(auction.buyNowPrice || auction.startPrice)}원에 구매하셨습니다!`;
+        
+        // Notify the buyer
+        if (window.socket && user.id) {
+          const buyerNotification = {
+            type: 'NOTIFICATION',
+            data: {
+              userId: user.id,
+              message: buyerMessage,
+              auctionId: auction.id.toString(),
+              auctionTitle: auction.title,
+              type: 'PURCHASE_COMPLETE',
+              read: false,
+              createdAt: new Date().toISOString(),
+              senderId: 'system',
+              senderName: '시스템',
+              // Additional context
+              action: 'PURCHASE_COMPLETED',
+              price: auction.buyNowPrice || auction.startPrice,
+              auctionStatus: 'SOLD'
+            }
+          };
+          console.log('Sending buyer purchase notification:', buyerNotification);
+          window.socket.send(JSON.stringify(buyerNotification));
+        }
+
+        // Notify the seller
+        if (window.socket && auction.userId && auction.userId !== user.id) {
+          const sellerMessage = `💰 ${user.nickname || user.username || '구매자'}님이 ${auction.title}을(를) ${formatPrice(auction.buyNowPrice || auction.startPrice)}원에 즉시 구매하셨습니다!`;
+          const sellerNotification = {
+            type: 'NOTIFICATION',
+            data: {
+              userId: auction.userId,
+              message: sellerMessage,
+              auctionId: auction.id.toString(),
+              auctionTitle: auction.title,
+              type: 'SOLD',
+              read: false,
+              createdAt: new Date().toISOString(),
+              senderId: user.id,
+              senderName: user.nickname || user.username || '구매자',
+              // Additional context
+              action: 'ITEM_SOLD',
+              price: auction.buyNowPrice || auction.startPrice,
+              buyerId: user.id,
+              buyerName: user.nickname || user.username || '구매자',
+              auctionStatus: 'SOLD'
+            }
+          };
+          console.log('Sending seller sold notification:', sellerNotification);
+          window.socket.send(JSON.stringify(sellerNotification));
+        }
+        
+        // Show success message
+        alert(buyerMessage);
+        
+        // 3. Update UI
+        setAuction(prev => ({
+          ...prev,
+          isClosed: true,
+          status: '종료',
+          winnerId: user.id,
+          winner: user.nickname || user.username || '구매자',
+          currentPrice: auction.buyNowPrice || auction.startPrice,
+          highestBid: auction.buyNowPrice || auction.startPrice,
+          highestBidder: user.nickname || user.username,
+          highestBidderId: user.id
+        }));
+        
         setAuctionStatus('종료');
         setShowBuyNowModal(false);
         
-        // Show success message
-        alert('즉시구매가 완료되었습니다!');
-        
-        // Refresh auction data
-        fetchAuction();
+        // Refresh auction data without full page reload
+        await fetchAuction();
       }
     } catch (error) {
       console.error('즉시구매 실패:', error);

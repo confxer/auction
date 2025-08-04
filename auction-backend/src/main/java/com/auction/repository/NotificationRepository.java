@@ -1,9 +1,12 @@
 package com.auction.repository;
 
+import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.auction.dto.NotificationDto;
@@ -35,19 +38,32 @@ public class NotificationRepository {
 
 
     // ✅ Notification 엔티티 객체 저장용 오버로드 메서드 추가
-public void save(Notification notification) {
-    String sql = "INSERT INTO notifications (auction_id, title, user_id, type, message, is_read, created_at) " +
-                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
-    jdbcTemplate.update(sql,
-        notification.getAuctionId(),
-        notification.getTitle(),
-        notification.getUserId(),
-        notification.getType(),
-        notification.getMessage(),
-        notification.isRead() ? 1 : 0,
-        Timestamp.valueOf(notification.getCreatedAt())
-    );
-}
+    public Notification save(Notification notification) {
+        String sql = "INSERT INTO notifications (auction_id, title, user_id, type, message, is_read, created_at) " +
+                   "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            ps.setLong(1, notification.getAuctionId());
+            ps.setString(2, notification.getTitle());
+            ps.setString(3, notification.getUserId());
+            ps.setString(4, notification.getType());
+            ps.setString(5, notification.getMessage());
+            ps.setBoolean(6, notification.isRead());
+            ps.setTimestamp(7, Timestamp.valueOf(notification.getCreatedAt()));
+            return ps;
+        }, keyHolder);
+        
+        if (keyHolder.getKey() != null) {
+            notification.setId(keyHolder.getKey().longValue());
+        } else {
+            // Log a warning if no key was generated
+            System.err.println("Warning: No key was generated for the saved notification");
+        }
+        return notification;
+    }
 
     public int countUnreadByUserId(String userId) {
         return jdbcTemplate.queryForObject(

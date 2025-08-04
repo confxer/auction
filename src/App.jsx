@@ -6,8 +6,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { UserProvider, useUser } from "./UserContext";
 import axios from "./axiosConfig";
 import FavoriteAlertProvider from "./components/FavoriteAlertProvider";
-import useNotificationSocket from "./hooks/useNotificationSocket"; // ✅ WebSocket 알림 훅
-
+import useNotificationSocket from "./hooks/useNotificationSocket"; // WebSocket 알림 훅
+import { NotificationProvider, useNotifications } from "./hooks/NotificationContext"; // ✅ 알림 훅 가져오기
 // 컴포넌트들
 import Footer from "./components/Footer";
 import Navigation from "./components/Navigation";
@@ -54,9 +54,10 @@ function AppContent() {
     events: [],
   });
   const [loading, setLoading] = useState(true);
-
+  const { addNotification } = useNotifications(); // ✅ 알림 추가 함수 가져오기
+  
   const { user } = useUser();
-  useNotificationSocket(user?.id); // ✅ WebSocket 알림 연결
+  useNotificationSocket(user?.id, addNotification); // ✅ 콜백 등록
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -146,10 +147,13 @@ function App() {
   return (
     <UserProvider>
       <FavoriteAlertProvider>
+      <NotificationProvider>
         <AppContent />
+      </NotificationProvider>
       </FavoriteAlertProvider>
     </UserProvider>
   );
 }
+
 
 export default App;

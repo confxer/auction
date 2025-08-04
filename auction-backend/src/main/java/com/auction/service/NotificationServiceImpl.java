@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,11 +33,25 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendNotification(String userId, NotificationDto dto) {
-        dto.setUserId(userId);
-        Notification notification = new Notification(dto); // ← 생성자 필요
-        notificationRepository.save(notification);
+        try {
+            logger.info("Sending notification to user: {}, type: {}, message: {}", userId, dto.getType(), dto.getMessage());
+            dto.setUserId(userId);
+            
+            // Save to database
+            Notification notification = new Notification(dto);
+            Notification savedNotification = notificationRepository.save(notification);
+            logger.info("Notification saved to database with ID: {}", savedNotification.getId());
 
-        messagingTemplate.convertAndSend("/topic/notifications/" + userId, dto);
+            // Send via WebSocket
+            String destination = "/topic/notifications/" + userId;
+            logger.info("Sending WebSocket message to destination: {}", destination);
+            messagingTemplate.convertAndSend(destination, dto);
+            logger.info("WebSocket message sent successfully");
+            
+        } catch (Exception e) {
+            logger.error("Error in sendNotification for user {}: {}", userId, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
@@ -141,45 +155,73 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public NotificationDto saveNotification(NotificationDto dto) {
+        logger.info("Saving notification for user: {}, message: {}", dto.getUserId(), dto.getMessage());
+        
+        // Create and save the notification
+        Notification notification = new Notification(dto);
+        notification = notificationRepository.save(notification);
+        logger.info("Notification saved with ID: {}", notification.getId());
+        
+        // Convert to DTO and return
+        return convertToDto(notification);
+    }
+    
+    // Convert Notification entity to NotificationDto
+    private NotificationDto convertToDto(Notification notification) {
+        if (notification == null) {
+            return null;
+        }
+        
+        NotificationDto dto = new NotificationDto();
+        dto.setId(notification.getId());
+        dto.setUserId(notification.getUserId());
+        dto.setMessage(notification.getMessage());
+        dto.setType(notification.getType());
+        dto.setRead(notification.isRead());
+        dto.setCreatedAt(notification.getCreatedAt());
+        
+        return dto;
+    }
+
+    @Override
     public void sendBidNotification(Long auctionId, String title, String bidder, Long amount) {
         try {
             // Get the auction to find the seller
             AuctionDto auction = auctionService.getAuctionById(auctionId);
+            if (auction == null) {
+                logger.error("Auction not found for ID: " + auctionId);
+                return;
+            }
 
             String sellerId = String.valueOf(auction.getUserId());
             
-            // Send notification to the seller
-            NotificationDto sellerNotice = new NotificationDto(
-                auctionId, 
-                title, 
-                sellerId, 
-                "NEW_BID", 
-                "💰 새 입찰: '" + title + "'에 " + amount + "원에 입찰되었습니다."
+            // Only send notification to the seller if the bidder is not the seller
+            if (!bidder.equals(sellerId)) {
+                NotificationDto sellerNotice = new NotificationDto(
+                    auctionId, 
+                    title, 
+                    sellerId, 
+                    "NEW_BID", 
+                    "💰 새 입찰: '" + title + "'에 " + String.format("%,d", amount) + "원에 입찰되었습니다."
+                );
+                sendNotification(sellerId, sellerNotice);
+                logger.info("Bid notification sent to seller {} for auction {}", sellerId, auctionId);
+            }
+            
+            // Also send a notification to the bidder (optional)
+            NotificationDto bidderNotice = new NotificationDto(
+                auctionId,
+                title,
+                bidder,
+                "BID_PLACED",
+                "✅ '" + title + "'에 " + String.format("%,d", amount) + "원으로 입찰하셨습니다."
             );
-            sendNotification(sellerId, sellerNotice);
+            sendNotification(bidder, bidderNotice);
+            logger.info("Bid confirmation sent to bidder {} for auction {}", bidder, auctionId);
             
         } catch (Exception e) {
-        }
-    }
-    @Override
-    public void sendSellerNotification(Long auctionId, String title, String seller, Long amount) {
-        try {
-            // Get the auction to find the seller
-            AuctionDto auction = auctionService.getAuctionById(auctionId);
-
-            String sellerId = String.valueOf(auction.getUserId());
-            
-            // Send notification to the seller
-            NotificationDto sellerNotice = new NotificationDto(
-                auctionId, 
-                title, 
-                sellerId, 
-                "NEW_BID", 
-                "💰 새 입찰: '" + title + "'에 " + amount + "원에 입찰되었습니다."
-            );
-            sendNotification(sellerId, sellerNotice);
-            
-        } catch (Exception e) {
+            logger.error("Error sending bid notification: ", e);
         }
     }
 

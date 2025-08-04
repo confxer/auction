@@ -1,34 +1,73 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useUser } from '../UserContext';
 import { useNavigate } from 'react-router-dom';
+import useNotificationSocket from '../hooks/useNotificationSocket';
+import { toast } from 'react-toastify';
 import '../style/NotificationBell.css';
 
 function NotificationBell({ pageMode }) {
   const { user } = useUser();
   const [notifications, setNotifications] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!user || !user.username || !user.accessToken) return;
-    const fetchNotifications = async () => {
-      try {
-        const response = await fetch(`http://localhost:8080/api/notifications/${user.username}`, {
-          headers: {
-            Authorization: `Bearer ${user.accessToken}`
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setNotifications(data);
-        }
-      } catch (e) {
-        // ignore
+  // 알림 목록을 가져오는 함수
+  const fetchNotifications = useCallback(async () => {
+    if (!user?.username) return;
+    
+    try {
+      const response = await fetch(`http://localhost:8080/api/notifications/${user.username}`, {
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setNotifications(data);
       }
-    };
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    } catch (error) {
+      console.error('알림 목록을 가져오는 중 오류 발생:', error);
+      toast.error('알림을 불러오는 중 오류가 발생했습니다.');
+    }
   }, [user]);
+
+  // WebSocket을 통한 실시간 알림 처리
+  const handleNewNotification = useCallback((newNotification) => {
+    console.log('새 알림 수신:', newNotification);
+    setNotifications(prev => [newNotification, ...prev]);
+    
+    // 토스트 알림 표시 (중복 방지를 위해 useNotificationSocket의 토스트는 제외)
+    if (newNotification.message) {
+      toast.info(newNotification.message, {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    }
+  }, []);
+
+  // WebSocket 연결 설정
+  useNotificationSocket(user?.username, {
+    onNotification: handleNewNotification,
+    addNotification: (newNotif) => {
+      setNotifications(prev => [newNotif, ...prev]);
+    }
+  });
+
+  // 초기 알림 로드 및 주기적 갱신
+  useEffect(() => {
+    if (!user?.username) return;
+    
+    // 초기 로드
+    fetchNotifications();
+    
+    // 30초마다 알림 갱신
+    const interval = setInterval(fetchNotifications, 30000);
+    
+    return () => clearInterval(interval);
+  }, [user, fetchNotifications]);
 
   const handleNotificationClick = (noti) => {
     if (noti.type === 'MESSAGE') {
@@ -37,7 +76,9 @@ function NotificationBell({ pageMode }) {
       noti.type === 'AUCTION_ENDING_SOON' ||
       noti.type === 'FAVORITE_AUCTION' ||
       noti.type === 'AUCTION_WINNER' ||
-      noti.type === 'BUY_NOW_SUCCESS'
+      noti.type === 'BUY_NOW_SUCCESS' ||
+      noti.type === 'BID_PLACED' ||
+      noti.type === 'BUY_NOW'
     ) {
       if (noti.auctionId) {
         navigate(`/auction/${noti.auctionId}`);
@@ -56,7 +97,10 @@ function NotificationBell({ pageMode }) {
       case 'AUCTION_WINNER':
         return '낙찰 알림';
       case 'BUY_NOW_SUCCESS':
-        return '즉시구매 완료';
+      case 'BUY_NOW':
+        return '즉시구매';
+      case 'BID_PLACED':
+        return '입찰 완료';
       default:
         return '알림';
     }

@@ -13,8 +13,12 @@ public interface NotificationService {
     void markAsRead(Long id);
     void markAllAsRead(String userId);
 
-    // ❗ 추가
+    // Save and notify a user
     void saveAndNotify(NotificationDto dto);
+    
+    // Send bid notification to seller and bidder
     void sendBidNotification(Long auctionId, String title, String bidder, Long amount);
-    void sendSellerNotification(Long auctionId, String title, String seller, Long amount);
+    
+    // Save a notification
+    NotificationDto saveNotification(NotificationDto dto);
 }

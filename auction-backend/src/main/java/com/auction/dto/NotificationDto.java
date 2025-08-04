@@ -26,6 +26,7 @@ public class NotificationDto {
         this.message = message;
         this.isRead = false;
         this.createdAt = LocalDateTime.now();
+        this.sellerId = sellerId;
     }
 
     // ✅ Builder 패턴 추가
@@ -82,6 +83,11 @@ public class NotificationDto {
 
         public NotificationDto build() {
             return dto;
+        }
+
+        public Builder sellerId(Long sellerId) {
+            dto.setSellerId(sellerId);
+            return this;
         }
     }
 
