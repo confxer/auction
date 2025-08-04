@@ -27,6 +27,7 @@ public class AuctionDto {
     private Integer highestBid;
     private Boolean isClosed;
     private String winner;
+    private Long winnerId;
     private Integer viewCount;
     private Integer bidCount;
     private Long userId;
@@ -122,6 +123,9 @@ public class AuctionDto {
 
     public String getSeller() { return seller; }
     public void setSeller(String seller) { this.seller = seller; }
+
+    public Long getWinnerId() { return winnerId; }
+    public void setWinnerId(Long winnerId) { this.winnerId = winnerId; }
 
     // 프론트엔드 호환성을 위한 메서드들
     public String getImageUrl() { 

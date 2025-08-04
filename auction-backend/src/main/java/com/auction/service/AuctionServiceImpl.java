@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -14,14 +15,20 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.context.annotation.Lazy;
 
 import com.auction.dto.AuctionDto;
+import com.auction.dto.NotificationDto;
 import com.auction.entity.Auction;
 import com.auction.repository.AuctionRepository;
+import com.auction.repository.BidRepository;
 import com.auction.repository.UserRepository;
+import com.auction.repository.CustomAuctionRepository;
 
 @Service
 public class AuctionServiceImpl implements AuctionService {
+  
+
     @Autowired
     private AuctionRepository auctionRepository;
 
@@ -30,6 +37,12 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private BidRepository bidRepository;
+
+    @Autowired
+    private CustomAuctionRepository customAuctionRepository;
 
     private final String uploadDir = "uploads/";
 
@@ -62,19 +75,20 @@ public class AuctionServiceImpl implements AuctionService {
         dto.setViewCount(auction.getViewCount());
         dto.setBidCount(auction.getBidCount());
         dto.setUserId(auction.getUserId());
-        // seller(username) 세팅 추가
+
         if (auction.getUserId() != null) {
             userRepository.findById(auction.getUserId()).ifPresent(user -> dto.setSeller(user.getUsername()));
         }
-        // 프론트엔드 호환성을 위한 필드 설정
+
         dto.setImageUrl(auction.getImageUrl1());
         dto.setCurrentPrice(auction.getHighestBid() != null ? auction.getHighestBid().longValue() : auction.getStartPrice().longValue());
         dto.setStartAt(auction.getStartTime());
         dto.setEndAt(auction.getEndTime());
-        dto.setOwnerId(null); // 실제로는 owner 정보가 없음
+        dto.setOwnerId(null);
+
         return dto;
     }
-    
+
     private Auction toEntity(AuctionDto dto) {
         Auction auction = new Auction();
         auction.setId(dto.getId());
@@ -101,45 +115,40 @@ public class AuctionServiceImpl implements AuctionService {
         auction.setHighestBid(dto.getHighestBid());
         auction.setIsClosed(dto.getIsClosed());
         auction.setWinner(dto.getWinner());
-        auction.setUserId(dto.getUserId()); // userId 세팅 추가
+        auction.setUserId(dto.getUserId());
         return auction;
     }
 
     @Override
-    public AuctionDto createAuction(AuctionDto auctionDto, MultipartFile imageFile) {
+    public AuctionDto createAuction(AuctionDto dto, MultipartFile imageFile) {
         String imageUrl = null;
         if (imageFile != null && !imageFile.isEmpty()) {
             try {
-                // Ensure upload directory exists
                 File directory = new File(uploadDir);
                 if (!directory.exists()) {
                     directory.mkdirs();
                 }
-
-                String originalFilename = imageFile.getOriginalFilename();
-                String fileExtension = "";
-                if (originalFilename != null && originalFilename.contains(".")) {
-                    fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                }
-                String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-                Path filePath = Paths.get(uploadDir + uniqueFilename);
-                Files.copy(imageFile.getInputStream(), filePath);
-                imageUrl = "/uploads/" + uniqueFilename;
+                String ext = Optional.ofNullable(imageFile.getOriginalFilename())
+                    .filter(f -> f.contains("."))
+                    .map(f -> f.substring(f.lastIndexOf(".")))
+                    .orElse("");
+                String uniqueName = UUID.randomUUID() + ext;
+                Path path = Paths.get(uploadDir + uniqueName);
+                Files.copy(imageFile.getInputStream(), path);
+                imageUrl = "/uploads/" + uniqueName;
             } catch (IOException e) {
-                // Proper error handling should be implemented here
                 e.printStackTrace();
             }
         }
 
-        auctionDto.setImageUrl1(imageUrl);
-        Auction auction = toEntity(auctionDto);
-        Auction saved = auctionRepository.save(auction);
-        return toDto(saved);
+        dto.setImageUrl1(imageUrl);
+        Auction auction = toEntity(dto);
+        return toDto(auctionRepository.save(auction));
     }
 
     @Override
-    public AuctionDto createAuction(AuctionDto auctionDto) {
-        return createAuction(auctionDto, null);
+    public AuctionDto createAuction(AuctionDto dto) {
+        return createAuction(dto, null);
     }
 
     @Override
@@ -149,60 +158,51 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public AuctionDto getAuctionById(Long id) {
-        Optional<Auction> auction = auctionRepository.findById(id);
-        return auction.map(this::toDto).orElse(null);
+        return auctionRepository.findById(id).map(this::toDto).orElse(null);
     }
 
     @Override
-    public AuctionDto updateAuction(Long id, AuctionDto auctionDto) {
-        Optional<Auction> auctionOpt = auctionRepository.findById(id);
-        if (auctionOpt.isPresent()) {
-            Auction auction = auctionOpt.get();
-            auction.setTitle(auctionDto.getTitle());
-            auction.setCategory(auctionDto.getCategory());
-            auction.setStatus(auctionDto.getStatus());
-            auction.setBrand(auctionDto.getBrand());
-            auction.setImageUrl1(auctionDto.getImageUrl1());
-            auction.setImageUrl2(auctionDto.getImageUrl2());
-            auction.setImageUrl3(auctionDto.getImageUrl3());
-            auction.setDescription(auctionDto.getDescription());
-            auction.setStartPrice(auctionDto.getStartPrice());
-            auction.setBuyNowPrice(auctionDto.getBuyNowPrice());
-            auction.setBidUnit(auctionDto.getBidUnit());
-            auction.setStartTime(auctionDto.getStartTime());
-            auction.setEndTime(auctionDto.getEndTime());
-            auction.setMinBidCount(auctionDto.getMinBidCount());
-            auction.setAutoExtend(auctionDto.getAutoExtend());
-            auction.setShippingFee(auctionDto.getShippingFee());
-            auction.setShippingType(auctionDto.getShippingType());
-            auction.setLocation(auctionDto.getLocation());
-            auction.setUpdatedAt(java.time.LocalDateTime.now());
-            auction.setHighestBid(auctionDto.getHighestBid());
-            auction.setIsClosed(auctionDto.getIsClosed());
-            auction.setWinner(auctionDto.getWinner());
-            Auction updated = auctionRepository.save(auction);
-            return toDto(updated);
-        }
-        return null;
+    public AuctionDto updateAuction(Long id, AuctionDto dto) {
+        return auctionRepository.findById(id).map(auction -> {
+            auction.setTitle(dto.getTitle());
+            auction.setCategory(dto.getCategory());
+            auction.setStatus(dto.getStatus());
+            auction.setBrand(dto.getBrand());
+            auction.setImageUrl1(dto.getImageUrl1());
+            auction.setImageUrl2(dto.getImageUrl2());
+            auction.setImageUrl3(dto.getImageUrl3());
+            auction.setDescription(dto.getDescription());
+            auction.setStartPrice(dto.getStartPrice());
+            auction.setBuyNowPrice(dto.getBuyNowPrice());
+            auction.setBidUnit(dto.getBidUnit());
+            auction.setStartTime(dto.getStartTime());
+            auction.setEndTime(dto.getEndTime());
+            auction.setMinBidCount(dto.getMinBidCount());
+            auction.setAutoExtend(dto.getAutoExtend());
+            auction.setShippingFee(dto.getShippingFee());
+            auction.setShippingType(dto.getShippingType());
+            auction.setLocation(dto.getLocation());
+            auction.setUpdatedAt(LocalDateTime.now());
+            auction.setHighestBid(dto.getHighestBid());
+            auction.setIsClosed(dto.getIsClosed());
+            auction.setWinner(dto.getWinner());
+            return toDto(auctionRepository.save(auction));
+        }).orElse(null);
     }
 
     @Override
     public void deleteAuction(Long id) {
-        // 경매의 모든 댓글 soft delete
         commentService.deleteAllByAuctionId(id);
-        // 경매 삭제
         auctionRepository.deleteById(id);
     }
 
     @Override
-    public AuctionDto checkAndCloseAuction(AuctionDto auctionDto) {
-        // 경매 종료 조건 체크 및 상태 변경 예시
-        if (auctionDto.getIsClosed() != null && auctionDto.getIsClosed()) {
-            auctionDto.setStatus("종료");
-            auctionDto.setClosed(true);
-            // 실제 DB 반영 필요시 auctionRepository.save(...) 등 추가 가능
+    public AuctionDto checkAndCloseAuction(AuctionDto dto) {
+        if (Boolean.TRUE.equals(dto.getIsClosed())) {
+            dto.setStatus("종료");
+            dto.setClosed(true);
         }
-        return auctionDto;
+        return dto;
     }
 
     @Override
@@ -211,44 +211,112 @@ public class AuctionServiceImpl implements AuctionService {
         Collections.shuffle(all);
         return all.stream().limit(count).collect(Collectors.toList());
     }
-    
+
     @Override
     public void incrementViewCount(Long auctionId) {
-        Optional<Auction> auctionOpt = auctionRepository.findById(auctionId);
-        if (auctionOpt.isPresent()) {
-            Auction auction = auctionOpt.get();
-            Integer currentViewCount = auction.getViewCount();
-            auction.setViewCount(currentViewCount != null ? currentViewCount + 1 : 1);
-            auctionRepository.save(auction);
-        }
+        auctionRepository.findById(auctionId).ifPresent(a -> {
+            a.setViewCount(a.getViewCount() != null ? a.getViewCount() + 1 : 1);
+            auctionRepository.save(a);
+        });
     }
-    
+
     @Override
     public void incrementBidCount(Long auctionId) {
-        Optional<Auction> auctionOpt = auctionRepository.findById(auctionId);
-        if (auctionOpt.isPresent()) {
-            Auction auction = auctionOpt.get();
-            Integer currentBidCount = auction.getBidCount();
-            auction.setBidCount(currentBidCount != null ? currentBidCount + 1 : 1);
-            auctionRepository.save(auction);
-        }
+        auctionRepository.findById(auctionId).ifPresent(a -> {
+            a.setBidCount(a.getBidCount() != null ? a.getBidCount() + 1 : 1);
+            auctionRepository.save(a);
+        });
     }
 
     @Override
     public List<AuctionDto> getAuctionsByUserId(Long userId) {
-        List<Auction> auctions = auctionRepository.findByUserId(userId);
-        return auctions.stream().map(this::toDto).collect(Collectors.toList());
+        return auctionRepository.findByUserId(userId).stream().map(this::toDto).collect(Collectors.toList());
+    }
+
+    @Lazy
+    @Autowired
+    private NotificationService notificationService;
+
+    @Override
+    public Auction buyNow(Long id, String buyerId) {
+        return auctionRepository.findById(id).map(a -> {
+            // 이미 종료된 경매인지 확인
+            if (a.getIsClosed() != null && a.getIsClosed()) {
+                throw new IllegalStateException("이미 종료된 경매입니다.");
+            }
+            
+            // 판매자가 본인 상품을 구매하는지 확인
+            if (a.getUserId() != null && String.valueOf(a.getUserId()).equals(buyerId)) {
+                throw new IllegalStateException("자신의 상품은 구매할 수 없습니다.");
+            }
+            
+            // Update auction details
+            a.setHighestBid(a.getBuyNowPrice());
+            a.setStatus("종료");
+            a.setIsClosed(true);
+            a.setWinner(buyerId); // Set the winner to the buyer
+            
+            // Save the updated auction
+            Auction updatedAuction = auctionRepository.save(a);
+            
+            // Send notification to both buyer and seller
+            if (notificationService != null) {
+                try {
+                    // Get seller ID
+                    String sellerId = String.valueOf(a.getUserId());
+                    
+                    // Send notification to buyer
+                    NotificationDto buyerNotice = new NotificationDto(
+                        a.getId(),
+                        a.getTitle(),
+                        buyerId,
+                        "BUY_NOW",
+                        "✅ '" + a.getTitle() + "' 즉시구매가 완료되었습니다!"
+                    );
+                    notificationService.sendNotification(buyerId, buyerNotice);
+                    
+                    // Send notification to seller if not buying from themselves
+                    if (!sellerId.equals(buyerId)) {
+                        NotificationDto sellerNotice = new NotificationDto(
+                            a.getId(),
+                            a.getTitle(),
+                            sellerId,
+                            "SOLD",
+                            "💰 '" + a.getTitle() + "' 상품이 즉시구매로 판매되었습니다. 구매자: " + buyerId
+                        );
+                        notificationService.sendNotification(sellerId, sellerNotice);
+                    }
+                } catch (Exception e) {
+                    // Log the error but don't fail the operation
+                    System.err.println("Error sending buy now notifications: " + e.getMessage());
+                }
+            }
+            
+            return updatedAuction;
+        }).orElse(null);
     }
 
     @Override
-    public void buyNow(Long id) {
-        Optional<Auction> auctionOpt = auctionRepository.findById(id);
-        if (auctionOpt.isPresent()) {
-            Auction auction = auctionOpt.get();
-            auction.setHighestBid(auction.getBuyNowPrice());
-            auction.setStatus("종료");
-            auction.setIsClosed(true);
-            auctionRepository.save(auction);
-        }
+    public Auction endAuction(Long id) {
+        return auctionRepository.findById(id).map(a -> {
+            a.setStatus("종료");
+            a.setIsClosed(true);
+
+            if (a.getWinner() == null) {
+                String highestBidder = bidRepository.findByAuctionId(id)
+                    .stream()
+                    .findFirst()
+                    .map(bid -> bid.getBidder())
+                    .orElse(null);
+                a.setWinner(highestBidder);
+            }
+
+            return auctionRepository.save(a);
+        }).orElse(null);
+    }
+
+    @Override
+    public String getBuyerNickname(Long buyerId) {
+        return customAuctionRepository.getBuyerNickname(buyerId);
     }
 }

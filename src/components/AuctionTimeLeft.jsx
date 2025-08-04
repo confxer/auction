@@ -40,8 +40,8 @@ const AuctionTimeLeft = ({ startTime, endTime, isClosed, onStatusChange, fnc, id
         }
 
         // 마감 시 콜백 (즉시구매든 시간이 끝났든 모두 포함)
-        if (newStatus === "마감" && fnc) {
-          fnc(id);
+        if (newStatus === "마감" && fnc && !isClosed) {
+          fnc(id, isClosed);
         }
 
         return newStatus;

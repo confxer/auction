@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { UserProvider } from "./UserContext";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { UserProvider, useUser } from "./UserContext";
 import axios from "./axiosConfig";
 import FavoriteAlertProvider from "./components/FavoriteAlertProvider";
+import useNotificationSocket from "./hooks/useNotificationSocket"; // ✅ WebSocket 알림 훅
 
 // 컴포넌트들
 import Footer from "./components/Footer";
 import Navigation from "./components/Navigation";
 import QuickMenu from "./components/QuickMenu";
-
-
-
 
 // 페이지들
 import Home from "./pages/Home";
@@ -44,19 +45,18 @@ import MyPage from "./pages/MyPage";
 import Favorites from "./pages/Favorites";
 import KakaoMap from "./pages/KakaoMap";
 
-
-
-
-function App() {
+// 🔁 내부 컴포넌트로 감싸서 useUser 사용 가능하게 처리
+function AppContent() {
   const [dashboardData, setDashboardData] = useState({
     auctions: [],
     notices: [],
     faqs: [],
-    events: []
-    
+    events: [],
   });
- 
   const [loading, setLoading] = useState(true);
+
+  const { user } = useUser();
+  useNotificationSocket(user?.id); // ✅ WebSocket 알림 연결
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -80,68 +80,73 @@ function App() {
     fetchDashboardData();
   }, []);
 
-  
-
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontSize: "18px",
+        }}
+      >
         데이터를 불러오는 중...
       </div>
     );
   }
 
   return (
+    <Router>
+      <div className="App">
+        <Navigation />
+        <ToastContainer /> {/* ✅ 알림 토스트 표시 */}
+        <main>
+          <Routes>
+            <Route path="/" element={<Home dashboardData={dashboardData} />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/auction" element={<Auction />} />
+            <Route path="/auction/:id" element={<AuctionDetail />} />
+            <Route path="/auction-new" element={<AuctionNew />} />
+            <Route path="/customer-service" element={<CustomerService />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/faq-list" element={<FAQList />} />
+            <Route path="/faq/admin" element={<FAQAdmin />} />
+            <Route path="/inquiry" element={<Inquiry />} />
+            <Route path="/inquiry-list" element={<InquiryList />} />
+            <Route path="/inquiry-my" element={<InquiryMy />} />
+            <Route path="/inquiry-new" element={<InquiryNew />} />
+            <Route path="/inquiry/:id" element={<InquiryDetail />} />
+            <Route path="/inquiry/admin" element={<InquiryAdmin />} />
+            <Route path="/inquiry/admin/:id" element={<InquiryAdminDetailPage />} />
+            <Route path="/notice" element={<Notice />} />
+            <Route path="/notice-list" element={<NoticeList />} />
+            <Route path="/notice/:id" element={<NoticeDetail />} />
+            <Route path="/notice/admin" element={<NoticeAdmin />} />
+            <Route path="/event" element={<Event />} />
+            <Route path="/event-list" element={<EventList />} />
+            <Route path="/event/:id" element={<EventDetail />} />
+            <Route path="/event/admin" element={<EventAdmin />} />
+            <Route path="/oauth2/success" element={<OAuth2Success />} />
+            <Route path="/search" element={<SearchResult />} />
+            <Route path="/mypage" element={<MyPage />} />
+            <Route path="/favorites" element={<Favorites />} />
+            <Route path="/map" element={<KakaoMap />} />
+          </Routes>
+        </main>
+        <QuickMenu />
+        <Footer />
+      </div>
+    </Router>
+  );
+}
+
+function App() {
+  return (
     <UserProvider>
       <FavoriteAlertProvider>
-        <Router>
-          <div className="App">
-            <Navigation />
-            <main>
-              <Routes>
-                <Route path="/" element={<Home dashboardData={dashboardData} />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/auction" element={<Auction />} />
-                <Route path="/auction/:id" element={<AuctionDetail />} />
-                <Route path="/auction-new" element={<AuctionNew />} />
-                <Route path="/customer-service" element={<CustomerService />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/faq-list" element={<FAQList />} />
-                <Route path="/faq/admin" element={<FAQAdmin />} />
-                <Route path="/inquiry" element={<Inquiry />} />
-                <Route path="/inquiry-list" element={<InquiryList />} />
-                <Route path="/inquiry-my" element={<InquiryMy />} />
-                <Route path="/inquiry-new" element={<InquiryNew />} />
-                <Route path="/inquiry/:id" element={<InquiryDetail />} />
-                <Route path="/inquiry/admin" element={<InquiryAdmin />} />
-                <Route path="/inquiry/admin/:id" element={<InquiryAdminDetailPage />} />
-                <Route path="/notice" element={<Notice />} />
-                <Route path="/notice-list" element={<NoticeList />} />
-                <Route path="/notice/:id" element={<NoticeDetail />} />
-                <Route path="/notice/admin" element={<NoticeAdmin />} />
-                <Route path="/event" element={<Event />} />
-                <Route path="/event-list" element={<EventList />} />
-                <Route path="/event/:id" element={<EventDetail />} />
-                <Route path="/event/admin" element={<EventAdmin />} />
-                <Route path="/oauth2/success" element={<OAuth2Success />} />
-                <Route path="/search" element={<SearchResult />} />
-                <Route path="/mypage" element={<MyPage />} />
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/map" element={<KakaoMap />} />
-               
-              </Routes>
-            </main>
-            <QuickMenu />
-            <Footer />
-          </div>
-        </Router>
-        
+        <AppContent />
       </FavoriteAlertProvider>
     </UserProvider>
   );

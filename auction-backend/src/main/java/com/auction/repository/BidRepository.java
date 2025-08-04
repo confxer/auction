@@ -53,4 +53,11 @@ public class BidRepository {
         String sql = "SELECT COALESCE(MAX(bid_amount), 0) FROM bids WHERE auction_id = ?";
         return jdbcTemplate.queryForObject(sql, Long.class, auctionId);
     }
+
+    // ✅ 최고 입찰자 username 조회 메서드
+    public String findTopBidderByAuctionId(Long auctionId) {
+        String sql = "SELECT bidder FROM bids WHERE auction_id = ? ORDER BY bid_amount DESC LIMIT 1";
+        List<String> results = jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("bidder"), auctionId);
+        return results.isEmpty() ? null : results.get(0);
+    }
 }

@@ -34,8 +34,8 @@ const Auction = () => {
   }, []);
 
   // 경매 상태 종료 시 콜백
-  const handleEnd = (id) => {
-    console.log("마감된 경매 ID:", id);
+  const handleEnd = (id, isClosed) => {
+    console.log("마감된 경매 ID:", id, isClosed);
   };
 
   // 정렬 및 필터링 함수
@@ -168,7 +168,7 @@ const Auction = () => {
                     startTime={auction.startTime}
                     endTime={auction.endTime}
                     isClosed={auction.isClosed} // ✅ 수정됨
-                    fnc={() => handleEnd(auction.id)}
+                    fnc={() => handleEnd(auction.id, auction.isClosed)}
                     id={auction.id}
                   />
                 </div>

@@ -178,12 +178,52 @@ const AuctionDetail = () => {
       });
   };
 
-  // 실제 즉시구매 구현
-  const handleBuyNow = async () => {
-    await axios.post(`/api/auctions/${auction.id}/buy-now`, {}, { withCredentials: true });
-    setAuctionStatus('종료');
+  const fetchAuction = async () => {
+    try {
+      const response = await axios.get(`/api/auctions/${auction.id}`);
+      setAuction(response.data);
+    } catch (error) {
+      console.error('경매 정보 가져오기 실패:', error);
+    }
   };
 
+  // 실제 즉시구매 구현
+  const handleBuyNow = async () => {
+    try {
+      setProcessing(true);
+      
+      // 1. Send buy-now request with credentials
+      const response = await axios.post(
+        `/api/auctions/${auction.id}/buy-now`, 
+        {winnerId: user.id}, 
+        { 
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      // 2. Update UI on success
+      if (response.status === 200) {
+        setAuctionStatus('종료');
+        setShowBuyNowModal(false);
+        
+        // Show success message
+        alert('즉시구매가 완료되었습니다!');
+        
+        // Refresh auction data
+        fetchAuction();
+      }
+    } catch (error) {
+      console.error('즉시구매 실패:', error);
+      const errorMessage = error.response?.data || '즉시구매에 실패했습니다.';
+      alert(`즉시구매 실패: ${errorMessage}`);
+    } finally {
+      setProcessing(false);
+    }
+  };
+  
   if (loading) {
     return (
       <div className="auction-detail-loading">
