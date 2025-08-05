@@ -21,46 +21,46 @@ public class NotificationRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    // ✅ DTO 기반 저장
     public void save(NotificationDto dto) {
-        String sql = "INSERT INTO notifications (auction_id, title, user_id, type, message, is_read, created_at) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO notifications (auction_id, title, user_id, type, message, is_read, created_at, seller_id) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
             dto.getAuctionId(),
             dto.getTitle(),
             dto.getUserId(),
             dto.getType(),
             dto.getMessage(),
-            dto.isRead() ? 1 : 0,
-            Timestamp.valueOf(dto.getCreatedAt())
+            dto.getIsRead(),
+            Timestamp.valueOf(dto.getCreatedAt()),
+            dto.getSellerId()
         );
     }
 
-
-
-    // ✅ Notification 엔티티 객체 저장용 오버로드 메서드 추가
+    // ✅ Entity 기반 저장 + KeyHolder 반환
     public Notification save(Notification notification) {
-        String sql = "INSERT INTO notifications (auction_id, title, user_id, type, message, is_read, created_at) " +
-                   "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
+        String sql = "INSERT INTO notifications (auction_id, title, user_id, type, message, is_read, created_at, seller_id) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        
+
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-            ps.setLong(1, notification.getAuctionId());
+            ps.setObject(1, notification.getAuctionId());
             ps.setString(2, notification.getTitle());
             ps.setString(3, notification.getUserId());
             ps.setString(4, notification.getType());
             ps.setString(5, notification.getMessage());
-            ps.setBoolean(6, notification.isRead());
+            ps.setInt(6, notification.getIsRead());
             ps.setTimestamp(7, Timestamp.valueOf(notification.getCreatedAt()));
+            ps.setObject(8, notification.getSellerId());  // seller_id는 NULL 가능
             return ps;
         }, keyHolder);
-        
+
         if (keyHolder.getKey() != null) {
             notification.setId(keyHolder.getKey().longValue());
         } else {
-            // Log a warning if no key was generated
-            System.err.println("Warning: No key was generated for the saved notification");
+            System.err.println("⚠️ Warning: No key generated for notification");
         }
         return notification;
     }
@@ -81,13 +81,15 @@ public class NotificationRepository {
     }
 
     public List<String> findBiddersByAuctionId(Long auctionId) {
-        return jdbcTemplate.queryForList("SELECT DISTINCT bidder FROM bids WHERE auction_id = ?", String.class, auctionId);
+        return jdbcTemplate.queryForList(
+            "SELECT DISTINCT bidder FROM bids WHERE auction_id = ?", String.class, auctionId
+        );
     }
 
     public List<Notification> findByUserId(String userId) {
-        String sql = "SELECT id, auction_id, title, user_id, type, message, is_read, created_at " +
+        String sql = "SELECT id, auction_id, title, user_id, type, message, is_read, created_at, seller_id " +
                      "FROM notifications WHERE user_id = ? ORDER BY created_at DESC";
-        
+
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Notification notification = new Notification();
             notification.setId(rs.getLong("id"));
@@ -96,27 +98,50 @@ public class NotificationRepository {
             notification.setUserId(rs.getString("user_id"));
             notification.setType(rs.getString("type"));
             notification.setMessage(rs.getString("message"));
-            notification.setRead(rs.getBoolean("is_read"));
+            notification.setIsRead(rs.getInt("is_read"));
             notification.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            notification.setSellerId(rs.getObject("seller_id") != null ? rs.getLong("seller_id") : null);
             return notification;
         }, userId);
     }
 
     public List<Notification> findSeller(Long id) {
-        String sql = "SELECT a.user_id as seller_id, n.* FROM notifications n JOIN auctions a ON n.auction_id = a.id where seller_id = ?";
-        
+        String sql = "SELECT a.user_id as seller_id, n.* FROM notifications n " +
+                     "JOIN auctions a ON n.auction_id = a.id WHERE seller_id = ?";
+
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             Notification notification = new Notification();
             notification.setId(rs.getLong("id"));
             notification.setAuctionId(rs.getLong("auction_id"));
             notification.setTitle(rs.getString("title"));
             notification.setUserId(rs.getString("user_id"));
-            notification.setSellerId(rs.getLong("seller_id"));
             notification.setType(rs.getString("type"));
             notification.setMessage(rs.getString("message"));
-            notification.setRead(rs.getBoolean("is_read"));
+            notification.setIsRead(rs.getInt("is_read"));
             notification.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            notification.setSellerId(rs.getObject("seller_id") != null ? rs.getLong("seller_id") : null);
             return notification;
         }, id);
+    }
+
+    public Notification findById(Long id) {
+        String sql = "SELECT * FROM notifications WHERE id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) -> {
+                Notification notification = new Notification();
+                notification.setId(rs.getLong("id"));
+                notification.setAuctionId(rs.getLong("auction_id"));
+                notification.setTitle(rs.getString("title"));
+                notification.setUserId(rs.getString("user_id"));
+                notification.setSellerId(rs.getObject("seller_id") != null ? rs.getLong("seller_id") : null);
+                notification.setType(rs.getString("type"));
+                notification.setMessage(rs.getString("message"));
+                notification.setIsRead(rs.getInt("is_read"));
+                notification.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                return notification;
+            });
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

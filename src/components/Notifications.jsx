@@ -6,6 +6,7 @@ import { useNotifications } from '../hooks/NotificationContext';
 import useNotificationSocket from '../hooks/useNotificationSocket';
 import { format } from 'date-fns';
 import './Notifications.css';
+import { toast } from 'react-toastify'; // toast 사용 시 반드시 import 필요
 
 const Notifications = ({ isOpen, onClose }) => {
   const { user } = useUser();
@@ -13,17 +14,14 @@ const Notifications = ({ isOpen, onClose }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // Format date to a readable format
   const formatDate = (dateString) => {
     try {
       return format(new Date(dateString), 'yyyy-MM-dd HH:mm:ss');
-    } catch (error) {
-      console.error('Error formatting date:', error);
+    } catch {
       return dateString;
     }
   };
 
-  // Get notification type label
   const getNotificationTypeLabel = (type) => {
     const typeLabels = {
       BID: '입찰',
@@ -37,15 +35,8 @@ const Notifications = ({ isOpen, onClose }) => {
     return typeLabels[type] || type;
   };
 
-  // Debug effect to track notifications state
-  useEffect(() => {
-    console.log('Current notifications state:', notifications);
-  }, [notifications]);
-
-  // Use the notification socket hook
   useNotificationSocket(user?.id, {
     onNotification: (newNotification) => {
-      // Check if this is an important notification (bid success, purchase, etc.)
       const isImportantNotification = 
         newNotification.message.includes('입찰') || 
         newNotification.message.includes('즉시구매') ||
@@ -54,17 +45,15 @@ const Notifications = ({ isOpen, onClose }) => {
         newNotification.type === 'BUY_NOW' ||
         newNotification.type === 'BUY_NOW_SUCCESS' ||
         newNotification.type === 'WINNER';
-      
-      // Add to the top of the list
+
       const notificationWithDefaults = {
         ...newNotification,
-        read: newNotification.read || false,
+        isRead: newNotification.isRead ?? newNotification.read ?? newNotification.is_read ?? 0,
         createdAt: newNotification.createdAt || new Date().toISOString()
       };
-      
+
       setNotifications(prev => [notificationWithDefaults, ...prev]);
-      
-      // Show toast for important notifications
+
       if (isImportantNotification) {
         toast.success(newNotification.message, {
           position: "top-right",
@@ -77,10 +66,9 @@ const Notifications = ({ isOpen, onClose }) => {
       }
     },
     addNotification: (notification) => {
-      // This will be called by useNotificationSocket when a new notification is received
       const notificationWithDefaults = {
         ...notification,
-        read: notification.read || false,
+        isRead: notification.isRead ?? notification.read ?? notification.is_read ?? 1,
         createdAt: notification.createdAt || new Date().toISOString()
       };
       setNotifications(prev => [notificationWithDefaults, ...prev]);
@@ -94,87 +82,82 @@ const Notifications = ({ isOpen, onClose }) => {
   }, [user, isOpen]);
 
   const fetchNotifications = async () => {
-    console.log('fetchNotifications called for user:', user?.id);
-    if (!user?.id) {
-      console.error('No user ID available for fetching notifications');
-      return;
-    }
-    
+    if (!user?.id) return;
+
     try {
-      console.log('Fetching notifications from server...');
       const response = await axios.get(`/api/notifications/${user.id}`, {
         params: {
-          _t: Date.now(), // Prevent caching
+          _t: Date.now(),
           sort: 'created_at',
           order: 'desc'
         }
       });
-      
-      // Process notifications to match our expected format
-      const processedNotifications = response.data.map(notification => ({
-        id: notification.id,
-        userId: notification.user_id,
-        auctionId: notification.auction_id,
-        type: notification.type,
-        title: notification.title,
-        message: notification.message,
-        isRead: notification.is_read === 1 || notification.is_read === true,
-        createdAt: notification.created_at || new Date().toISOString(),
-        sellerId: notification.seller_id
-      }));
-      
+
+      const processedNotifications = response.data.map(notification => {
+        const isRead =
+          notification.isRead !== undefined ? Number(notification.isRead) :
+          notification.is_read !== undefined ? Number(notification.is_read) :
+          notification.read !== undefined ? Number(notification.read) : 0;
+
+        return {
+          id: notification.id,
+          userId: notification.userId,
+          auctionId: notification.auctionId,
+          type: notification.type,
+          title: notification.title || '새 알림',
+          message: notification.message,
+          isRead: isRead === 1 ? 1 : 0,
+          createdAt: notification.createdAt,
+          sellerId: notification.sellerId
+        };
+      });
+
       setNotifications(processedNotifications);
     } catch (error) {
       console.error('Error fetching notifications:', error);
       setError('알림을 불러오는 중 오류가 발생했습니다.');
-      
-      // If there's an error, show a sample notification for testing
-      if (process.env.NODE_ENV === 'development') {
-        setNotifications([{
-          id: 'sample-1',
-          message: '테스트: 입찰 성공!',
-          read: false,
-          createdAt: new Date().toISOString()
-        }, {
-          id: 'sample-2',
-          message: '테스트: 상품이 즉시구매되었습니다!',
-          read: false,
-          createdAt: new Date().toISOString()
-        }]);
-      }
     }
   };
 
   const handleMarkAsRead = async (id, e) => {
-    e.stopPropagation();
+    e?.stopPropagation?.();
+  
     try {
-      // Optimistically update UI
-      markAsReadContext(id);
-      
-      // Update the notification as read in the backend
-      await axios.put(`/api/notifications/${id}`, {
-        is_read: true
+      const notification = notifications.find(n => n.id === id);
+      if (!notification || notification.isRead === 1) return;
+  
+      // 상태 업데이트
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: 1 } : n));
+      console.log(`🔵 [markAsRead] 알림 ID ${id} 를 읽음 처리 (프론트 상태)`);
+  
+      // 서버에 읽음 처리 요청
+      await axios.post(`/api/notifications/read/${id}`, {}, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
       });
-      
-      // Refresh the list to ensure consistency
-      await fetchNotifications();
+  
+      console.log(`🟢 [markAsRead] 알림 ID ${id} 읽음 처리 완료 (서버 반영)`);
+  
+      if (markAsReadContext) {
+        markAsReadContext(id);
+      }
+  
     } catch (error) {
-      console.error('Error marking notification as read:', error);
-      setError('알림을 읽음 처리하는 중 오류가 발생했습니다.');
-      // Revert optimistic update on error
-      fetchNotifications();
+      console.error('❌ [markAsRead] 읽음 처리 오류:', error);
+      setError('알림 읽음 처리 중 오류 발생');
     }
   };
 
   const handleDelete = async (id, e) => {
     e.stopPropagation();
-    
+
+    const notificationToDelete = notifications.find(n => n.id === id);
+    deleteNotification(id);
+
     try {
-      // Optimistically remove the notification from UI
-      const notificationToDelete = notifications.find(n => n.id === id);
-      deleteNotification(id);
-      
-      // Make the API call to delete the notification
       await axios.delete(`/api/notifications/${id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -182,21 +165,12 @@ const Notifications = ({ isOpen, onClose }) => {
         },
         withCredentials: true
       });
-      
     } catch (error) {
       console.error('Error deleting notification:', error);
-      
-      // Revert the UI if the API call fails
       if (notificationToDelete) {
         setNotifications(prev => [notificationToDelete, ...prev]);
       }
-      
-      // Show appropriate error message
-      if (error.response?.status === 403) {
-        setError('이 알림을 삭제할 권한이 없습니다.');
-      } else {
-        setError('알림 삭제 중 오류가 발생했습니다. 다시 시도해주세요.');
-      }
+      setError('알림 삭제 중 오류 발생');
     }
   };
 
@@ -215,24 +189,17 @@ const Notifications = ({ isOpen, onClose }) => {
             notifications.map((notif) => (
               <div
                 key={notif.id}
-                className={`notification-item ${!notif.isRead ? 'unread' : 'read'}`}
-                onClick={(e) => {
+                className={`notification-item ${notif.isRead === 0 ? 'unread' : 'read'}`}
+                onClick={async (e) => {
                   e.stopPropagation();
-                  
-                  // Mark as read when clicked if not already read
-                  if (!notif.isRead) {
-                    handleMarkAsRead(notif.id, e);
-                  }
-                  
-                  // Handle different notification types
+                  await handleMarkAsRead(notif.id, e);
+
                   if (notif.type === 'MESSAGE') {
                     navigate(`/messages?auctionId=${notif.auctionId || ''}`);
                   } else if (notif.auctionId) {
-                    // For auction-related notifications, navigate to the auction
                     navigate(`/auction/${notif.auctionId}`);
                   }
-                  
-                  // Close the notification panel
+
                   onClose();
                 }}
               >
@@ -259,14 +226,8 @@ const Notifications = ({ isOpen, onClose }) => {
                   </div>
                 </div>
                 <div className="notification-footer">
-                  <div className="notification-time">
-                    {formatDate(notif.createdAt)}
-                  </div>
-                  <button 
-                    className="delete-button"
-                    onClick={(e) => handleDelete(notif.id, e)}
-                    aria-label="알림 삭제"
-                  >
+                  <div className="notification-time">{formatDate(notif.createdAt)}</div>
+                  <button className="delete-button" onClick={(e) => handleDelete(notif.id, e)} aria-label="알림 삭제">
                     ×
                   </button>
                 </div>

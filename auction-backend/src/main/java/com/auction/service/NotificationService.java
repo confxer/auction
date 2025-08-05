@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface NotificationService {
     void sendNotification(String userId, NotificationDto dto);
-    void sendAuctionEndNotification(Long auctionId, String title, String winner);
+    void sendAuctionEndNotification(Long auctionId, String title, String winner, Long sellerId);
     void sendBuyNowNotification(Long auctionId, String title, String buyer);
     List<NotificationDto> getUserNotifications(String userId);
     int getUnreadCount(String userId);

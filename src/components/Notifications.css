@@ -81,23 +81,43 @@
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
-  background: white;
 }
 
+/* Base notification item styles */
+.notification-item {
+  transition: background-color 0.3s ease, border-left 0.3s ease;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  position: relative;
+  background-color: #ffffff; /* Default white background */
+  border-left: 4px solid transparent;
+}
+
+/* Unread notification styles */
+.notification-item.unread {
+  background-color: #e6f7ff;
+  border-left: 4px solid #1890ff;
+}
+
+/* Hover states */
+.notification-item.unread:hover {
+  background-color: #d0ebff;
+}
+
+.notification-item.read:hover {
+  background-color: #f8f9fa;
+}
+
+/* Remove bottom border for last item */
 .notification-item:last-child {
   border-bottom: none;
 }
 
-.notification-item:hover {
-  background-color: #f8fafc;
-}
-
-.notification-item.unread {
-  background-color: #f8fafc;
-}
-
+/* Ensure read notifications have white background */
 .notification-item.read {
-  background-color: white;
+  background-color: #fff; /* White background for read notifications */
+  border-left: 4px solid transparent;
 }
 
 .notification-item.read .notification-content {
@@ -125,9 +145,12 @@
   background-color: #4a6cf7;
   border-radius: 50%;
   flex-shrink: 0;
+  transition: opacity 0.2s;
+  opacity: 0;
 }
 
 .notification-dot.unread-dot {
+  opacity: 1;
   background-color: #4a6cf7;
 }
 

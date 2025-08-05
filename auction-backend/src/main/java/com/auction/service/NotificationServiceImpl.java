@@ -3,6 +3,7 @@ package com.auction.service;
 import com.auction.dto.AuctionDto;
 import com.auction.dto.NotificationDto;
 import com.auction.entity.Notification;
+import com.auction.entity.NotificationType;
 import com.auction.repository.NotificationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
+    // ... 기존 필드 및 생성자 유지
+
+    public Notification findById(Long id) {
+        return notificationRepository.findById(id);
+    }
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
     private final NotificationRepository notificationRepository;
@@ -55,28 +61,39 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendAuctionEndNotification(Long auctionId, String title, String winner) {
+    public void sendAuctionEndNotification(Long auctionId, String title, String winner, Long sellerId) {
         String winnerUserId = winner;
-        String sellerUserId = null; // TODO: 판매자 ID 조회 필요
+        String sellerUserId = sellerId.toString();
         List<String> bidders = notificationRepository.findBiddersByAuctionId(auctionId);
 
         for (String bidder : bidders) {
-            String type = bidder.equals(winnerUserId) ? "WIN" : "LOSE";
-            String msg = bidder.equals(winnerUserId)
-                    ? "🏆 '" + title + "' 경매에서 낙찰되었습니다!"
-                    : "😢 '" + title + "' 경매에서 패찰되었습니다. 낙찰자: " + winnerUserId;
+    NotificationType type = bidder.equals(winnerUserId) ? NotificationType.WIN : NotificationType.LOSE;
+    String msg = bidder.equals(winnerUserId)
+            ? String.format("🏆 '%s' 경매에서 낙찰되었습니다!", title)
+            : String.format("😢 '%s' 경매에서 패찰되었습니다. 낙찰자: %s", title, winnerUserId);
+    String notiTitle = type == NotificationType.WIN ? "낙찰 알림" : "패찰 알림";
+    NotificationDto dto = NotificationDto.builder()
+            .auctionId(auctionId)
+            .title(notiTitle)
+            .userId(bidder)
+            .type(type.name())
+            .message(msg)
+            .sellerId(Long.valueOf(sellerUserId))
+            .build();
+    sendNotification(bidder, dto);
+}
 
-            NotificationDto dto = new NotificationDto(auctionId, title, bidder, type, msg);
-            sendNotification(bidder, dto);
-        }
-
-        if (sellerUserId != null && !sellerUserId.equals(winnerUserId)) {
-            NotificationDto sellerNotice = new NotificationDto(
-                    auctionId, title, sellerUserId, "SOLD",
-                    "📦 '" + title + "' 경매가 마감되었습니다. 낙찰자: " + winnerUserId
-            );
-            sendNotification(sellerUserId, sellerNotice);
-        }
+if (sellerUserId != null && !sellerUserId.equals(winnerUserId)) {
+    NotificationDto sellerNotice = NotificationDto.builder()
+            .auctionId(auctionId)
+            .title("판매 완료")
+            .userId(sellerUserId)
+            .type(NotificationType.SOLD.name())
+            .message(String.format("📦 '%s' 경매가 마감되었습니다. 낙찰자: %s", title, winnerUserId))
+            .sellerId(Long.valueOf(sellerUserId))
+            .build();
+    sendNotification(sellerUserId, sellerNotice);
+}
     }
 
     @Override
@@ -93,28 +110,29 @@ public class NotificationServiceImpl implements NotificationService {
             String sellerUserId = String.valueOf(auction.getUserId());
 
             // Send notification to the buyer
-            NotificationDto buyerNotice = new NotificationDto(
-                auctionId, 
-                title, 
-                buyerUserId, 
-                "BUY_NOW",
-                "✅ '" + title + "' 즉시구매가 완료되었습니다!"
-            );
-            sendNotification(buyerUserId, buyerNotice);
+            NotificationDto buyerNotice = NotificationDto.builder()
+    .auctionId(auctionId)
+    .title("즉시구매 완료")
+    .userId(buyerUserId)
+    .type(NotificationType.BUY_NOW.name())
+    .message(String.format("✅ '%s' 즉시구매가 완료되었습니다!", title))
+    .sellerId(Long.valueOf(sellerUserId))
+    .build();
+sendNotification(buyerUserId, buyerNotice);
             logger.info("Buy now notification sent to buyer {} for auction {}", buyerUserId, auctionId);
 
-            // Send notification to the seller if not buying from themselves
-            if (!sellerUserId.equals(buyerUserId)) {
-                NotificationDto sellerNotice = new NotificationDto(
-                    auctionId, 
-                    title, 
-                    sellerUserId, 
-                    "SOLD",
-                    "💰 '" + title + "' 상품이 즉시구매로 판매되었습니다. 구매자: " + buyerUserId
-                );
-                sendNotification(sellerUserId, sellerNotice);
-                logger.info("Sale notification sent to seller {} for auction {}", sellerUserId, auctionId);
-            }
+            // Always send notification to the seller, even if they are the buyer
+            NotificationDto sellerNotice = NotificationDto.builder()
+                .auctionId(auctionId)
+                .title("판매 완료")
+                .userId(sellerUserId)
+                .type(NotificationType.SOLD.name())
+                .message(String.format("📦 '%s' 경매가 마감되었습니다. 구매자: %s", title, 
+                    sellerUserId.equals(buyerUserId) ? "본인" : buyerUserId))
+                .sellerId(Long.valueOf(sellerUserId))
+                .build();
+            sendNotification(sellerUserId, sellerNotice);
+            logger.info("Sale notification sent to seller {} for auction {}", sellerUserId, auctionId);
             
         } catch (Exception e) {
             logger.error("Error sending buy now notification: ", e);
@@ -125,7 +143,7 @@ public class NotificationServiceImpl implements NotificationService {
     public List<NotificationDto> getUserNotifications(String userId) {
         List<Notification> list = notificationRepository.findByUserId(userId);
         return list.stream()
-                .map(Notification::toDto) // ← toDto() 메서드 필요
+                .map(Notification::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -135,8 +153,30 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional
     public void markAsRead(Long id) {
-        notificationRepository.markAsRead(id);
+        try {
+            // Verify notification exists first
+            Notification notification = notificationRepository.findById(id);
+            if (notification == null) {
+                logger.warn("Attempted to mark non-existent notification as read: {}", id);
+                throw new IllegalArgumentException("Notification not found with id: " + id);
+            }
+            
+            // Only update if not already read
+            if (notification.getIsRead() == 0) {
+                notificationRepository.markAsRead(id);
+                logger.debug("Marked notification as read: {}", id);
+                
+                // Send WebSocket update if needed
+                NotificationDto dto = convertToDto(notification);
+                dto.setIsRead(1);
+                messagingTemplate.convertAndSend("/topic/notifications/" + notification.getUserId(), dto);
+            }
+        } catch (Exception e) {
+            logger.error("Error marking notification {} as read: {}", id, e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
@@ -175,12 +215,14 @@ public class NotificationServiceImpl implements NotificationService {
         
         NotificationDto dto = new NotificationDto();
         dto.setId(notification.getId());
+        dto.setAuctionId(notification.getAuctionId());
+        dto.setTitle(notification.getTitle());
         dto.setUserId(notification.getUserId());
-        dto.setMessage(notification.getMessage());
         dto.setType(notification.getType());
-        dto.setRead(notification.isRead());
+        dto.setMessage(notification.getMessage());
+        dto.setIsRead(notification.getIsRead()); // Use getIsRead()
         dto.setCreatedAt(notification.getCreatedAt());
-        
+        dto.setSellerId(notification.getSellerId());
         return dto;
     }
 
@@ -196,27 +238,31 @@ public class NotificationServiceImpl implements NotificationService {
 
             String sellerId = String.valueOf(auction.getUserId());
             
-            // Only send notification to the seller if the bidder is not the seller
-            if (!bidder.equals(sellerId)) {
-                NotificationDto sellerNotice = new NotificationDto(
-                    auctionId, 
-                    title, 
-                    sellerId, 
-                    "NEW_BID", 
-                    "💰 새 입찰: '" + title + "'에 " + String.format("%,d", amount) + "원에 입찰되었습니다."
-                );
-                sendNotification(sellerId, sellerNotice);
-                logger.info("Bid notification sent to seller {} for auction {}", sellerId, auctionId);
-            }
+            // Always send notification to the seller, even if they are the bidder
+            String sellerMessage = bidder.equals(sellerId) 
+                ? "💡 본인 상품에 " + String.format("%,d", amount) + "원으로 입찰하셨습니다."
+                : "💰 새 입찰: '" + title + "'에 " + String.format("%,d", amount) + "원에 입찰되었습니다.";
+                
+            NotificationDto sellerNotice = NotificationDto.builder()
+                .auctionId(auctionId)
+                .title(bidder.equals(sellerId) ? "본인 입찰 알림" : "새 입찰 알림")
+                .userId(sellerId)
+                .type("NEW_BID")
+                .message(sellerMessage)
+                .sellerId(Long.valueOf(sellerId))
+                .build();
+            sendNotification(sellerId, sellerNotice);
+            logger.info("Bid notification sent to seller {} for auction {}", sellerId, auctionId);
             
             // Also send a notification to the bidder (optional)
-            NotificationDto bidderNotice = new NotificationDto(
-                auctionId,
-                title,
-                bidder,
-                "BID_PLACED",
-                "✅ '" + title + "'에 " + String.format("%,d", amount) + "원으로 입찰하셨습니다."
-            );
+            NotificationDto bidderNotice = NotificationDto.builder()
+                .auctionId(auctionId)
+                .title(title)
+                .userId(bidder)
+                .type("BID_PLACED")
+                .message("✅ '" + title + "'에 " + String.format("%,d", amount) + "원으로 입찰하셨습니다.")
+                .isRead(0)
+                .build();
             sendNotification(bidder, bidderNotice);
             logger.info("Bid confirmation sent to bidder {} for auction {}", bidder, auctionId);
             

@@ -14,7 +14,7 @@ export const NotificationProvider = ({ children }) => {
 
   const markAsRead = (id) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
   };
 

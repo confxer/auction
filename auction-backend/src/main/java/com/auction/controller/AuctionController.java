@@ -170,11 +170,11 @@ public class AuctionController {
                 String sellerId = String.valueOf(auction.getUserId());
 
                 notificationService.sendNotification(winnerId, new NotificationDto(
-                    auctionId, title, winnerId, "WIN", "🏆 '" + title + "' 경매에서 낙찰되었습니다!"
-                ));
+                    auctionId, title, winnerId, "WIN", "🏆 '" + title + "' 경매에서 낙찰되었습니다!", Long.valueOf(sellerId)
+                )); 
 
                 notificationService.sendNotification(sellerId, new NotificationDto(
-                    auctionId, title, sellerId, "SOLD", "📦 '" + title + "' 경매가 낙찰되어 판매 완료되었습니다!"
+                    auctionId, title, sellerId, "SOLD", "📦 '" + title + "' 경매가 낙찰되어 판매 완료되었습니다!", Long.valueOf(sellerId)
                 ));
 
                 return ResponseEntity.ok("경매가 종료되었습니다.");
@@ -219,23 +219,15 @@ public class AuctionController {
             String sellerId = String.valueOf(updatedAuction.getUserId());
 
             // 구매자 알림 생성 및 저장
-            NotificationDto buyerNotification = new NotificationDto();
-            buyerNotification.setAuctionId(auctionId);
-            buyerNotification.setTitle(title);
-            buyerNotification.setUserId(buyerId);
-            buyerNotification.setType("BUY_NOW_SUCCESS");
-            buyerNotification.setMessage("✅ '" + title + "' 상품을 즉시구매하셨습니다!");
-            buyerNotification.setSellerId(Long.parseLong(sellerId));
+            NotificationDto buyerNotification = new NotificationDto(
+                auctionId, title, buyerId, "BUY_NOW_SUCCESS", "✅ '" + title + "' 상품을 즉시구매하셨습니다!", Long.valueOf(sellerId)
+            );
 
             // 판매자 알림 생성 (구매자와 판매자가 다른 경우에만)
             if (!sellerId.equals(buyerId)) {
-                NotificationDto sellerNotification = new NotificationDto();
-                sellerNotification.setAuctionId(auctionId);
-                sellerNotification.setTitle(title);
-                sellerNotification.setUserId(sellerId);
-                sellerNotification.setType("SOLD");
-                sellerNotification.setMessage("💰 '" + title + "' 상품이 즉시구매로 판매되었습니다. 구매자 ID: " + buyerId);
-                sellerNotification.setSellerId(Long.parseLong(sellerId));
+                NotificationDto sellerNotification = new NotificationDto(
+                    auctionId, title, sellerId, "SOLD", "💰 '" + title + "' 상품이 즉시구매로 판매되었습니다. 구매자 ID: " + buyerId, Long.valueOf(sellerId)
+                );
 
                 // WebSocket을 통한 실시간 알림 전송 및 DB 저장
                 notificationService.sendNotification(sellerId, sellerNotification);

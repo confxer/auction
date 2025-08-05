@@ -32,7 +32,7 @@ public class PrivateMessageService {
         message.setReceiverId(receiverId);
         message.setSubject(subject);
         message.setContent(content);
-        message.setRead(false);
+        message.setRead(false); // false for unread, true for read
         message.setDeleted(false);
         message.setCreatedAt(java.time.LocalDateTime.now());
         privateMessageRepository.save(message);
@@ -42,7 +42,7 @@ public class PrivateMessageService {
 
         // NotificationBell용 쪽지 알림 전송
         String notiMsg = String.format("새 쪽지가 도착했습니다: %s", subject);
-        NotificationDto notification = new NotificationDto(auctionId, subject, receiverId, "MESSAGE", notiMsg);
+        NotificationDto notification = new NotificationDto(auctionId, subject, receiverId, "MESSAGE", notiMsg, Long.valueOf(senderId)); // 0 for unread
         notificationService.saveAndNotify(notification);
 
         return message;

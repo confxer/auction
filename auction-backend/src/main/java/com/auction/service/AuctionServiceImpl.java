@@ -271,7 +271,8 @@ public class AuctionServiceImpl implements AuctionService {
                         a.getTitle(),
                         buyerId,
                         "BUY_NOW",
-                        "✅ '" + a.getTitle() + "' 즉시구매가 완료되었습니다!"
+                        "✅ '" + a.getTitle() + "' 즉시구매가 완료되었습니다!",
+                        Long.valueOf(sellerId)
                     );
                     notificationService.sendNotification(buyerId, buyerNotice);
                     
@@ -282,7 +283,8 @@ public class AuctionServiceImpl implements AuctionService {
                             a.getTitle(),
                             sellerId,
                             "SOLD",
-                            "💰 '" + a.getTitle() + "' 상품이 즉시구매로 판매되었습니다. 구매자: " + buyerId
+                            "💰 '" + a.getTitle() + "' 상품이 즉시구매로 판매되었습니다. 구매자: " + buyerId,
+                            Long.valueOf(sellerId)
                         );
                         notificationService.sendNotification(sellerId, sellerNotice);
                     }

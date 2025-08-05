@@ -10,7 +10,7 @@ public class NotificationDto {
     private String userId;
     private String type; // BID, END, WIN, LOSE, BUY_NOW
     private String message;
-    private boolean isRead;
+    private int isRead; // 0 = 안 읽음, 1 = 읽음
     private Long sellerId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
@@ -18,18 +18,23 @@ public class NotificationDto {
 
     public NotificationDto() {}
 
-    public NotificationDto(Long auctionId, String title, String userId, String type, String message) {
+    // Constructor without isRead parameter (defaults to unread)
+    public NotificationDto(Long auctionId, String title, String userId, String type, String message, Long sellerId) {
+        this(auctionId, title, userId, type, message, 0, sellerId); // Default to unread (0)
+    }
+
+    public NotificationDto(Long auctionId, String title, String userId, String type, String message, int isRead, Long sellerId) {
         this.auctionId = auctionId;
         this.title = title;
         this.userId = userId;
         this.type = type;
         this.message = message;
-        this.isRead = false;
+        this.isRead = isRead;
         this.createdAt = LocalDateTime.now();
         this.sellerId = sellerId;
     }
 
-    // ✅ Builder 패턴 추가
+    // ✅ Builder 패턴
     public static Builder builder() {
         return new Builder();
     }
@@ -71,8 +76,8 @@ public class NotificationDto {
             return this;
         }
 
-        public Builder isRead(boolean isRead) {
-            dto.setRead(isRead);
+        public Builder isRead(int isRead) {
+            dto.setIsRead(isRead);
             return this;
         }
 
@@ -81,41 +86,86 @@ public class NotificationDto {
             return this;
         }
 
-        public NotificationDto build() {
-            return dto;
-        }
-
         public Builder sellerId(Long sellerId) {
             dto.setSellerId(sellerId);
             return this;
         }
+
+        public NotificationDto build() {
+            return dto;
+        }
     }
 
-    // Getter/Setter
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    // ✅ Getter/Setter
+    public Long getId() {
+        return id;
+    }
 
-    public Long getAuctionId() { return auctionId; }
-    public void setAuctionId(Long auctionId) { this.auctionId = auctionId; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public Long getAuctionId() {
+        return auctionId;
+    }
 
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+    public void setAuctionId(Long auctionId) {
+        this.auctionId = auctionId;
+    }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public String getTitle() {
+        return title;
+    }
 
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public boolean isRead() { return isRead; }
-    public void setRead(boolean read) { isRead = read; }
+    public String getUserId() {
+        return userId;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-    public Long getSellerId() { return sellerId; }
-    public void setSellerId(Long sellerId) { this.sellerId = sellerId; }
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public int getIsRead() {
+        return isRead;
+    }
+
+    public void setIsRead(int isRead) {
+        this.isRead = isRead;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Long getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(Long sellerId) {
+        this.sellerId = sellerId;
+    }
 }
