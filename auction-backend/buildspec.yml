@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing dependencies..."
+      # 필요한 경우 여기에 JDK 설치 등 환경 설정 명령어를 추가합니다.
+  build:
+    commands:
+      - echo "Granting execute permission to gradlew..."
+      - chmod +x ./gradlew
+      - echo "Building the Spring Boot application..."
+      - ./gradlew build
+  post_build:
+    commands:
+      - echo "Build completed successfully. Packaging artifacts..."
+
+artifacts:
+  files:
+    # 이 경로는 `buildspec.yml`이 위치한 폴더(auction-backend)를 기준으로 합니다.
+    - build/libs/auction-backend-0.0.1-SNAPSHOT.jar
+    - appspec.yml
+    - scripts/**/*
+  discard-paths: yes # 아티팩트를 만들 때 부모 디렉터리 경로를 제거합니다.

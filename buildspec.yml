@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Installing npm dependencies..."
+      - npm install
+  build:
+    commands:
+      - echo "Building the React application..."
+      - npm run build
+
+artifacts:
+  # 빌드 결과물(정적 파일)이 위치하는 폴더를 지정합니다.
+  # Vite는 기본적으로 'dist' 폴더에 빌드 결과물을 생성합니다.
+  files:
+    - '**/*'
+  base-directory: dist
