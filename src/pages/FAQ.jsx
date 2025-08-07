@@ -32,23 +32,8 @@ const FAQ = () => {
     } catch (error) {
       console.error('FAQ 로드 실패:', error);
       
-      // API 실패 시 임시 데이터 사용
-      const mockFAQs = [
-        {
-          id: 1,
-          category: 'account',
-          question: '회원가입은 어떻게 하나요?',
-          answer: '몬스터옥션 회원가입은 매우 간단합니다. 홈페이지 상단의 "회원가입" 버튼을 클릭하신 후, 이메일 주소와 비밀번호를 입력하시면 됩니다. 가입 후 이메일 인증을 완료하시면 모든 서비스를 이용하실 수 있습니다.'
-        },
-        {
-          id: 2,
-          category: 'auction',
-          question: '경매에 참여하려면 어떻게 해야 하나요?',
-          answer: '경매 참여를 위해서는 먼저 회원가입과 본인인증이 필요합니다. 경매 상품을 선택하신 후 "입찰하기" 버튼을 클릭하여 원하시는 금액을 입력하시면 됩니다. 실시간으로 다른 입찰자들과 경쟁하실 수 있습니다.'
-        }
-      ];
-      
-      setFaqs(mockFAQs);
+ 
+    
     } finally {
       setLoading(false);
     }
