@@ -8,6 +8,12 @@ phases:
       # 깨끗한 package-lock.json이 있으므로, npm ci를 사용하여 빠르고 안정적으로 의존성을 설치합니다.
       - echo "Installing dependencies using npm ci..."
       - npm ci
+      # -------------------------------------------------------------------
+      # [수정] Rollup 네이티브 모듈 오류를 해결하기 위해 npm rebuild를 실행합니다.
+      # 이 명령어는 현재 환경(Linux)에 맞게 네이티브 애드온을 다시 빌드합니다.
+      # -------------------------------------------------------------------
+      - echo "Rebuilding native addons for the current platform..."
+      - npm rebuild
   build:
     commands:
       - echo "Building the Vite application..."
