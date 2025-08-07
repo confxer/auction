@@ -2,25 +2,22 @@ version: 0.2
 
 phases:
   install:
-    # CodeBuild 환경에서 사용할 Node.js 버전을 명시합니다.
     runtime-versions:
       nodejs: 22 # 또는 프로젝트에 맞는 버전을 사용하세요.
     commands:
-      # React 프로젝트가 루트에 있으므로 디렉터리 이동(cd)이 필요 없습니다.
-      - echo "Installing React dependencies in root directory..."
+      # React(Vite) 프로젝트가 루트에 있으므로 디렉터리 이동이 필요 없습니다.
+      - echo "Installing Vite project dependencies in root directory..."
       - npm install
   build:
     commands:
-      - echo "Building the React application..."
-      # package.json에 정의된 빌드 스크립트를 실행합니다.
+      - echo "Building the Vite application..."
       - npm run build
 
 artifacts:
-  # S3에 배포할 파일들을 지정합니다.
   files:
-    # 빌드 결과물인 build 폴더 안의 모든 파일을 포함시킵니다.
+    # 빌드 결과물인 dist 폴더 안의 모든 파일을 포함시킵니다.
     - '**/*'
-  # 아티팩트의 기준 디렉터리를 루트의 'build' 폴더로 지정합니다.
-  # 이렇게 해야 S3 버킷의 루트에 index.html 파일 등이 바로 위치하게 되어
-  # 정적 웹사이트 호스팅이 올바르게 동작합니다.
-  base-directory: 'build'
+  # -------------------------------------------------------------------
+  # [수정] Vite의 기본 빌드 폴더 이름인 'dist'로 변경합니다.
+  # -------------------------------------------------------------------
+  base-directory: 'dist'
