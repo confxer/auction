@@ -10,11 +10,12 @@ phases:
       - node -v
       - echo "npm version:"
       - npm -v
+      # -------------------------------------------------------------------
+      # [수정] npm ci 실행 전 캐시를 강제로 클리어하여 EINTEGRITY 오류를 해결합니다.
+      # -------------------------------------------------------------------
+      - echo "Clearing npm cache to fix EINTEGRITY issues..."
+      - npm cache clean --force
       - echo "Installing dependencies using npm ci..."
-      # -------------------------------------------------------------------
-      # [수정] npm install 대신 npm ci를 사용합니다.
-      # package-lock.json을 기반으로 정확하게 의존성을 설치하여 더 안정적입니다.
-      # -------------------------------------------------------------------
       - npm ci
   build:
     commands:
