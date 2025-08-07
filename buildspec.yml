@@ -5,9 +5,17 @@ phases:
     runtime-versions:
       nodejs: 22 # 또는 프로젝트에 맞는 버전을 사용하세요.
     commands:
-      # React(Vite) 프로젝트가 루트에 있으므로 디렉터리 이동이 필요 없습니다.
-      - echo "Installing Vite project dependencies in root directory..."
-      - npm install
+      # 설치된 Node.js와 npm 버전을 로그에 출력하여 확인합니다.
+      - echo "Node.js version:"
+      - node -v
+      - echo "npm version:"
+      - npm -v
+      - echo "Installing dependencies using npm ci..."
+      # -------------------------------------------------------------------
+      # [수정] npm install 대신 npm ci를 사용합니다.
+      # package-lock.json을 기반으로 정확하게 의존성을 설치하여 더 안정적입니다.
+      # -------------------------------------------------------------------
+      - npm ci
   build:
     commands:
       - echo "Building the Vite application..."
@@ -17,7 +25,5 @@ artifacts:
   files:
     # 빌드 결과물인 dist 폴더 안의 모든 파일을 포함시킵니다.
     - '**/*'
-  # -------------------------------------------------------------------
-  # [수정] Vite의 기본 빌드 폴더 이름인 'dist'로 변경합니다.
-  # -------------------------------------------------------------------
+  # Vite의 기본 빌드 폴더 이름인 'dist'로 설정합니다.
   base-directory: 'dist'
