@@ -5,15 +5,17 @@ phases:
     runtime-versions:
       nodejs: 22 # 또는 프로젝트에 맞는 버전을 사용하세요.
     commands:
-      # 깨끗한 package-lock.json이 있으므로, npm ci를 사용하여 빠르고 안정적으로 의존성을 설치합니다.
-      - echo "Installing dependencies using npm ci..."
-      - npm ci
       # -------------------------------------------------------------------
-      # [수정] Rollup 네이티브 모듈 오류를 해결하기 위해 npm rebuild를 실행합니다.
-      # 이 명령어는 현재 환경(Linux)에 맞게 네이티브 애드온을 다시 빌드합니다.
+      # [수정] Rollup 네이티브 모듈 오류를 해결하기 위한 최종 시도입니다.
+      # node_modules와 package-lock.json을 모두 삭제하고 새로 설치하여
+      # 플랫폼 의존성 문제를 해결합니다.
       # -------------------------------------------------------------------
-      - echo "Rebuilding native addons for the current platform..."
-      - npm rebuild
+      - echo "Attempting to fix native module issue by performing a clean install..."
+      - rm -rf node_modules
+      - rm -f package-lock.json
+      - npm cache clean --force
+      - echo "Installing dependencies from scratch using npm install..."
+      - npm install
   build:
     commands:
       - echo "Building the Vite application..."
