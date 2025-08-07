@@ -5,16 +5,7 @@ phases:
     runtime-versions:
       nodejs: 22 # 또는 프로젝트에 맞는 버전을 사용하세요.
     commands:
-      # 설치된 Node.js와 npm 버전을 로그에 출력하여 확인합니다.
-      - echo "Node.js version:"
-      - node -v
-      - echo "npm version:"
-      - npm -v
-      # -------------------------------------------------------------------
-      # [수정] npm ci 실행 전 캐시를 강제로 클리어하여 EINTEGRITY 오류를 해결합니다.
-      # -------------------------------------------------------------------
-      - echo "Clearing npm cache to fix EINTEGRITY issues..."
-      - npm cache clean --force
+      # 깨끗한 package-lock.json이 있으므로, npm ci를 사용하여 빠르고 안정적으로 의존성을 설치합니다.
       - echo "Installing dependencies using npm ci..."
       - npm ci
   build:
