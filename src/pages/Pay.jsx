@@ -13,13 +13,14 @@ export default function CheckoutPage() {
   const paymentWidgetRef = useRef(null);
   const paymentMethodsWidgetRef = useRef(null);
   const [price, setPrice] = useState(50000); // 결제 금액
+  const [auction, setAuction] = useState();
 
   useEffect(() => {
     (async () => {
         const res = await fetch(`/api/auctions/${id}`);
         if (!res.ok) throw new Error('서버 응답 오류');
         const data = await res.json();
-
+        setAuction(data);
        if(data.id) setPrice(data.currentPrice);
       // ------  결제위젯 초기화 ------
       // 비회원 결제일 경우 customerKey를 ANONYMOUS로 설정
@@ -54,11 +55,11 @@ export default function CheckoutPage() {
       // ------ '결제하기' 버튼 누르면 결제창 띄우기 ------
       await paymentWidget?.requestPayment({
         orderId: nanoid(), // 고유한 주문 ID
-        orderName: data.title,
+        orderName: auction.title,
         successUrl: `${window.location.origin}/success`, // 성공 리다이렉트 URL
         failUrl: `${window.location.origin}/fail`,     // 실패 리다이렉트 URL
         customerEmail: "customer123@gmail.com",
-        customerName: data.winner,
+        customerName: auction.winner,
       });
     } catch (error) {
       // 에러 처리
