@@ -22,22 +22,6 @@ const Notifications = ({ isOpen, onClose }) => {
     }
   };
 
-  const getNotificationTypeLabel = (type) => {
-    const typeLabels = {
-      BID: '입찰',
-      BUY_NOW: '즉시구매',
-      BUY_NOW_SUCCESS: '즉시구매',
-      MESSAGE: '쪽지',
-      AUCTION_END: '경매 종료',
-      PAYMENT: '결제',
-      SHIPPING: '배송',
-      SYSTEM: '시스템 알림',
-      SOLD: '판매',
-      NEW_BID: '낙찰'
-    };
-    return typeLabels[type] || type;
-  };
-
   useNotificationSocket(user?.id, {
     onNotification: (newNotification) => {
       const isImportantNotification = 
@@ -223,10 +207,7 @@ const Notifications = ({ isOpen, onClose }) => {
                     <div className="notification-title">{notif.title || '새 알림'}</div>
                     <div className="notification-text">{notif.message}</div>
                     <div className="notification-meta">
-                      <span className="notification-type">{getNotificationTypeLabel(notif.type)}</span>
-                      {notif.auctionId && (
-                        <span className="notification-auction">경매 ID: {notif.auctionId}</span>
-                      )}
+                      
                     </div>
                   </div>
                 </div>
