@@ -134,6 +134,7 @@ function AppContent() {
             <Route path="/mypage" element={<MyPage />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/map" element={<KakaoMap />} />
+            <Route path="/auction/:id/pay" element={<Pay />} />
           </Routes>
         </main>
         <QuickMenu />

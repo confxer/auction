@@ -197,7 +197,7 @@ const Notifications = ({ isOpen, onClose }) => {
                   if (notif.type === 'MESSAGE') {
                     navigate(`/messages?auctionId=${notif.auctionId || ''}`);
                   } else if (notif.auctionId) {
-                    navigate(`/auction/${notif.auctionId}`);
+                    navigate(`/auction/${notif.auctionId}/pay`);
                   }
 
                   onClose();
