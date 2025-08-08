@@ -4,16 +4,23 @@ import {
   ANONYMOUS,
 } from "@tosspayments/payment-widget-sdk";
 import { nanoid } from "nanoid"; // 고유한 주문번호 생성을 위한 라이브러리 (선택)
+import { useParams } from "react-router-dom";
 
 const clientKey = "test_ck_6bJXmgo28e1G4DDAwL7Y8LAnGKWx"; // 발급받은 클라이언트 키로 교체하세요.
 
 export default function CheckoutPage() {
+  const { id } = useParams();
   const paymentWidgetRef = useRef(null);
   const paymentMethodsWidgetRef = useRef(null);
   const [price, setPrice] = useState(50000); // 결제 금액
 
   useEffect(() => {
     (async () => {
+        const res = await fetch(`/api/auctions/${id}`);
+        if (!res.ok) throw new Error('서버 응답 오류');
+        const data = await res.json();
+
+       if(data.id) setPrice(data.currentPrice);
       // ------  결제위젯 초기화 ------
       // 비회원 결제일 경우 customerKey를 ANONYMOUS로 설정
       const paymentWidget = await loadPaymentWidget(clientKey, ANONYMOUS); // 회원 결제일 경우 ANONYMOUS 대신 회원 ID를 넣어주세요.
@@ -34,6 +41,9 @@ export default function CheckoutPage() {
 
       paymentWidgetRef.current = paymentWidget;
       paymentMethodsWidgetRef.current = paymentMethodsWidget;
+      console.log(id);
+
+      
     })();
   }, []);
 
