@@ -5,7 +5,7 @@ import {
 } from "@tosspayments/payment-widget-sdk";
 import { nanoid } from "nanoid"; // 고유한 주문번호 생성을 위한 라이브러리 (선택)
 import { useParams } from "react-router-dom";
-import './style/Pay.css';
+import '../style/Pay.css';
 
 const clientKey = "test_ck_6bJXmgo28e1G4DDAwL7Y8LAnGKWx"; // 발급받은 클라이언트 키로 교체하세요.
 
