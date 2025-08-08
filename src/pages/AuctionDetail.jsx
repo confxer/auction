@@ -8,14 +8,15 @@ import BidHistory from '../components/BidHistory';
 import LiveBidding from '../components/LiveBidding';
 import FavoriteButton from '../components/FavoriteButton';
 import ReportButton from '../components/ReportButton';
-import { useUser } from '../UserContext'; // Import useUser
+import { useUser } from '../UserContext';
 import axios from '../axiosConfig';
 import '../style/AuctionDetail.css';
 
 const AuctionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, checkAuthStatus } = useUser(); // Get user and checkAuthStatus
+  const { user } = useUser();
+
   const [auction, setAuction] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentBid, setCurrentBid] = useState('');
@@ -25,84 +26,18 @@ const AuctionDetail = () => {
   const [auctionStatus, setAuctionStatus] = useState('진행중');
   const [currentPrice, setCurrentPrice] = useState(0);
 
-  // Fetch user data when component mounts or user changes
-  
-  
-  
-  useEffect(() => {
-    // "new" ID인 경우 경매 등록 페이지로 리다이렉트
-    if (id === 'new') {
-      navigate('/auction-new');
-      return;
-    }
-    fetch(`/api/auctions/${id}`)
-    .then((res) => {
-      if (!res.ok) throw new Error('서버 응답 오류');
-      return res.json();
-    })
-    .then((data) => {
-      setAuction(data);
-      console.log("데이터: ",data, user.id, data);
-      setCurrentPrice(Math.max(data.startPrice, data.highestBid || 0));
-      setLoading(false);
-      if(data.isClosed){
-        setAuctionStatus('종료');
-      }
-      // 조회수 증가
-      fetch(`/api/auctions/${id}/view`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      }).catch(err => console.log('조회수 증가 실패:', err));
-    })
-    .catch((err) => {
-      setAuction(null);
-      setLoading(false);
-    });
-  }, [id, navigate]);
-  
-  //종료 확인용도로 쓰는 무언가 만들기
-  const handleEnd = () => {
-    setAuctionStatus("종료");
-  };
-
-  const handleDelete = async () => {
-    
-    await axios.delete(`/api/auctions/${id}`);
-    navigate('/auction');
-  };
-  
-  // 실시간 현재가 업데이트를 위한 인터벌
-  useEffect(() => {
-    if (!auction) return;
-    
-    const interval = setInterval(() => {
-      fetch(`/api/auctions/${id}`)
-      .then((res) => res.json())
-        .then((data) => {
-          const newPrice = Math.max(data.startPrice, data.highestBid || 0);
-          setCurrentPrice(newPrice);
-          setAuction(prev => ({ ...prev, ...data, seller: data.seller ?? prev.seller }));
-        })
-        .catch((err) => console.log('현재가 업데이트 실패:', err));
-    }, 5000); // 5초마다 업데이트
-
-    return () => clearInterval(interval);
-  }, [auction, id]);
-
+  // ---- helpers -------------------------------------------------------------
   const formatPrice = (price) => {
     if (price === null || price === undefined) return '-';
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
   const getImageUrl = (url) => {
-    if (!url) return "https://placehold.co/400x400?text=경매";
-    if (url.startsWith('/uploads/')) {
-      return `/api${url}`;
-    }
+    if (!url) return 'https://placehold.co/400x400?text=경매';
+    if (url.startsWith('/uploads/')) return `/api${url}`;
     return url;
   };
 
-  // 입찰 단위 계산 함수
   const getBidStep = (price) => {
     if (price >= 1000 && price <= 9999) return 1000;
     if (price >= 10000 && price <= 99999) return 5000;
@@ -112,133 +47,195 @@ const AuctionDetail = () => {
     return 1000;
   };
 
-  // 최소 입찰 금액 계산
-  const getMinBidAmount = () => {
-    const currentHighest = Math.max(auction.startPrice, auction.highestBid || 0);
-    const step = getBidStep(currentHighest);
-    return currentHighest + step;
+  // ✅ 현재가 계산을 입찰목록으로부터 항상 동기화
+  const fetchCurrentPriceFromBids = async (auctionId, startPrice) => {
+    try {
+      const res = await axios.get(`/api/bids/auction/${auctionId}`);
+      const bids = Array.isArray(res.data) ? res.data : [];
+      const maxBid = bids.length ? Math.max(...bids.map(b => Number(b.bidAmount || 0))) : 0;
+      return Math.max(Number(startPrice || 0), maxBid);
+    } catch (e) {
+      console.warn('현재가 계산 실패(입찰 목록 조회 실패). startPrice로 대체:', e);
+      return Number(startPrice || 0);
+    }
   };
 
-  // 입찰 금액 검증
+  // ---- effects -------------------------------------------------------------
+  useEffect(() => {
+    if (id === 'new') {
+      navigate('/auction-new');
+      return;
+    }
+
+    // 초기 상세 로딩 + 현재가 동기화
+    (async () => {
+      try {
+        const res = await fetch(`/api/auctions/${id}`);
+        if (!res.ok) throw new Error('서버 응답 오류');
+        const data = await res.json();
+        setAuction(data);
+
+        // ✅ 현재가를 입찰목록 기준으로 강제 동기화
+        const price = await fetchCurrentPriceFromBids(data.id ?? Number(id), data.startPrice);
+        setCurrentPrice(price);
+
+        setLoading(false);
+        if (data.isClosed) setAuctionStatus('종료');
+
+        // 조회수 증가 (실패해도 무시)
+        fetch(`/api/auctions/${id}/view`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        }).catch(() => {});
+      } catch (err) {
+        console.error('경매 상세 조회 실패:', err);
+        setAuction(null);
+        setLoading(false);
+      }
+    })();
+  }, [id, navigate]);
+
+  // 5초 폴링: 본문은 가볍게 갱신, 현재가는 입찰목록 기준으로 동기화
+  useEffect(() => {
+    if (!auction) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/auctions/${id}`);
+        const data = await res.json();
+        if (data) {
+          setAuction(prev => ({ ...prev, ...data, seller: data.seller ?? prev?.seller }));
+        }
+      } catch (e) {
+        console.log('본문 갱신 실패:', e);
+      }
+
+      try {
+        const price = await fetchCurrentPriceFromBids(Number(id), auction.startPrice);
+        setCurrentPrice(price);
+      } catch (e) {
+        console.log('현재가 갱신 실패:', e);
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [auction, id]);
+
+  // ---- UI handlers ---------------------------------------------------------
+  const handleEnd = () => setAuctionStatus('종료');
+
+  const handleDelete = async () => {
+    await axios.delete(`/api/auctions/${id}`);
+    navigate('/auction');
+  };
+
+  // ✅ 최소 입찰 금액 계산을 currentPrice 기준으로 변경
+  const getMinBidAmount = () => {
+    const base = Number(currentPrice || auction?.startPrice || 0);
+    const step = getBidStep(base);
+    return base + step;
+  };
+
   const validateBidAmount = (amount) => {
     const numAmount = Number(amount);
     const minAmount = getMinBidAmount();
-    const step = getBidStep(numAmount);
+    const step = getBidStep(Number(currentPrice || 0));
 
-    if (numAmount < minAmount) {
-      return `최소 입찰 금액은 ${formatPrice(minAmount)}원입니다.`;
-    }
-
-    if (numAmount % step !== 0) {
-      return `입찰가는 ${formatPrice(step)}원 단위로만 가능합니다.`;
-    }
-
-    return null; // 검증 통과
+    if (Number.isNaN(numAmount)) return '입찰가는 숫자여야 합니다.';
+    if (numAmount < minAmount) return `최소 입찰 금액은 ${formatPrice(minAmount)}원입니다.`;
+    if (numAmount % step !== 0) return `입찰가는 ${formatPrice(step)}원 단위로만 가능합니다.`;
+    return null;
   };
 
-  // 실제 입찰하기 구현
-  const handleBid = () => {
+  const handleBid = async () => {
+    // Prevent users from bidding on their own items
+    if (user && user.id === auction.userId) {
+      alert('자신이 등록한 상품에는 입찰할 수 없습니다.');
+      return;
+    }
+
     const bidAmount = Number(currentBid);
     const validationError = validateBidAmount(bidAmount);
-    
     if (validationError) {
       alert(validationError);
       return;
     }
 
     setProcessing(true);
-    
-    // Send bid request using axios with credentials
+
     const bidData = {
       auctionId: auction.id,
-      bidAmount: bidAmount,
+      bidAmount,
       bidder: user.nickname || user.username
-      // Removed bidderId as it's not part of the DTO
     };
-    
-    console.log('Sending bid data:', bidData);
-    
-    // Use axios with credentials and proper headers
-    return axios.post('/api/bids', bidData, {
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-    .then(response => {
-      const data = response.data;
-      
-      // Send notification to seller
+
+    try {
+      const response = await axios.post('/api/bids', bidData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      // 웹소켓 알림 (생략 없이 기존 로직 유지)
       if (window.socket && auction.userId) {
         const sellerNotification = {
           type: 'NOTIFICATION',
           data: {
-            userId: auction.userId, // Notify the seller
+            userId: auction.userId,
             message: `💰 ${user.nickname || user.username || '입찰자'}님이 ${auction.title}에 ${formatPrice(bidAmount)}원에 입찰하셨습니다!`,
-            auctionId: auction.id.toString(), // Ensure auctionId is a string for consistency
+            auctionId: auction.id.toString(),
             auctionTitle: auction.title,
             type: 'NEW_BID',
             read: false,
             createdAt: new Date().toISOString(),
             senderId: user.id,
             senderName: user.nickname || user.username,
-            // Add additional context for the notification
             action: 'BID_PLACED',
-            bidAmount: bidAmount
+            bidAmount
           }
         };
-        console.log('Sending seller notification:', sellerNotification);
         window.socket.send(JSON.stringify(sellerNotification));
       }
-      
-      // Send notification to buyer (self)
       if (window.socket && user.id) {
         const buyerNotification = {
           type: 'NOTIFICATION',
           data: {
-            userId: user.id, // Notify the buyer
+            userId: user.id,
             message: `✅ ${auction.title}에 ${formatPrice(bidAmount)}원으로 입찰하셨습니다.`,
-            auctionId: auction.id.toString(), // Ensure auctionId is a string for consistency
+            auctionId: auction.id.toString(),
             auctionTitle: auction.title,
             type: 'BID_PLACED',
             read: false,
             createdAt: new Date().toISOString(),
             senderId: 'system',
             senderName: '시스템',
-            // Add additional context for the notification
             action: 'BID_CONFIRMATION',
-            bidAmount: bidAmount,
+            bidAmount,
             auctionStatus: auction.status
           }
         };
-        console.log('Sending buyer notification:', buyerNotification);
         window.socket.send(JSON.stringify(buyerNotification));
       }
-      
-      // Update UI
+
       alert('입찰 성공!');
       setShowBidModal(false);
       setCurrentBid('');
-      setProcessing(false);
-      
-      // Update current price
-      const newPrice = Math.max(auction.startPrice, bidAmount);
-      setCurrentPrice(newPrice);
+
+      // ✅ 서버 기준으로 현재가 재계산(경쟁 입찰 대비)
+      const synced = await fetchCurrentPriceFromBids(auction.id, auction.startPrice);
+      setCurrentPrice(synced);
       setAuction(prev => ({
         ...prev,
-        highestBid: bidAmount,
+        highestBid: synced,
         highestBidder: user.nickname || user.username,
         highestBidderId: user.id
       }));
-      
-      return data;
-    })
-    .catch(err => {
+    } catch (err) {
       console.error('Bid error:', err);
-      alert(err.message || '입찰에 실패했습니다.');
+      alert(err?.response?.data?.message || err.message || '입찰에 실패했습니다.');
+    } finally {
       setProcessing(false);
-    });
+    }
   };
 
   const fetchAuction = async () => {
@@ -250,7 +247,6 @@ const AuctionDetail = () => {
     }
   };
 
-  // 실제 즉시구매 구현
   const handleBuyNow = async () => {
     if (!window.confirm('정말로 즉시 구매하시겠습니까? 이 작업은 취소할 수 없습니다.')) {
       return;
@@ -258,16 +254,15 @@ const AuctionDetail = () => {
 
     try {
       setProcessing(true);
-      
-      // 1. Send buy-now request with credentials
+
       const response = await axios.post(
-        `/api/auctions/${auction.id}/buy-now`, 
+        `/api/auctions/${auction.id}/buy-now`,
         {
           winnerId: user.id,
           winnerName: user.nickname || user.username || '구매자',
           price: auction.buyNowPrice || auction.startPrice
-        }, 
-        { 
+        },
+        {
           withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
@@ -275,13 +270,10 @@ const AuctionDetail = () => {
           }
         }
       );
-      
-      // 2. Update UI on success
+
       if (response.status === 200) {
-        // Send notification to buyer
         const buyerMessage = `🎉 ${auction.title} 상품을 ${formatPrice(auction.buyNowPrice || auction.startPrice)}원에 구매하셨습니다!`;
-        
-        // Notify the buyer
+
         if (window.socket && user.id) {
           const buyerNotification = {
             type: 'NOTIFICATION',
@@ -295,17 +287,14 @@ const AuctionDetail = () => {
               createdAt: new Date().toISOString(),
               senderId: 'system',
               senderName: '시스템',
-              // Additional context
               action: 'PURCHASE_COMPLETED',
               price: auction.buyNowPrice || auction.startPrice,
               auctionStatus: 'SOLD'
             }
           };
-          console.log('Sending buyer purchase notification:', buyerNotification);
           window.socket.send(JSON.stringify(buyerNotification));
         }
 
-        // Notify the seller
         if (window.socket && auction.userId && auction.userId !== user.id) {
           const sellerMessage = `💰 ${user.nickname || user.username || '구매자'}님이 ${auction.title}을(를) ${formatPrice(auction.buyNowPrice || auction.startPrice)}원에 즉시 구매하셨습니다!`;
           const sellerNotification = {
@@ -320,7 +309,6 @@ const AuctionDetail = () => {
               createdAt: new Date().toISOString(),
               senderId: user.id,
               senderName: user.nickname || user.username || '구매자',
-              // Additional context
               action: 'ITEM_SOLD',
               price: auction.buyNowPrice || auction.startPrice,
               buyerId: user.id,
@@ -328,14 +316,11 @@ const AuctionDetail = () => {
               auctionStatus: 'SOLD'
             }
           };
-          console.log('Sending seller sold notification:', sellerNotification);
           window.socket.send(JSON.stringify(sellerNotification));
         }
-        
-        // Show success message
+
         alert(buyerMessage);
-        
-        // 3. Update UI
+
         setAuction(prev => ({
           ...prev,
           isClosed: true,
@@ -347,11 +332,14 @@ const AuctionDetail = () => {
           highestBidder: user.nickname || user.username,
           highestBidderId: user.id
         }));
-        
+
         setAuctionStatus('종료');
         setShowBuyNowModal(false);
-        
-        // Refresh auction data without full page reload
+
+        // ✅ 즉시구매 후에도 서버 기준 현재가 한 번 더 동기화
+        const synced = await fetchCurrentPriceFromBids(auction.id, auction.buyNowPrice || auction.startPrice);
+        setCurrentPrice(synced);
+
         await fetchAuction();
       }
     } catch (error) {
@@ -362,7 +350,8 @@ const AuctionDetail = () => {
       setProcessing(false);
     }
   };
-  
+
+  // ---- render --------------------------------------------------------------
   if (loading) {
     return (
       <div className="auction-detail-loading">
@@ -381,20 +370,18 @@ const AuctionDetail = () => {
     );
   }
 
-  // 이미지 배열 구성 - Auction 페이지와 동일하게
   const getImages = () => {
-    if (!auction.imageUrl1) {
-      return ['https://placehold.co/400x400?text=경매'];
-    }
+    if (!auction.imageUrl1) return ['https://placehold.co/400x400?text=경매'];
     return [auction.imageUrl1];
   };
-  
-  const images = getImages();
-  const minBidAmount = isNaN(getMinBidAmount()) || getMinBidAmount() < 1000 ? 1000 : getMinBidAmount();
-  const bidStep = isNaN(getBidStep(currentPrice)) || getBidStep(currentPrice) < 1000 ? 1000 : getBidStep(currentPrice);
 
-  // 렌더링 직전 auction 객체 콘솔 출력
-  console.log("렌더링 auction 객체:", auction);
+  const images = getImages();
+  const minBidAmountRaw = getMinBidAmount();
+  const minBidAmount = isNaN(minBidAmountRaw) || minBidAmountRaw < 1000 ? 1000 : minBidAmountRaw;
+  const bidStepRaw = getBidStep(currentPrice);
+  const bidStep = isNaN(bidStepRaw) || bidStepRaw < 1000 ? 1000 : bidStepRaw;
+
+  console.log('렌더링 auction 객체:', auction);
 
   return (
     <div className="auction-detail">
@@ -402,7 +389,7 @@ const AuctionDetail = () => {
       <div className="auction-header">
         <div className="auction-title-section">
           <h1>{auction.title}</h1>
-          <div className="auction-seller-id" style={{fontSize:'0.98rem',color:'#888',marginTop:'4px',fontWeight:500}}>
+          <div className="auction-seller-id" style={{ fontSize: '0.98rem', color: '#888', marginTop: '4px', fontWeight: 500 }}>
             판매자: {auction.seller || '알수없음'}
           </div>
           <div className="auction-meta">
@@ -413,27 +400,23 @@ const AuctionDetail = () => {
         </div>
         <div className="auction-status">
           <div className="time-left">
-            <AuctionTimer 
-              endTime={auction.endAt} 
-              onTimeUp={() => {
-                handleEnd();
-              }}
-              closed={auction.isClosed} 
+            <AuctionTimer
+              endTime={auction.endAt}
+              onTimeUp={handleEnd}
+              closed={auction.isClosed}
             />
           </div>
-          {user.id === auction.userId && (
-            <button onClick={() => handleDelete()}>삭제</button>
-          )}
-          {user.role === 'ADMIN' && (
-            <button onClick={() => handleDelete()}>삭제</button>
-          )}
+          {user.id === auction.userId && <button onClick={() => handleDelete()}>삭제</button>}
+          {user.role === 'ADMIN' && <button onClick={() => handleDelete()}>삭제</button>}
           <FavoriteButton auctionId={auction.id} />
         </div>
       </div>
 
       {/* 예정 안내 */}
       {auctionStatus === '예정' && (
-        <div style={{color:'#888',fontWeight:600,fontSize:'1.1em',marginBottom:16}}>경매 예정중입니다. 시작 시간 이후에 참여하실 수 있습니다.</div>
+        <div style={{ color: '#888', fontWeight: 600, fontSize: '1.1em', marginBottom: 16 }}>
+          경매 예정중입니다. 시작 시간 이후에 참여하실 수 있습니다.
+        </div>
       )}
 
       <div className="auction-content">
@@ -461,18 +444,18 @@ const AuctionDetail = () => {
               <span>입찰 단위: {formatPrice(bidStep)}원</span>
             </div>
           </div>
-          
+
           <div className="bidding-actions">
-            <button 
+            <button
               className="bid-button"
               onClick={() => setShowBidModal(true)}
               disabled={auctionStatus === '종료'}
             >
               입찰하기
             </button>
-            
+
             {auction.buyNowPrice && (
-              <button 
+              <button
                 className="buy-now-button"
                 onClick={() => setShowBuyNowModal(true)}
                 disabled={auctionStatus === '종료'}
@@ -481,7 +464,6 @@ const AuctionDetail = () => {
               </button>
             )}
           </div>
-          {/* 신고하기 버튼 추가 */}
           <ReportButton auctionId={auction.id} />
         </div>
       </div>
@@ -489,7 +471,7 @@ const AuctionDetail = () => {
       {/* 입찰 현황 및 상품 정보 */}
       <div className="auction-details-grid">
         <div className="bid-history-section">
-          <BidHistory 
+          <BidHistory
             auctionId={auction.id}
             currentPrice={currentPrice}
             onBidUpdate={(latestBid) => {
@@ -602,7 +584,7 @@ const AuctionDetail = () => {
                 min={minBidAmount}
                 step={bidStep}
                 disabled={processing}
-                style={{display: 'block'}}
+                style={{ display: 'block' }}
                 autoFocus
               />
               <div className="bid-validation">
@@ -617,9 +599,9 @@ const AuctionDetail = () => {
               </div>
               <div className="modal-actions">
                 <button onClick={() => setShowBidModal(false)} className="btn-cancel" disabled={processing}>취소</button>
-                <button 
-                  onClick={handleBid} 
-                  className="btn-confirm" 
+                <button
+                  onClick={handleBid}
+                  className="btn-confirm"
                   disabled={processing || (currentBid && validateBidAmount(currentBid))}
                 >
                   입찰하기
