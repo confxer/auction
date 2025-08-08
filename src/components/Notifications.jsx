@@ -33,7 +33,7 @@ const Notifications = ({ isOpen, onClose }) => {
       SHIPPING: '배송',
       SYSTEM: '시스템 알림',
       SOLD: '판매',
-      NEW_BID: '입찰'
+      NEW_BID: '낙찰'
     };
     return typeLabels[type] || type;
   };
