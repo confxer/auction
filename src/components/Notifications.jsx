@@ -26,11 +26,14 @@ const Notifications = ({ isOpen, onClose }) => {
     const typeLabels = {
       BID: '입찰',
       BUY_NOW: '즉시구매',
+      BUY_NOW_SUCCESS: '즉시구매',
       MESSAGE: '쪽지',
       AUCTION_END: '경매 종료',
       PAYMENT: '결제',
       SHIPPING: '배송',
-      SYSTEM: '시스템 알림'
+      SYSTEM: '시스템 알림',
+      SOLD: '판매',
+      NEW_BID: '입찰'
     };
     return typeLabels[type] || type;
   };
@@ -196,7 +199,7 @@ const Notifications = ({ isOpen, onClose }) => {
 
                   if (notif.type === 'MESSAGE') {
                     navigate(`/messages?auctionId=${notif.auctionId || ''}`);
-                  } if (notif.type === 'BID' || notif.type === 'BUY_NOW') {
+                  } if (notif.type === 'NEW_BID' || notif.type === 'BUY_NOW_SUCCESS' || notif.type === 'SOLD') {
                     navigate(`/auction/${notif.auctionId}/pay`);
                   } else if (notif.auctionId) {
                     navigate(`/auction/${notif.auctionId}`);
