@@ -45,6 +45,7 @@ import MyPage from "./pages/MyPage";
 import Favorites from "./pages/Favorites";
 import KakaoMap from "./pages/KakaoMap";
 import CheckoutPage from "./pages/Pay";
+import { SuccessPage } from "./pages/Success";
 
 // 🔁 내부 컴포넌트로 감싸서 useUser 사용 가능하게 처리
 function AppContent() {
@@ -136,6 +137,7 @@ function AppContent() {
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/map" element={<KakaoMap />} />
             <Route path="/auction/:id/pay" element={<CheckoutPage />} />
+            <Route path="/success" element={<SuccessPage />} />
           </Routes>
         </main>
         <QuickMenu />
