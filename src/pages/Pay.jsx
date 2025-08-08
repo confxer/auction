@@ -45,7 +45,7 @@ export default function CheckoutPage() {
 
       
     })();
-  }, []);
+  }, [id]);
 
   const handlePaymentRequest = async () => {
     const paymentWidget = paymentWidgetRef.current;
