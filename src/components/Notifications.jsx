@@ -196,8 +196,10 @@ const Notifications = ({ isOpen, onClose }) => {
 
                   if (notif.type === 'MESSAGE') {
                     navigate(`/messages?auctionId=${notif.auctionId || ''}`);
-                  } else if (notif.auctionId) {
+                  } if (notif.type === 'BID' || notif.type === 'BUY_NOW') {
                     navigate(`/auction/${notif.auctionId}/pay`);
+                  } else if (notif.auctionId) {
+                    navigate(`/auction/${notif.auctionId}`);
                   }
 
                   onClose();

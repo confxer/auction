@@ -41,7 +41,6 @@ export default function CheckoutPage() {
 
       paymentWidgetRef.current = paymentWidget;
       paymentMethodsWidgetRef.current = paymentMethodsWidget;
-      console.log(id);
 
       
     })();
@@ -49,16 +48,17 @@ export default function CheckoutPage() {
 
   const handlePaymentRequest = async () => {
     const paymentWidget = paymentWidgetRef.current;
+    console.log(window.location.origin);
 
     try {
       // ------ '결제하기' 버튼 누르면 결제창 띄우기 ------
       await paymentWidget?.requestPayment({
         orderId: nanoid(), // 고유한 주문 ID
-        orderName: "토스 티셔츠 외 2건",
+        orderName: data.title,
         successUrl: `${window.location.origin}/success`, // 성공 리다이렉트 URL
         failUrl: `${window.location.origin}/fail`,     // 실패 리다이렉트 URL
         customerEmail: "customer123@gmail.com",
-        customerName: "김토스",
+        customerName: data.winner,
       });
     } catch (error) {
       // 에러 처리
