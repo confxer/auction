@@ -1,0 +1,110 @@
+# application.yml
+
+# [애플리케이션 정보]
+spring:
+  application:
+    name: auction-backend
+
+  # [데이터베이스 연결 설정 (MariaDB)]
+  datasource:
+    url: jdbc:mariadb://localhost:3306/auctiondb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: 1234 # 절대로 '1234'와 같이 하드코딩 금지. 환경 변수로 주입.
+    driver-class-name: org.mariadb.jdbc.Driver
+    # [HikariCP 연결 풀 설정]
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # [JPA 및 Hibernate 설정]
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDBDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # [정적 리소스 및 파일 업로드 설정]
+  web:
+    resources:
+      static-locations: file:uploads/ # 이 경로도 외부에 두는 것을 권장한다.
+    cors:
+      allowed-origins: http://localhost:5173
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
+      file-size-threshold: 2KB
+      location: uploads/
+
+  # [이메일 설정 (Gmail)]
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME} # your-gmail@gmail.com -> 환경 변수로 관리
+    password: ${GMAIL_APP_PASSWORD} # your-16-digit-app-password -> 환경 변수로 관리
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+# [서버 설정 (Tomcat)]
+server:
+  port: 8080
+  # [오류 메시지 설정]
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: always # 개발 환경에서만 'always'를 사용하고, 프로덕션에서는 'never'로 변경하라.
+  # [Tomcat 파일 업로드 제한]
+  tomcat:
+    max-http-form-post-size: 20MB
+    max-swallow-size: 20MB
+    max-connections: 8192
+    max-http-header-size: 8KB
+
+# [JWT 설정]
+jwt:
+  secret: ${jwt.secret.key} # tG6+... -> 환경 변수로 관리
+  access-token:
+    expiration: 3600000 # 1시간
+  refresh-token:
+    expiration: 604800000 # 7일
+
+# [Actuator 모니터링 설정]
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# [로깅 설정]
+logging:
+  level:
+    com.auction: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# ===================================================================
+# [토스페이먼츠 연동 설정] - 이 부분을 추가한다.
+# ===================================================================
+toss:
+  payments:
+    secret-key: test_sk_vZnjEJeQVxmyzl91pbv9rPmOoBN0 # 발급받은 시크릿 키를 환경 변수로 관리
+    confirm-url: https://api.tosspayments.com/v1/payments/confirm
