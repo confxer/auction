@@ -17,6 +17,7 @@ public class PayController {
     // 결제 정보 사전 등록 및 검증
     @PostMapping("/validate")
     public ResponseEntity<Void> validatePayment(@RequestBody PayValidDto requestDto) {
+        System.out.println("11111111111111111111111111111111111111111111:" + requestDto.toString);
         paymentService.validateAndSavePayment(requestDto);
         return ResponseEntity.ok().build();
     }
