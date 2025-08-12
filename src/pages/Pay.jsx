@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { loadPaymentWidget } from "@tosspayments/payment-widget-sdk";
 import { nanoid } from "nanoid";
+import axios from "axios";
 import '../style/Pay.css';
 
 const clientKey = "test_ck_6bJXmgo28e1G4DDAwL7Y8LAnGKWx";
