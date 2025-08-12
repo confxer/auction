@@ -12,7 +12,7 @@ export function SuccessPage() {
       const amount = searchParams.get("amount");
 
       try {
-        const response = await fetch("/api/v1/payments/confirm", {
+        const response = await fetch("/api/payments/confirm", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

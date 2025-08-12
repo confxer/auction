@@ -75,14 +75,7 @@ export default function CheckoutPage() {
     try {
       // --- [필수] 서버에 결제 정보 생성 및 검증 요청 ---
       // 이 과정이 없으면 금액 위변조에 그대로 노출된다.
-      const validationResponse = await fetch("/api/v1/payments/validate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId: orderId,
-          amount: price,
-        }),
-      });
+      const validationResponse = await axios.post("/api/payments/validate");
 
       if (!validationResponse.ok) {
         throw new Error("결제 정보 검증에 실패했습니다.");
