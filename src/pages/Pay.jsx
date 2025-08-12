@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { loadPaymentWidget } from "@tosspayments/payment-widget-sdk";
 import { nanoid } from "nanoid";
-import axios from "axios";
+import axios from "../axiosConfig";
 import '../style/Pay.css';
 
 const clientKey = "test_ck_6bJXmgo28e1G4DDAwL7Y8LAnGKWx";
@@ -76,7 +76,10 @@ export default function CheckoutPage() {
     try {
       // --- [필수] 서버에 결제 정보 생성 및 검증 요청 ---
       // 이 과정이 없으면 금액 위변조에 그대로 노출된다.
-      const validationResponse = await axios.post("/api/payments/validate");
+      const validationResponse = await axios.post("/api/payments/validate", {
+        orderId: orderId,
+        amount: price,
+    });
 
       if (!validationResponse.ok) {
         throw new Error("결제 정보 검증에 실패했습니다.");
