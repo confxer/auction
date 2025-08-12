@@ -6,7 +6,7 @@ import '../style/Pay.css';
 
 const clientKey = "test_ck_6bJXmgo28e1G4DDAwL7Y8LAnGKWx";
 
-export function CheckoutPage() {
+export default function CheckoutPage() {
   const { id } = useParams();
   const paymentWidgetRef = useRef(null);
   const paymentMethodsWidgetRef = useRef(null);
