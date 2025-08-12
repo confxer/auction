@@ -34,6 +34,8 @@ public class PayService {
      * @param requestDto (orderId, amount)
      */
     public void validateAndSavePayment(PayValidDto requestDto) {
+        System.out.println("1111111111111111111111111111111111111111111111111111"+requestDto.getAmount());
+        System.out.println("1111111111111111111111111111111111111111111111111111"+requestDto.getOrderId());
         if (requestDto.getAmount() <= 0) {
             throw new IllegalArgumentException("결제 금액은 0보다 커야 합니다.");
         }

@@ -98,7 +98,7 @@ export default function CheckoutPage() {
       });
     } catch (error) {
       console.error("결제 요청 에러:", error);
-      // 실패 처리 로직 (예: 사용자에게 알림)
+      alert(error);
     }
   };
 
