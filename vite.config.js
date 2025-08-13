@@ -8,7 +8,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: 'http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com',
         changeOrigin: true,
         secure: false,
         ws: true

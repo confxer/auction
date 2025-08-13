@@ -22,7 +22,7 @@ function ChatRoom({ auctionId, roomName, userId, userName, onClose }) {
   useEffect(() => {
     const createOrGetChatRoom = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/chat/rooms`, {
+        const response = await fetch(`http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/chat/rooms`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -46,7 +46,7 @@ function ChatRoom({ auctionId, roomName, userId, userName, onClose }) {
   // 메시지 목록 로드
   const loadMessages = async (roomId) => {
     try {
-      const response = await fetch(`http://localhost:8080/api/chat/rooms/${roomId}/messages`);
+      const response = await fetch(`http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/chat/rooms/${roomId}/messages`);
       if (response.ok) {
         const messageList = await response.json();
         setMessages(messageList);
@@ -59,7 +59,7 @@ function ChatRoom({ auctionId, roomName, userId, userName, onClose }) {
   // WebSocket 연결
   useEffect(() => {
     if (!roomId) return;
-    const ws = new WebSocket(`ws://localhost:8080/ws-auction/websocket`);
+    const ws = new WebSocket(`ws://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/ws-auction/websocket`);
     wsRef.current = ws;
     ws.onopen = () => {
       setIsConnected(true);
