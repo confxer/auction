@@ -16,7 +16,7 @@ function NotificationBell({ pageMode }) {
     if (!user?.username) return;
     
     try {
-      const response = await fetch(`http://localhost:8080/api/notifications/${user.username}`, {
+      const response = await fetch(`http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/notifications/${user.username}`, {
         headers: {
           'Authorization': `Bearer ${user.accessToken}`,
           'Content-Type': 'application/json',

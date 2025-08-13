@@ -28,7 +28,7 @@ export const UserProvider = ({ children }) => {
       }
 
       try {
-        const response = await axios.get('http://localhost:8080/api/auth/me', {
+        const response = await axios.get('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/auth/me', {
           headers: { 'Authorization': `Bearer ${token}` },
         });
         setUser({ ...response.data, accessToken: token });
@@ -38,7 +38,7 @@ export const UserProvider = ({ children }) => {
           if (success) {
             const newToken = getAccessToken();
             try {
-              const response = await axios.get('http://localhost:8080/api/auth/me', {
+              const response = await axios.get('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/auth/me', {
                 headers: { 'Authorization': `Bearer ${newToken}` },
               });
               setUser({ ...response.data, accessToken: newToken });
@@ -64,7 +64,7 @@ export const UserProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setError(null);
-      const response = await axios.post('http://localhost:8080/api/auth/register', userData, {
+      const response = await axios.post('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/auth/register', userData, {
         headers: { 'Content-Type': 'application/json' },
       });
       return { success: true, data: response.data };
@@ -78,7 +78,7 @@ export const UserProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       setError(null);
-      const response = await axios.post('http://localhost:8080/api/auth/login', credentials, {
+      const response = await axios.post('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/auth/login', credentials, {
         headers: { 'Content-Type': 'application/json' },
       });
 
@@ -99,7 +99,7 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     const token = getAccessToken();
     if (token) {
-      axios.post('http://localhost:8080/api/auth/logout', {}, {
+      axios.post('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/auth/logout', {}, {
         headers: { 'Authorization': `Bearer ${token}` },
       }).catch(err => console.error('Logout API call failed:', err));
     }
@@ -113,7 +113,7 @@ export const UserProvider = ({ children }) => {
     if (!refreshTokenValue) return false;
 
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/refresh', {
+      const response = await axios.post('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/auth/refresh', {
         refreshToken: refreshTokenValue,
       });
 

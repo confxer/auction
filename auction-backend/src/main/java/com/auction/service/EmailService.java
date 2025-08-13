@@ -50,7 +50,7 @@ public class EmailService {
         message.setSubject("[경매 시스템] 이메일 인증");
         message.setText("안녕하세요!\n\n" +
                 "경매 시스템 회원가입을 완료하려면 아래 링크를 클릭해주세요:\n\n" +
-                "http://localhost:5173/verify-email?token=" + token + "\n\n" +
+                "http://auction-react-bucket-20250804-prj.s3-website.ap-northeast-2.amazonaws.com/verify-email?token=" + token + "\n\n" +
                 "이 링크는 24시간 후에 만료됩니다.\n\n" +
                 "감사합니다.");
         
@@ -63,7 +63,7 @@ public class EmailService {
             logger.info("=== 개발용 인증 토큰 (콘솔 출력) ===");
             logger.info("이메일: {}", email);
             logger.info("인증 토큰: {}", token);
-            logger.info("인증 URL: http://localhost:5173/verify-email?token=" + token);
+            logger.info("인증 URL: http://auction-react-bucket-20250804-prj.s3-website.ap-northeast-2.amazonaws.com/verify-email?token=" + token);
             logger.info("=====================================");
         }
     }

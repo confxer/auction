@@ -47,7 +47,7 @@ const useNotificationSocket = (userId, { onNotification, addNotification }) => {
       return;
     }
 
-    const socket = new SockJS("http://localhost:8080/ws-auction");
+    const socket = new SockJS("http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/ws-auction");
 
     const client = new Client({
       webSocketFactory: () => socket,

@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com',
   withCredentials: true // 쿠키 기반 인증 사용하는 경우에만 true, JWT만 사용하면 생략 가능
 });
 

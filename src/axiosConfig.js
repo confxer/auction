@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getAccessToken, getRefreshToken, clearTokens } from './utils/cookieUtils';
 
 // axios 기본 설정
-axios.defaults.baseURL = "http://localhost:8080";
+axios.defaults.baseURL = "auction-alb-925869368.ap-northeast-2.elb.amazonaws.com";
 axios.defaults.withCredentials = true; // 쿠키 자동 전송
 
 // 요청 인터셉터 - 토큰 자동 추가
@@ -33,7 +33,7 @@ axios.interceptors.response.use(
       try {
         const refreshToken = getRefreshToken();
         if (refreshToken) {
-          const response = await axios.post('http://localhost:8080/api/auth/refresh', {
+          const response = await axios.post('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/auth/refresh', {
             refreshToken: refreshToken
           });
 

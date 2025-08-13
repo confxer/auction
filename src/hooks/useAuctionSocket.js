@@ -6,7 +6,7 @@ import { Client } from '@stomp/stompjs';
 export default function useAuctionSocket(onUpdate) {
   useEffect(() => {
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws-auction'),
+      webSocketFactory: () => new SockJS('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/ws-auction'),
       reconnectDelay: 5000,
       onConnect: () => {
         console.log('[✅ WebSocket 연결됨]');

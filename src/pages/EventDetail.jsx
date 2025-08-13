@@ -17,7 +17,7 @@ const EventDetail = () => {
       return;
     }
 
-    axios.get(`http://localhost:8080/api/event/${id}`, { withCredentials: true })
+    axios.get(`http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/event/${id}`, { withCredentials: true })
       .then(res => setEvent(res.data))
       .catch(e => setError(e.response?.data || e.message))
       .finally(() => setLoading(false));

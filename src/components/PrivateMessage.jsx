@@ -24,12 +24,12 @@ function PrivateMessage(props) {
   const loadMessages = async (type) => {
     try {
       const endpoint = type === 'received' ? 'received' : 'sent';
-      console.log('쪽지 목록 API 호출:', `http://localhost:8080/api/messages/${endpoint}/${userId}`);
+      console.log('쪽지 목록 API 호출:', `http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/messages/${endpoint}/${userId}`);
       const headers = {};
       if (user && user.accessToken) {
         headers['Authorization'] = `Bearer ${user.accessToken}`;
       }
-      const response = await fetch(`http://localhost:8080/api/messages/${endpoint}/${userId}`, {
+      const response = await fetch(`http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/messages/${endpoint}/${userId}`, {
         headers
       });
       console.log('API 응답 status:', response.status);
@@ -54,7 +54,7 @@ function PrivateMessage(props) {
   // WebSocket 연결 (새 쪽지 알림)
   useEffect(() => {
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8080/ws-auction'),
+      webSocketFactory: () => new SockJS('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/ws-auction'),
       reconnectDelay: 5000,
       onConnect: () => {
         console.log('✅ 쪽지 WebSocket 연결됨');
@@ -100,7 +100,7 @@ function PrivateMessage(props) {
     const auctionIdToSend = auctionId && auctionId !== '' ? auctionId : 0;
 
     try {
-      const response = await fetch('http://localhost:8080/api/messages', {
+      const response = await fetch('http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/messages', {
         method: 'POST',
         headers,
         body: `auctionId=${auctionIdToSend}&senderId=${userId}&receiverId=${newMessage.receiverId}&subject=${encodeURIComponent(newMessage.subject)}&content=${encodeURIComponent(newMessage.content)}`
@@ -127,7 +127,7 @@ function PrivateMessage(props) {
       if (user && user.accessToken) {
         headers['Authorization'] = `Bearer ${user.accessToken}`;
       }
-      await fetch(`http://localhost:8080/api/messages/${messageId}/read`, {
+      await fetch(`http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/messages/${messageId}/read`, {
         method: 'PUT',
         headers
       });
@@ -142,7 +142,7 @@ function PrivateMessage(props) {
     if (!confirm('쪽지를 삭제하시겠습니까?')) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/api/messages/${messageId}`, {
+      const response = await fetch(`http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/messages/${messageId}`, {
         method: 'DELETE'
       });
 

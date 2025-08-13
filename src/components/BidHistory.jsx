@@ -17,7 +17,7 @@ const BidHistory = ({ auctionId, currentPrice, onBidUpdate }) => {
 
   const loadBidHistory = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/bids/auction/${auctionId}`);
+      const response = await fetch(`http://auction-alb-925869368.ap-northeast-2.elb.amazonaws.com/api/bids/auction/${auctionId}`);
       if (response.ok) {
         const bidData = await response.json();
         setBids(bidData);
