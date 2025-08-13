@@ -4,22 +4,20 @@ files:
   # buildspec.yml에서 이름을 변경한 app.jar를 복사합니다.
   - source: build/libs/app.jar
     destination: /home/ubuntu/
-  # -------------------------------------------------------------------
-  # [추가] scripts 폴더 전체를 EC2 서버의 /home/ubuntu/scripts 경로로 복사합니다.
-  # -------------------------------------------------------------------
+  # scripts 폴더 전체를 EC2 서버의 /home/ubuntu/scripts 경로로 복사합니다.
   - source: scripts
     destination: /home/ubuntu/scripts
 hooks:
-  # BeforeInstall 훅을 추가하여 이전 배포 파일을 정리하고,
-  # 스크립트에 실행 권한을 부여하는 작업을 미리 수행합니다.
-  BeforeInstall:
-    - location: scripts/install_dependencies.sh
-      timeout: 300
-      runas: root
   ApplicationStop:
     - location: scripts/stop_server.sh
       timeout: 300
       runas: ubuntu
+  # [수정] BeforeInstall 대신 AfterInstall을 사용합니다.
+  # 이 훅은 파일이 EC2에 복사된 '이후'에 실행됩니다.
+  AfterInstall:
+    - location: scripts/setup_permissions.sh # 새로운 권한 설정 스크립트
+      timeout: 300
+      runas: root # root 권한으로 파일 소유권 및 권한을 설정합니다.
   ApplicationStart:
     - location: scripts/start_server.sh
       timeout: 300
