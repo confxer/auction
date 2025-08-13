@@ -7,9 +7,9 @@ spring:
 
   # [데이터베이스 연결 설정 (MariaDB)]
   datasource:
-    url: jdbc:mariadb://localhost:3306/auctiondb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password: 1234 # 절대로 '1234'와 같이 하드코딩 금지. 환경 변수로 주입.
+    url: jdbc:mariadb://auction-db.c5wk2um82f9a.ap-northeast-2.rds.amazonaws.com:3306/auction-db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: admin
+    password: ${db.password} # 절대로 '1234'와 같이 하드코딩 금지. 환경 변수로 주입.
     driver-class-name: org.mariadb.jdbc.Driver
     # [HikariCP 연결 풀 설정]
     hikari:
@@ -34,7 +34,7 @@ spring:
     resources:
       static-locations: file:uploads/ # 이 경로도 외부에 두는 것을 권장한다.
     cors:
-      allowed-origins: http://localhost:5173
+      allowed-origins: http://auction-react-bucket-20250804-prj.s3-website.ap-northeast-2.amazonaws.com
   servlet:
     multipart:
       enabled: true
@@ -106,5 +106,5 @@ logging:
 # ===================================================================
 toss:
   payments:
-    secret-key: test_sk_vZnjEJeQVxmyzl91pbv9rPmOoBN0 # 발급받은 시크릿 키를 환경 변수로 관리
+    secret-key: ${toss.secret.key} # 발급받은 시크릿 키를 환경 변수로 관리
     confirm-url: https://api.tosspayments.com/v1/payments/confirm

@@ -25,9 +25,11 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'    // ✅ 유효성 검사
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
     implementation 'com.h2database:h2'                                          // ✅ H2 데이터베이스 (개발용)
+    implementation 'org.flywaydb:flyway-database-mariadb'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'                           // ✅ JWT
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    
     
     // 🔐 보안 관련
     implementation 'org.springframework.boot:spring-boot-starter-security'     // ✅ Spring Security

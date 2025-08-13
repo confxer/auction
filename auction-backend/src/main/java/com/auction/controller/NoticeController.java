@@ -22,7 +22,7 @@ import com.auction.service.NoticeService;
 
 @RestController
 @RequestMapping("/api/notice")
-@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000", "http://auction-react-bucket-20250804-prj.s3-website.ap-northeast-2.amazonaws.com"}, allowCredentials = "true")
 public class NoticeController {
     private final NoticeService noticeService;
 

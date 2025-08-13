@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/auto-bid")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://auction-react-bucket-20250804-prj.s3-website.ap-northeast-2.amazonaws.com"})
 public class AutoBidController {
     private final AutoBidService autoBidService;
 
