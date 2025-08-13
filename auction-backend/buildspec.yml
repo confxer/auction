@@ -8,7 +8,7 @@ phases:
     commands:
       - cd auction-backend
       - echo "Entered auction-backend directory. Current path is $(pwd)"
-#뭔가 이상하다...
+#뭔가 이상하다...ㄷㅅ
   build:
     commands:
       - echo "Granting execute permission to gradlew"
