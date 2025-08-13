@@ -75,7 +75,7 @@ public class EmailService {
         message.setText("안녕하세요!\n\n" +
                 "비밀번호 재설정을 요청하셨습니다.\n\n" +
                 "아래 링크를 클릭하여 새 비밀번호를 설정해주세요:\n\n" +
-                "http://localhost:5173/reset-password?token=" + token + "\n\n" +
+                "http://auction-react-bucket-20250804-prj.s3-website.ap-northeast-2.amazonaws.com/reset-password?token=" + token + "\n\n" +
                 "이 링크는 1시간 후에 만료됩니다.\n\n" +
                 "요청하지 않으셨다면 이 메일을 무시하셔도 됩니다.\n\n" +
                 "감사합니다.");
