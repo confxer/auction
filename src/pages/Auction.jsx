@@ -7,7 +7,7 @@ import axios from '../axiosConfig';
 
 const Auction = () => {
   const [auctions, setAuctions] = useState([]);
-  const [currentPrices, setCurrentPrices] = useState({}); // ✅ id -> 현재가
+  const [currentPrices, setCurrentPrices] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,7 +16,6 @@ const Auction = () => {
 
   const { user } = useUser();
 
-  // 전체 경매 불러오기 + 현재가 초기 시드
   useEffect(() => {
     (async () => {
       try {
