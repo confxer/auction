@@ -1,8 +1,6 @@
-# version을 반드시 0.0으로 지정해야 합니다.
 version: 0.0
 os: linux
 files:
-  # buildspec.yml에서 이름을 변경한 app.jar를 복사합니다.
   - source: build/libs/app.jar
     destination: /home/ubuntu/
 hooks:
