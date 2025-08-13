@@ -6,9 +6,12 @@ phases:
     runtime-versions:
       java: corretto17
     commands:
+      # -------------------------------------------------------------------
+      # [수정] 가장 먼저 백엔드 디렉터리로 이동해야 합니다.
+      # -------------------------------------------------------------------
       - cd auction-backend
       - echo "Entered auction-backend directory. Current path is $(pwd)"
-#뭔가 이상하다...ㄷㅅ
+
   build:
     commands:
       - echo "Granting execute permission to gradlew"
@@ -19,8 +22,8 @@ phases:
 
   post_build:
     commands:
-      - echo "Renaming jar file to app.jar"
-      - mv build/libs/*.jar build/libs/app.jar
+      - echo "Renaming the executable jar file to app.jar"
+      - mv $(find build/libs -name '*.jar' ! -name '*-plain.jar') build/libs/app.jar
 
 artifacts:
   # 아티팩트의 기준 디렉터리는 리포지토리 루트 기준이므로 'auction-backend'가 맞습니다.
