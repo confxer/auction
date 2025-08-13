@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 스크립트 실행 중 오류가 발생하면 즉시 중단하도록 설정
+set -e
+
 # /home/ubuntu 디렉터리로 이동
 cd /home/ubuntu/
 
@@ -11,18 +14,29 @@ fi
 # AWS Systems Manager Parameter Store에서 환경 변수 가져오기
 # (EC2 인스턴스의 IAM 역할에 SSM 읽기 권한이 필요합니다)
 echo "Fetching secrets from Parameter Store..."
-DB_PASSWORD=$(aws ssm get-parameter --name "/auction/prod/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region ap-northeast-2)
-JWT_SECRET_KEY=$(aws ssm get-parameter --name "/auction/prod/JWT_SECRET_KEY" --with-decryption --query "Parameter.Value" --output text --region ap-northeast-2)
-TOSS_SECRET_KEY=$(aws ssm get-parameter --name "/auction/prod/TOSS_SECRET_KEY" --with-decryption --query "Parameter.Value" --output text --region ap-northeast-2)
-# 필요한 다른 환경 변수들도 여기에 추가합니다 (GMAIL_USERNAME, GMAIL_APP_PASSWORD 등)
-# 예: GMAIL_USERNAME=$(aws ssm get-parameter --name "/auction/gmail/username" --with-decryption --query "Parameter.Value" --output text --region ap-northeast-2)
 
-
-# 환경 변수가 제대로 로드되었는지 확인 (비밀번호는 로그에 남기지 않도록 주의)
-if [ -z "$DB_PASSWORD" ] || [ -z "$JWT_SECRET_KEY" ]; then
-    echo "Error: Failed to fetch one or more secrets from Parameter Store. Aborting." >&2
+# 각 파라미터를 가져오고, 성공/실패 여부를 명확히 로그에 남깁니다.
+# 오류는 별도의 로그 파일에 기록하여 디버깅에 사용합니다.
+DB_PASSWORD=$(aws ssm get-parameter --name "/auction/prod/DB_PASSWORD" --with-decryption --query "Parameter.Value" --output text --region ap-northeast-2 2>/tmp/ssm_error.log)
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to fetch DB_PASSWORD. See /tmp/ssm_error.log for details." >&2
     exit 1
 fi
+echo "Successfully fetched DB_PASSWORD."
+
+JWT_SECRET_KEY=$(aws ssm get-parameter --name "/auction/prod/JWT_SECRET_KEY" --with-decryption --query "Parameter.Value" --output text --region ap-northeast-2 2>/tmp/ssm_error.log)
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to fetch JWT_SECRET_KEY. See /tmp/ssm_error.log for details." >&2
+    exit 1
+fi
+echo "Successfully fetched JWT_SECRET_KEY."
+
+TOSS_SECRET_KEY=$(aws ssm get-parameter --name "/auction/prod/TOSS_SECRET_KEY" --with-decryption --query "Parameter.Value" --output text --region ap-northeast-2 2>/tmp/ssm_error.log)
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to fetch TOSS_SECRET_KEY. See /tmp/ssm_error.log for details." >&2
+    exit 1
+fi
+echo "Successfully fetched TOSS_SECRET_KEY."
 
 # 애플리케이션 실행 시, 가져온 비밀 값들을 시스템 속성(-D)으로 주입합니다.
 echo "Starting application with app.jar and production profile..."
@@ -32,3 +46,6 @@ nohup java -jar \
   -Djwt.secret.key="$JWT_SECRET_KEY" \
   -Dtoss.secret.key="$TOSS_SECRET_KEY" \
   /home/ubuntu/app.jar > /home/ubuntu/nohup.out 2>&1 &
+
+# 스크립트가 성공적으로 끝났음을 CodeDeploy에 알리기 위해 마지막 로그를 남깁니다.
+echo "Application start script finished successfully."
