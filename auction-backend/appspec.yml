@@ -1,44 +1,16 @@
-version: 0.2
-
-phases:
-  install:
-    # CodeBuild 환경에서 사용할 Java 버전을 명시적으로 지정하는 것이 좋습니다.
-    # 예: Spring Boot 3.x, Java 17을 사용하는 경우
-    runtime-versions:
-      java: corretto17
-    commands:
-      # ------------------------------------------------------------------
-      # [수정 1] 모노레포에서는 반드시 해당 서비스의 디렉터리로 이동해야 합니다.
-      # ------------------------------------------------------------------
-      - cd auction-backend 
-      - echo "Entered auction-backend directory"
-
-  build:
-    commands:
-      - echo "Granting execute permission to gradlew"
-      - chmod +x ./gradlew
-      - echo "Building the Spring Boot application"
-      # '-x test' 옵션을 추가하면 빌드 시 테스트를 건너뛰어 시간을 단축할 수 있습니다.
-      - ./gradlew build -x test
-      
-  # -------------------------------------------------------------------
-  # [추가] 빌드 후 .jar 파일의 이름을 app.jar로 변경합니다.
-  # -------------------------------------------------------------------
-  post_build:
-    commands:
-      - echo "Renaming jar file to app.jar"
-      - mv build/libs/*.jar build/libs/app.jar
-
-artifacts:
-  # -------------------------------------------------------------------
-  # [수정 2] 아티팩트의 기준 디렉터리를 명확하게 지정합니다.
-  # 'discard-paths' 대신 이 방식을 사용하는 것이 훨씬 안전합니다.
-  # -------------------------------------------------------------------
-  base-directory: 'auction-backend'
-  files:
-    # -------------------------------------------------------------------
-    # [수정 3] 이제 이름이 변경된 app.jar를 포함시킵니다.
-    # -------------------------------------------------------------------
-    - 'build/libs/app.jar'
-    - 'appspec.yml'
-    - 'scripts/**/*'
+# version을 반드시 0.0으로 지정해야 합니다.
+version: 0.0
+os: linux
+files:
+  # buildspec.yml에서 이름을 변경한 app.jar를 복사합니다.
+  - source: build/libs/app.jar
+    destination: /home/ubuntu/
+hooks:
+  ApplicationStop:
+    - location: scripts/stop_server.sh
+      timeout: 300
+      runas: ubuntu
+  ApplicationStart:
+    - location: scripts/start_server.sh
+      timeout: 300
+      runas: ubuntu
