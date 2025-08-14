@@ -31,11 +31,6 @@ spring:
       hibernate:
         format_sql: true
 
-  # Flyway 설정
-  flyway:
-    enabled: true
-    baseline-on-migrate: true # 기존 테이블이 있을 경우, 첫 마이그레이션을 베이스라인으로 설정
-
   # ❌ 파일 업로드는 S3와 같은 외부 스토리지를 사용하도록 변경해야 함
   servlet:
     multipart:
