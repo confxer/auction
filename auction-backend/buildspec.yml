@@ -33,4 +33,4 @@ artifacts:
     - 'build/libs/app.jar'
     - 'appspec.yml'
     - 'scripts/**/*'
-#?안돼 왜 
+#?안돼 왜
