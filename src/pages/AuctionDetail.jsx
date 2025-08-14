@@ -115,7 +115,7 @@ const AuctionDetail = () => {
       } catch (e) {
         console.log('현재가 갱신 실패:', e);
       }
-    }, 5000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [auction, id]);
 

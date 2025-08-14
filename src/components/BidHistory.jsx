@@ -10,7 +10,7 @@ const BidHistory = ({ auctionId, currentPrice, onBidUpdate }) => {
     loadBidHistory();
     
     // 실시간 업데이트를 위한 인터벌 설정
-    const interval = setInterval(loadBidHistory, 5000); // 5초마다 업데이트
+    const interval = setInterval(loadBidHistory, 20000); // 5초마다 업데이트
     
     return () => clearInterval(interval);
   }, [auctionId]);

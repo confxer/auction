@@ -1,19 +1,18 @@
 # application.yml
 
 spring:
+  # 애플리케이션 기본 설정
   application:
     name: auction-backend
-  # [Spring Cloud AWS 설정] Parameter Store 연동
+  
+  # Spring Cloud AWS 설정: Parameter Store 연동
   config:
     import: "aws-parameterstore:/auction/prod/"
-
-# --- Production Profile (prod) ---
-spring:
-  config:
     activate:
-      on-profile: prod
+      on-profile: prod # prod 프로파일일 때 이 설정을 활성화
 
-  # [데이터베이스 연결 설정]
+  # --- Production Profile (prod) 설정 ---
+  # 데이터베이스 연결 설정
   datasource:
     url: jdbc:mariadb://auction-db.c5wk2um82f9a.ap-northeast-2.rds.amazonaws.com:3306/auction-db?useSSL=false
     username: admin
@@ -21,7 +20,7 @@ spring:
     password: 12341234
     driver-class-name: org.mariadb.jdbc.Driver
 
-  # [JPA 및 Hibernate 설정]
+  # JPA 및 Hibernate 설정
   jpa:
     database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate:
@@ -32,7 +31,7 @@ spring:
       hibernate:
         format_sql: true
 
-  # [Flyway 설정]
+  # Flyway 설정
   flyway:
     enabled: true
     baseline-on-migrate: true # 기존 테이블이 있을 경우, 첫 마이그레이션을 베이스라인으로 설정
