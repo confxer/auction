@@ -54,7 +54,6 @@ public class SecurityConfig {
                 ).permitAll()
 
                 // 🔐 관리자 전용 접근
-                .requestMatchers("/actuator/**").hasAuthority("ADMIN")
                 .requestMatchers("/api/event/admin/**").hasAuthority("ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/inquiry/*/answer").hasAuthority("ADMIN") // ✅ 관리자 답변 등록
                 .requestMatchers("/api/inquiry/admin/**").hasAuthority("ADMIN") // ✅ 관리자 전용 목록 등
