@@ -17,7 +17,7 @@ spring:
     url: jdbc:mariadb://auction-db.c5wk2um82f9a.ap-northeast-2.rds.amazonaws.com:3306/auction-db?useSSL=false
     username: admin
     # password는 Parameter Store에서 `db.password`로 자동 주입됨
-    password: {DB_PASSWORD}
+    password: ${DB_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
 
   # JPA 및 Hibernate 설정
