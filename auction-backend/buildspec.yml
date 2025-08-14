@@ -19,13 +19,6 @@ phases:
     commands:
       - echo "Renaming the executable jar file to app.jar"
       - mv $(find build/libs -name '*.jar' ! -name '*-plain.jar') build/libs/app.jar
-      # -------------------------------------------------------------------
-      # [디버깅 추가] 아티팩트에 포함될 파일 목록을 확인합니다.
-      # 이 로그를 통해 scripts 폴더와 appspec.yml이 제대로 있는지 확인할 수 있습니다.
-      # -------------------------------------------------------------------
-      - echo "--- Listing files to be included in artifact from current directory ---"
-      - ls -R .
-      - echo "---------------------------------------------------------------------"
 
 artifacts:
   base-directory: 'auction-backend'
