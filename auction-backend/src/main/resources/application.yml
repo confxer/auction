@@ -17,7 +17,7 @@ spring:
     url: jdbc:mariadb://auction-db.c5wk2um82f9a.ap-northeast-2.rds.amazonaws.com:3306/auction-db?useSSL=false
     username: admin
     # password는 Parameter Store에서 `db.password`로 자동 주입됨
-    password: 12341234
+    password: {DB_PASSWORD}
     driver-class-name: org.mariadb.jdbc.Driver
 
   # JPA 및 Hibernate 설정
@@ -68,7 +68,7 @@ tomcat:
 
 # [JWT 설정]
 jwt:
-  secret: ${jwt.secret.key} # tG6+... -> 환경 변수로 관리
+  secret: ${JWT_SECRET_KEY} # tG6+... -> 환경 변수로 관리
   access-token:
     expiration: 3600000 # 1시간
   refresh-token:
@@ -97,5 +97,5 @@ logging:
 # ===================================================================
 toss:
   payments:
-    secret-key: ${toss.secret.key} # 발급받은 시크릿 키를 환경 변수로 관리
+    secret-key: ${TOSS_SECRET_KEY} # 발급받은 시크릿 키를 환경 변수로 관리
     confirm-url: https://api.tosspayments.com/v1/payments/confirm
