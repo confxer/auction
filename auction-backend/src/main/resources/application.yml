@@ -60,3 +60,42 @@ server:
 
 # JWT, Actuator, 로깅 레벨 등도 프로파일에 맞게 조정해야 함
 # 예: logging.level.com.auction=INFO
+tomcat:
+    max-http-form-post-size: 20MB
+    max-swallow-size: 20MB
+    max-connections: 8192
+    max-http-header-size: 8KB
+
+# [JWT 설정]
+jwt:
+  secret: ${jwt.secret.key} # tG6+... -> 환경 변수로 관리
+  access-token:
+    expiration: 3600000 # 1시간
+  refresh-token:
+    expiration: 604800000 # 7일
+
+# [Actuator 모니터링 설정]
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# [로깅 설정]
+logging:
+  level:
+    com.auction: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# ===================================================================
+# [토스페이먼츠 연동 설정] - 이 부분을 추가한다.
+# ===================================================================
+toss:
+  payments:
+    secret-key: ${toss.secret.key} # 발급받은 시크릿 키를 환경 변수로 관리
+    confirm-url: https://api.tosspayments.com/v1/payments/confirm
