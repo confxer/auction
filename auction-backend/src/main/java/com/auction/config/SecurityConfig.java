@@ -40,6 +40,7 @@ public class SecurityConfig {
                 // 🔓 인증 없이 접근 가능한 URL
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers(
+                    "/actuator/**",
                     "/api/public/**", 
                     "/api/auctions", 
                     "/api/auctions/*", 
