@@ -22,6 +22,7 @@ import com.auction.dto.UserDto;
 import com.auction.service.LoginHistoryService;
 import com.auction.service.UserService;
 import com.auction.util.JwtUtil;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 
