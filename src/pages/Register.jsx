@@ -327,7 +327,7 @@ const Register = () => {
                     </div>
                     <ReCAPTCHA
                       ref={recaptchaRef}
-                      sitekey="6LcgJIsrAAAAAOTBM3zn0dDZfOp6c5Rmm9BameYp"
+                      sitekey="6Lcf5YorAAAAAEhDGo-LbCL_Gwwh3qTfVi4twsZS"
                       onChange={handleCaptchaChange}
                     />
                     <button
