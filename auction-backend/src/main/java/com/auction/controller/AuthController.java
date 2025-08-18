@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auction.dto.UserDto;
-import com.auction.service.EmailService;
+// import com.auction.service.EmailService;
 import com.auction.service.LoginHistoryService;
 import com.auction.service.UserService;
 import com.auction.util.JwtUtil;

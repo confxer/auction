@@ -25,7 +25,7 @@ import com.auction.dto.CommentDto;
 import com.auction.dto.UserDto;
 import com.auction.service.AuctionService;
 import com.auction.service.CommentService;
-import com.auction.service.EmailService;
+// import com.auction.service.EmailService;
 import com.auction.service.UserService;
 
 @RestController
@@ -42,8 +42,8 @@ public class UserController {
     @Autowired
     private CommentService commentService;
     
-    @Autowired
-    private EmailService emailService;
+    // @Autowired
+    // private EmailService emailService;
     
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -229,8 +229,8 @@ public class UserController {
                 return ResponseEntity.notFound().build();
             }
 
-            // 인증 코드 생성 및 이메일 발송
-            String verificationCode = emailService.sendVerificationEmail(currentUser.getEmail());
+            // // 인증 코드 생성 및 이메일 발송
+            // String verificationCode = emailService.sendVerificationEmail(currentUser.getEmail());
             
             return ResponseEntity.ok(Map.of(
                 "success", true,
