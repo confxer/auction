@@ -1,29 +1,37 @@
+# buildspec.yml (Docker용)
 version: 0.2
 
 phases:
-  install:
-    runtime-versions:
-      java: corretto17
+  pre_build:
     commands:
-      - cd auction-backend
-      - echo "Entered auction-backend directory. Current path is $(pwd)"
+      - echo Logging in to Amazon ECR...
+      # AWS 계정 ID와 리전은 CodeBuild 환경 변수에서 자동으로 가져옵니다.
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      # 변수 설정
+      - REPOSITORY_URI=848196826138.dkr.ecr.ap-northeast-2.amazonaws.com/auction-backend
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7) # Git 커밋 해시 앞 7자리를 이미지 태그로 사용
 
   build:
     commands:
-      - echo "Granting execute permission to gradlew"
-      - chmod +x ./gradlew
-      - echo "Building the Spring Boot application"
-      - ./gradlew build -x test
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - cd auction-backend # Dockerfile이 있는 프로젝트 루트로 이동
+      # Dockerfile을 사용하여 이미지 빌드
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
   post_build:
     commands:
-      - echo "Renaming the executable jar file to app.jar"
-      - mv $(find build/libs -name '*.jar' ! -name '*-plain.jar') build/libs/app.jar
+      - echo Build completed on `date`
+      - echo Pushing the Docker images to ECR...
+      # 빌드된 이미지를 ECR에 푸시
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file...
+      # CodePipeline의 ECS 배포 단계에서 사용할 imagedefinitions.json 파일 생성
+      - printf '[{"name":"auction-backend-container","imageUri":"%s"}]' "$REPOSITORY_URI:$IMAGE_TAG" > imagedefinitions.json
 
 artifacts:
-  base-directory: 'auction-backend'
+  # ECS 배포 단계에서 이 파일을 참조하여 어떤 이미지를 배포할지 결정합니다.
   files:
-    - 'build/libs/app.jar'
-    - 'appspec.yml'
-    - 'scripts/**/*'
-#?안돼 왜
+    - auction-backend/imagedefinitions.json
