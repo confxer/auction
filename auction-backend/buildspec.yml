@@ -6,7 +6,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       # AWS 계정 ID와 리전은 CodeBuild 환경 변수에서 자동으로 가져옵니다.
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 848196826138.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       # 변수 설정
       - REPOSITORY_URI=848196826138.dkr.ecr.ap-northeast-2.amazonaws.com/auction-backend
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7) # Git 커밋 해시 앞 7자리를 이미지 태그로 사용
