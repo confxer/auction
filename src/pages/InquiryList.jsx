@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useUserInquiryList, useInquiryActions } from '../hooks/useInquiry';
 import '../style/InquiryList.css';
 import { useUser } from '../UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const PAGE_SIZE = 10;
 
@@ -14,6 +15,7 @@ export default function InquiryList({ onSelect }) {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: '', content: '' });
   const { createInquiry } = useInquiryActions();
+  const navigate = useNavigate();
 
   const filtered = useMemo(() => {
     if (!search) return inquiries;
@@ -22,6 +24,12 @@ export default function InquiryList({ onSelect }) {
       (i.content && i.content.includes(search))
     );
   }, [inquiries, search]);
+
+  useEffect( () => {
+    if(!user){
+      navigate('/login');
+    }
+  },[]);
 
   const totalPage = Math.ceil(filtered.length / PAGE_SIZE) || 1;
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);

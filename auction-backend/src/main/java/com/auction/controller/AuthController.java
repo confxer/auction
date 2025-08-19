@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.auction.dto.UserDto;
-// import com.auction.service.EmailService;
+import com.auction.service.EmailService;
 import com.auction.service.LoginHistoryService;
 import com.auction.service.UserService;
 import com.auction.util.JwtUtil;
@@ -34,8 +34,8 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
-    // @Autowired
-    // private EmailService emailService;
+    @Autowired
+    private EmailService emailService;
     @Autowired
     private LoginHistoryService loginHistoryService;
     @Autowired
@@ -70,15 +70,15 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("message", "아이디 또는 비밀번호가 올바르지 않습니다."));
         }
 
-        // // 이메일 인증 확인
-        // if (!user.getEmailVerified()) {
-        //     logger.warn("이메일 미인증 사용자: username={}", username);
-        //     return ResponseEntity.status(403).body(Map.of(
-        //         "message", "이메일 인증이 필요합니다. 회원가입 시 발송된 이메일을 확인해주세요.",
-        //         "emailVerificationRequired", true,
-        //         "email", user.getEmail()
-        //     ));
-        // }
+        // 이메일 인증 확인
+        if (!user.getEmailVerified()) {
+            logger.warn("이메일 미인증 사용자: username={}", username);
+            return ResponseEntity.status(403).body(Map.of(
+                "message", "이메일 인증이 필요합니다. 회원가입 시 발송된 이메일을 확인해주세요.",
+                "emailVerificationRequired", true,
+                "email", user.getEmail()
+            ));
+        }
 
         logger.info("로그인 성공: username={}", username);
 
@@ -140,15 +140,15 @@ public class AuthController {
             UserDto savedUser = userService.register(userDto);
             logger.info("사용자 등록 완료: userId={}", savedUser.getId());
             
-            // // 이메일 인증 메일 발송
-            // try {
-            //     logger.info("이메일 인증 메일 발송 시작: email={}", userDto.getEmail());
-            //     emailService.sendVerificationEmail(userDto.getEmail(), verificationToken);
-            //     logger.info("이메일 인증 메일 발송 완료: email={}", userDto.getEmail());
-            // } catch (Exception e) {
-            //     logger.error("이메일 발송 실패: email={}, error={}", userDto.getEmail(), e.getMessage());
-            //     // 이메일 발송 실패해도 회원가입은 성공으로 처리
-            // }
+            // 이메일 인증 메일 발송
+            try {
+                logger.info("이메일 인증 메일 발송 시작: email={}", userDto.getEmail());
+                emailService.sendVerificationEmail(userDto.getEmail(), verificationToken);
+                logger.info("이메일 인증 메일 발송 완료: email={}", userDto.getEmail());
+            } catch (Exception e) {
+                logger.error("이메일 발송 실패: email={}, error={}", userDto.getEmail(), e.getMessage());
+                // 이메일 발송 실패해도 회원가입은 성공으로 처리
+            }
             
             return ResponseEntity.ok(Map.of(
                 "success", true,
@@ -264,8 +264,8 @@ public class AuthController {
             user.setEmailVerificationExpiry(LocalDateTime.now().plusHours(24));
             userService.updateUser(user);
 
-            // // 새로운 인증 메일 발송
-            // emailService.sendVerificationEmail(email, newToken);
+            // 새로운 인증 메일 발송
+            emailService.sendVerificationEmail(email, newToken);
 
             return ResponseEntity.ok(Map.of(
                 "success", true,
