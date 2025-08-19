@@ -11,6 +11,10 @@ WORKDIR /build
 # 소스코드 전체를 컨테이너 안으로 복사
 COPY . .
 
+# [수정] gradlew 스크립트에 실행 권한을 부여합니다.
+# 이 명령어가 없으면 Permission denied 오류가 발생합니다.
+RUN chmod +x ./gradlew
+
 # Gradle Wrapper를 사용하여 테스트를 제외하고 애플리케이션을 빌드합니다.
 # 이 명령은 기존 buildspec.yml의 빌드 명령어와 동일합니다.
 RUN ./gradlew build -x test
