@@ -32,6 +32,8 @@ phases:
       - printf '[{"name":"auction-backend-container","imageUri":"%s"}]' "$REPOSITORY_URI:$IMAGE_TAG" > imagedefinitions.json
 
 artifacts:
-  # ECS 배포 단계에서 이 파일을 참조하여 어떤 이미지를 배포할지 결정합니다.
+  # [수정] base-directory를 추가하여 기준 경로를 명확히 합니다.
+  base-directory: 'auction-backend'
+  # [수정] base-directory를 기준으로 파일 경로를 단순화합니다.
   files:
-    - auction-backend/imagedefinitions.json
+    - imagedefinitions.json
