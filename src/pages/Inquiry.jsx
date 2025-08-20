@@ -13,11 +13,12 @@ const Inquiry = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
+    if(!user.id){
+      return navigate("/login");
+    }
     if (user) {
       loadInquiries();
-    } else {
-      navigate("/login")
-    }
+    } 
   }, [user]);
 
   const loadInquiries = async () => {
