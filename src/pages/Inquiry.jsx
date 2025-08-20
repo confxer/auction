@@ -15,6 +15,8 @@ const Inquiry = () => {
   useEffect(() => {
     if (user) {
       loadInquiries();
+    } else {
+      navigate("/login")
     }
   }, [user]);
 
