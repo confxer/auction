@@ -22,8 +22,7 @@ const Auction = () => {
         const res = await axios.get('/api/auctions');
         console.log(res);
         if (res.status != 200) throw new Error('서버 응답 오류');
-        const data = await res.json();
-        setAuctions(data);
+        setAuctions(res.data);
 
         // ✅ 현재가 시드: 시작가 vs highestBid
         const seed = (data || []).reduce((acc, a) => {
