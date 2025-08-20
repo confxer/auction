@@ -309,61 +309,6 @@ const Login = () => {
                   </Link>
                 </p>
               </div>
-
-              {userType === "user" && (
-                <div className="social-login">
-                  <div className="divider" style={{ margin: '20px 0', textAlign: 'center', position: 'relative' }}>
-                    <span style={{ background: '#fff', padding: '0 10px', color: '#666', fontSize: '14px' }}>또는</span>
-                    <hr style={{ position: 'absolute', top: '50%', left: 0, right: 0, border: 'none', borderTop: '1px solid #ddd', zIndex: -1 }} />
-                  </div>
-                  <div className="social-buttons" style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      onClick={() => handleSocial("kakao")}
-                      className="social-btn kakao"
-                      style={{ flex: 1, padding: '12px', border: '1px solid #fdd835', background: '#fdd835', color: '#000', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
-                    >
-                      <span className="social-icon">💛</span>
-                      카카오
-                    </button>
-                    <button
-                      onClick={() => handleSocial("naver")}
-                      className="social-btn naver"
-                      style={{ flex: 1, padding: '12px', border: '1px solid #03c75a', background: '#03c75a', color: '#fff', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
-                    >
-                      <span className="social-icon">💚</span>
-                      네이버
-                    </button>
-                    <button
-                      onClick={() => handleSocial("google")}
-                      className="social-btn google"
-                      style={{ flex: 1, padding: '12px', border: '1px solid #4285f4', background: '#4285f4', color: '#fff', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}
-                    >
-                      <span className="social-icon">🔍</span>
-                      구글
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {userType === "admin" && (
-                <div className="quick-login" style={{ marginTop: '20px' }}>
-                  <h4 style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>빠른 로그인 (개발용)</h4>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      onClick={() => handleQuickLogin("admin", { username: "admin", password: "admin123" })}
-                      style={{ flex: 1, padding: '8px', border: '1px solid #ddd', background: '#f8f9fa', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
-                    >
-                      관리자
-                    </button>
-                    <button
-                      onClick={() => handleQuickLogin("user", { username: "user", password: "user123" })}
-                      style={{ flex: 1, padding: '8px', border: '1px solid #ddd', background: '#f8f9fa', borderRadius: '6px', cursor: 'pointer', fontSize: '12px' }}
-                    >
-                      일반 사용자
-                    </button>
-                  </div>
-                </div>
-              )}
             </>
           )}
         </div>
