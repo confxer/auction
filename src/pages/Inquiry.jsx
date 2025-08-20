@@ -13,9 +13,6 @@ const Inquiry = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    if(!user.id){
-      return navigate("/login");
-    }
     if (user) {
       loadInquiries();
     } 
@@ -23,6 +20,7 @@ const Inquiry = () => {
 
   const loadInquiries = async () => {
     try {
+      console.log(user);
       const response = await axios.get("/api/inquiry/my");
       const sorted = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setInquiries(sorted);
