@@ -20,7 +20,8 @@ const Auction = () => {
     (async () => {
       try {
         const res = await axios.get('/api/auctions');
-        if (!res.ok) throw new Error('서버 응답 오류');
+        console.log(res);
+        if (res.status != 200) throw new Error('서버 응답 오류');
         const data = await res.json();
         setAuctions(data);
 

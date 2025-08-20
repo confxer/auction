@@ -128,6 +128,7 @@ function AuctionNew() {
       }
       console.log('📤 전송할 데이터:', auctionData);
       const res = await axios.post('/api/auctions', formData);
+      console.log(res);
       if (res.status != 200) {
         const errorText = await res.text();
         console.error('❌ 서버 응답:', res.status, errorText);
