@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../style/AuctionNew.css';
 import { useUser } from '../UserContext';
+import axios from '../axiosConfig';
 
 function AuctionNew() {
   const { user } = useUser();
