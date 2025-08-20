@@ -73,6 +73,7 @@ const AuctionDetail = () => {
         const res = await axios.get(`/api/auctions/${id}`);
         if (res.status != 200) throw new Error('서버 응답 오류');
         setAuction(res.data);
+        const data = res.data;
 
         // ✅ 현재가를 입찰목록 기준으로 강제 동기화
         const price = await fetchCurrentPriceFromBids(data.id ?? Number(id), data.startPrice);
