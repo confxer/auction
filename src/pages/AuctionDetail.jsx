@@ -70,7 +70,7 @@ const AuctionDetail = () => {
     // 초기 상세 로딩 + 현재가 동기화
     (async () => {
       try {
-        const res = await fetch(`/api/auctions/${id}`);
+        const res = await axios.get(`/api/auctions/${id}`);
         if (!res.ok) throw new Error('서버 응답 오류');
         const data = await res.json();
         setAuction(data);
@@ -100,7 +100,7 @@ const AuctionDetail = () => {
     if (!auction) return;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/auctions/${id}`);
+        const res = await axios.get(`/api/auctions/${id}`);
         const data = await res.json();
         if (data) {
           setAuction(prev => ({ ...prev, ...data, seller: data.seller ?? prev?.seller }));

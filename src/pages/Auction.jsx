@@ -19,7 +19,7 @@ const Auction = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/auctions');
+        const res = await axios.get('/api/auctions');
         if (!res.ok) throw new Error('서버 응답 오류');
         const data = await res.json();
         setAuctions(data);

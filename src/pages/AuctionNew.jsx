@@ -127,24 +127,16 @@ function AuctionNew() {
         return;
       }
       console.log('📤 전송할 데이터:', auctionData);
-      const res = await fetch('/api/auctions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-        body: formData,
-      });
-      
-      if (!res.ok) {
+      const res = await axios.post('/api/auctions', formData);
+      if (res.status != 200) {
         const errorText = await res.text();
         console.error('❌ 서버 응답:', res.status, errorText);
         throw new Error(`서버 오류 (${res.status}): ${errorText}`);
       }
-      
-      const result = await res.json();
-      console.log('✅ 성공 응답:', result);
+      const data = res.data;
+      console.log('✅ 성공 응답:', data);
       alert('경매가 등록되었습니다');
-      navigate(`/auction/${result.id}`);
+      navigate(`/auction/${data.id}`);
     } catch (err) {
       console.error('❌ 오류 발생:', err);
       alert('에러 발생: ' + err.message);
