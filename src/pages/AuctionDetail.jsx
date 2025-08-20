@@ -82,11 +82,6 @@ const AuctionDetail = () => {
         setLoading(false);
         if (data.isClosed) setAuctionStatus('종료');
 
-        // 조회수 증가 (실패해도 무시)
-        fetch(`/api/auctions/${id}/view`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        }).catch(() => {});
       } catch (err) {
         console.error('경매 상세 조회 실패:', err);
         setAuction(null);
@@ -101,7 +96,7 @@ const AuctionDetail = () => {
     const interval = setInterval(async () => {
       try {
         const res = await axios.get(`/api/auctions/${id}`);
-        const data = await res.json();
+        const data = res.data;
         if (data) {
           setAuction(prev => ({ ...prev, ...data, seller: data.seller ?? prev?.seller }));
         }
