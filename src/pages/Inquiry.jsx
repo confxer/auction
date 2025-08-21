@@ -19,8 +19,8 @@ const Inquiry = () => {
   }, [user]);
 
   const loadInquiries = async () => {
+    console.log(user);
     try {
-      console.log(user);
       const response = await axios.get("/api/inquiry/my");
       const sorted = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       setInquiries(sorted);
