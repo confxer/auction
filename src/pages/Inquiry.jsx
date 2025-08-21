@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import "../style/Inquiry.css";
 import axios from "../axiosConfig";
 import { useUser } from "../UserContext";
+import { Navigate } from "react-router-dom";
 
 const Inquiry = () => {
   const { user } = useUser();
@@ -11,9 +12,15 @@ const Inquiry = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const navigate = Navigate();
 
   useEffect(() => {
-    console.log(user);
+    console.log(!user);
+    if(!user){
+      navigate('/login');
+      return; 
+    }
+
     if (user) {
       loadInquiries();
     } 

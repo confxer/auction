@@ -62,6 +62,11 @@ const AuctionDetail = () => {
 
   // ---- effects -------------------------------------------------------------
   useEffect(() => {
+    if(!user){
+      navigate('/login');
+      return;
+    }
+
     if (id === 'new') {
       navigate('/auction-new');
       return;
