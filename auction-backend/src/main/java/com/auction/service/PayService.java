@@ -1,85 +1,104 @@
 package com.auction.service;
 
-import com.auction.dto.PayConfirmDto;
-import com.auction.dto.PayValidDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import com.fasterxml.jackson.databind.JsonNode; // JsonNode import
 
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.concurrent.ConcurrentHashMap; // 임시 저장소, 실제 프로덕션에서는 Redis나 DB 사용
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class PayService {
 
-    @Value("${toss.payments.secret-key}")
-    private String secretKey;
+    @Value("${paypal.client-id}")
+    private String clientId;
 
-    @Value("${toss.payments.confirm-url}")
-    private String confirmUrl;
+    @Value("${paypal.secret}")
+    private String secret;
+
+    @Value("${paypal.base-url}")
+    private String baseUrl;
 
     private final WebClient webClient = WebClient.create();
 
-    // 임시 저장소. 실제 환경에서는 절대 사용 금지.
-    // ConcurrentHashMap은 스레드-안전하지만, 서버가 재시작되면 데이터가 소실된다.
-    // 반드시 Redis, Memcached 또는 데이터베이스를 사용해야 한다.
-    private final ConcurrentHashMap<String, Long> paymentAmountStorage = new ConcurrentHashMap<>();
-
     /**
-     * 결제 요청 데이터 사전 저장 및 검증
-     * @param requestDto (orderId, amount)
+     * PayPal Access Token을 발급받는 메서드
+     * @return Access Token Mono
      */
-    public void validateAndSavePayment(PayValidDto requestDto) {
-        System.out.println("1111111111111111111111111111111111111111111111111111"+requestDto.getAmount());
-        System.out.println("1111111111111111111111111111111111111111111111111111"+requestDto.getOrderId());
-        if (requestDto.getAmount() <= 0) {
-            throw new IllegalArgumentException("결제 금액은 0보다 커야 합니다.");
-        }
-        // DB나 Redis에 orderId를 키로, amount를 값으로 저장
-        paymentAmountStorage.put(requestDto.getOrderId(), requestDto.getAmount());
+    private Mono<String> getAccessToken() {
+        String auth = Base64.getEncoder().encodeToString((clientId + ":" + secret).getBytes());
+        return webClient.post()
+                .uri(baseUrl + "/v1/oauth2/token")
+                .header("Authorization", "Basic " + auth)
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .bodyValue("grant_type=client_credentials")
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .map(tokenResponse -> tokenResponse.get("access_token").asText());
     }
 
     /**
-     * 결제 승인
-     * @param requestDto (paymentKey, orderId, amount)
-     * @return 최종 결제 정보
+     * PayPal 주문 생성
+     * @param amount 결제 금액
+     * @return 생성된 PayPal 주문 ID
      */
-    public String confirmPayment(PayConfirmDto requestDto) {
-        // 1. 사전 저장된 결제 금액과 현재 요청된 결제 금액이 일치하는지 확인
-        Long savedAmount = paymentAmountStorage.get(requestDto.getOrderId());
-        if (savedAmount == null || !savedAmount.equals(requestDto.getAmount())) {
-            // 금액이 다르거나, 사전 등록된 정보가 없으면 위변조 시도일 가능성이 높다.
-            throw new IllegalArgumentException("결제 정보가 일치하지 않습니다.");
+    public Mono<String> createOrder(Long amount) {
+        // 실제 프로덕션 코드에서는 amount 유효성 검증이 필요합니다.
+        if (amount <= 0) {
+            return Mono.error(new IllegalArgumentException("결제 금액은 0보다 커야 합니다."));
         }
 
-        // 2. 토스페이먼츠에 결제 승인 요청
-        String encodedAuth = Base64.getEncoder().encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
-
-        return webClient.post()
-                .uri(confirmUrl)
-                .header("Authorization", "Basic " + encodedAuth)
-                .header("Content-Type", "application/json")
-                .bodyValue(requestDto)
-                .retrieve()
-                .onStatus(
-                    status -> status.is4xxClientError() || status.is5xxServerError(),
-                    clientResponse -> clientResponse.bodyToMono(String.class).flatMap(errorBody -> {
-                        // 여기서 에러를 적절히 로깅하고 처리해야 한다.
-                        System.err.println("Error from Toss Payments: " + errorBody);
-                        return Mono.error(new RuntimeException("Toss Payments 승인 실패: " + errorBody));
-                    })
+        return getAccessToken().flatMap(token -> {
+            Map<String, Object> purchaseUnit = Map.of(
+                "amount", Map.of(
+                    "currency_code", "USD", // PayPal은 KRW를 지원하지 않을 수 있으므로 USD로 설정 (테스트)
+                    "value", amount.toString()
                 )
-                .bodyToMono(String.class)
-                .doOnSuccess(responseBody -> {
-                    // 성공 시, DB에 결제 정보 최종 저장 및 주문 상태 업데이트
-                    // 저장 후 임시 데이터는 삭제
-                    paymentAmountStorage.remove(requestDto.getOrderId());
-                    System.out.println("Payment Confirmed: " + responseBody);
-                })
-                .block(); // 비동기 응답을 동기적으로 기다린다.
+            );
+            Map<String, Object> requestBody = Map.of(
+                "intent", "CAPTURE",
+                "purchase_units", new Object[]{purchaseUnit}
+            );
+
+            return webClient.post()
+                    .uri(baseUrl + "/v2/checkout/orders")
+                    .header("Authorization", "Bearer " + token)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(requestBody)
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .map(response -> response.get("id").asText());
+        });
+    }
+
+    /**
+     * PayPal 주문 캡처 (결제 승인)
+     * @param orderId 캡처할 주문 ID
+     * @return 캡처 결과
+     */
+    public Mono<JsonNode> captureOrder(String orderId) {
+        return getAccessToken().flatMap(token ->
+            webClient.post()
+                    .uri(baseUrl + "/v2/checkout/orders/" + orderId + "/capture")
+                    .header("Authorization", "Bearer " + token)
+                    .header("Content-Type", "application/json")
+                    .retrieve()
+                     // 에러 처리
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                        clientResponse -> clientResponse.bodyToMono(String.class)
+                            .flatMap(errorBody -> Mono.error(new RuntimeException("PayPal Capture Failed: " + errorBody)))
+                    )
+                    .bodyToMono(JsonNode.class)
+                    .doOnSuccess(response -> {
+                        // 결제 성공!
+                        // 1. 여기서 데이터베이스에 주문 상태를 '결제 완료'로 업데이트해야 합니다.
+                        // 2. response 내용을 확인하여 결제가 정상적으로 완료되었는지 (status == "COMPLETED") 확인합니다.
+                        System.out.println("Payment Capture Success: " + response.toString());
+                    })
+        );
     }
 }

@@ -94,3 +94,8 @@ toss:
   payments:
     secret-key: ${TOSS_SECRET_KEY} # 발급받은 시크릿 키를 환경 변수로 관리
     confirm-url: https://api.tosspayments.com/v1/payments/confirm
+
+paypal:
+  client-id: ${PAYPAL_CLIENT_ID}
+  secret: ${PAYPAL_SECRET_KEY}
+  base-url: https://api-m.sandbox.paypal.com
