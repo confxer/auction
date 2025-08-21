@@ -22,17 +22,14 @@ const Favorites = () => {
 
   // 로그인 체크 (비활성화)
   useEffect(() => {
+    if (!user) return;
     if (user) {
       loadFavorites();
     }
   }, [user]);
 
-  // 디버깅용 로그
-  console.log('Favorites 컴포넌트 렌더링:', { user, loading, favorites });
-
   // 좋아요 목록 로드
   const loadFavorites = async () => {
-    if (!user) return;
     
     try {
       setLoading(true);

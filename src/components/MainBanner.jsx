@@ -3,7 +3,7 @@ import '../style/MainBanner.css';
 
 const MainBanner = () => (
   <div className="main-banner">
-    <img src="/public/images/sopum.jpg" alt="광고 배너" />
+    <img src="/images/sopum.jpg" alt="광고 배너" />
     <div className="banner-text">
       <h2>🎉 홍보배너 지원 많관부!</h2>
       <p>“낙찰은 타이밍” — 주저하면 늦는다! ⌛️</p>
