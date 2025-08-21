@@ -7,7 +7,7 @@ import { Navigate } from "react-router-dom";
 const Inquiry = () => {
   const { user } = useUser();
   const [inquiries, setInquiries] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -15,13 +15,13 @@ const Inquiry = () => {
   const navigate = Navigate();
 
   useEffect(() => {
-    console.log(!user);
     if(!user){
       navigate('/login');
       return; 
     }
 
     if (user) {
+      setLoading(true);
       loadInquiries();
     } 
   }, [user]);
