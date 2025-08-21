@@ -13,13 +13,13 @@ const Inquiry = () => {
   const itemsPerPage = 10;
 
   useEffect(() => {
+    console.log(user);
     if (user) {
       loadInquiries();
     } 
   }, [user]);
 
   const loadInquiries = async () => {
-    console.log(user);
     try {
       const response = await axios.get("/api/inquiry/my");
       const sorted = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
