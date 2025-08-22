@@ -14,6 +14,7 @@ export default function CheckoutPage() {
       setIsLoading(true);
       try {
         const response = await axios.get(`/auctions/${id}`);
+        console.log(response.data);
         setAuction(response.data);
         setPrice(response.data.currentPrice);
       } catch (error) {
@@ -28,15 +29,11 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!price || !auction) return;
 
-    // PayPal SDK 스크립트가 로드되었는지 확인
     if (window.paypal) {
-      // PayPal 버튼 렌더링
       window.paypal.Buttons({
-          // 1. 주문 생성: 서버에 주문 생성 요청
           createOrder: async (data, actions) => {
             try {
               const response = await axios.post("/api/payments/create-order", { amount: price });
-              // 서버로부터 받은 PayPal 주문 ID 반환
               return response.data;
             } catch (error) {
               console.error("PayPal 주문 생성 실패:", error);
