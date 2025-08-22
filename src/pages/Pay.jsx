@@ -13,7 +13,7 @@ export default function CheckoutPage() {
     const fetchAuctionData = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get(`/auctions/${id}`);
+        const response = await axios.get(`/api/auctions/${id}`);
         console.log(response.data);
         setAuction(response.data);
         setPrice(response.data.currentPrice);
