@@ -15,8 +15,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - cd auction-backend # Dockerfile이 있는 프로젝트 루트로 이동
-      # Dockerfile을 사용하여 이미지 빌드
+      - cd auction-backend
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
@@ -24,7 +23,6 @@ phases:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker images to ECR...
-      # 빌드된 이미지를 ECR에 푸시
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Writing image definitions file...
@@ -32,8 +30,6 @@ phases:
       - printf '[{"name":"auction-backend-container","imageUri":"%s"}]' "$REPOSITORY_URI:$IMAGE_TAG" > imagedefinitions.json
 
 artifacts:
-  # [수정] base-directory를 추가하여 기준 경로를 명확히 합니다.
   base-directory: 'auction-backend'
-  # [수정] base-directory를 기준으로 파일 경로를 단순화합니다.
   files:
     - imagedefinitions.json

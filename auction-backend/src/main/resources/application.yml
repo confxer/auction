@@ -87,14 +87,6 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
-# ===================================================================
-# [토스페이먼츠 연동 설정] - 이 부분을 추가한다.
-# ===================================================================
-toss:
-  payments:
-    secret-key: ${TOSS_SECRET_KEY} # 발급받은 시크릿 키를 환경 변수로 관리
-    confirm-url: https://api.tosspayments.com/v1/payments/confirm
-
 paypal:
   client-id: ${PAYPAL_CLIENT_ID}
   secret: ${PAYPAL_SECRET_KEY}
